@@ -1,0 +1,15 @@
+.env
+!.env.example
+__pycache__/
+*.pyc
+.ruff_cache/
+.pytest_cache/
+.venv/
+dist/
+*.egg-info/
+deliverable2.txt
+
+# Research agent logs (large JSONL files, keep only final plan)
+docs/research/0[1-8]_*.md
+docs/research/09_synthesis.md
+docs/research/1[0-1]_review_*.md

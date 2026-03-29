@@ -1,0 +1,52 @@
+[project]
+name = "greenscan"
+version = "0.1.0"
+description = "Market intelligence pipeline for AgriTech"
+requires-python = ">=3.12"
+dependencies = [
+    # Scraping
+    "crawl4ai==0.8.6",
+    "feedparser>=6.0",
+    "newspaper4k>=0.9",
+    # LLM clients
+    "groq>=0.18",
+    "google-genai>=1.0",
+    "httpx>=0.28",
+    # Database
+    "asyncpg>=0.30",
+    # Classification & validation
+    "pydantic>=2.10",
+    "pydantic-settings>=2.7",
+    # Retry & resilience
+    "tenacity>=9.0",
+    # Telegram formatting
+    "telegramify-markdown>=0.4",
+    # YAML config
+    "pyyaml>=6.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.25",
+    "ruff>=0.11",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["pipeline"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = ["integration: tests that make real API calls"]

@@ -1,0 +1,222 @@
+# GreenScan — Target Companies (Green Growth ICP)
+# These are Green Growth's potential customers, not competitors.
+# Monitoring goal: detect sales opportunities for retrofit yield monitors.
+
+targets:
+  # ── Direct Farm Operators ──
+  - name: "R.D. Offutt Farms"
+    industry: direct_farm_operator
+    priority: HIGH
+    monitoring: direct_scrape
+    website: "https://www.rdoffuttfarms.com"
+    scrape_urls:
+      - "https://www.rdoffuttfarms.com/news"
+      - "https://www.rdoffuttfarms.com/blog"
+    rss_feeds: []
+    serp_queries:
+      - "R.D. Offutt Farms precision agriculture"
+
+  - name: "J.R. Simplot Company"
+    industry: direct_farm_operator
+    priority: HIGH
+    monitoring: direct_scrape
+    website: "https://www.simplot.com"
+    scrape_urls:
+      - "https://www.simplot.com/company/news"
+    rss_feeds: []
+    serp_queries:
+      - "Simplot precision agriculture technology"
+
+  - name: "CSS Farms"
+    industry: direct_farm_operator
+    priority: HIGH
+    monitoring: serp_only
+    website: "https://www.cssfarms.com"
+    scrape_urls: []
+    rss_feeds: []
+    serp_queries:
+      - "CSS Farms agtech news"
+
+  - name: "Black Gold Farms"
+    industry: direct_farm_operator
+    priority: HIGH
+    monitoring: serp_only
+    website: "https://www.blackgoldfarms.com"
+    scrape_urls: []
+    rss_feeds: []
+    serp_queries:
+      - "Black Gold Farms precision agriculture"
+
+  - name: "Alsum Farms & Produce"
+    industry: direct_farm_operator
+    priority: MEDIUM
+    monitoring: serp_only
+    website: "https://www.alsumfarms.com"
+    scrape_urls: []
+    rss_feeds: []
+    serp_queries:
+      - "Alsum Farms technology news"
+
+  - name: "Wada Farms"
+    industry: direct_farm_operator
+    priority: MEDIUM
+    monitoring: serp_only
+    website: "https://www.wadafarms.com"
+    scrape_urls: []
+    rss_feeds: []
+    serp_queries:
+      - "Wada Farms sustainability technology"
+
+  # ── Farmland Investors ──
+  - name: "Ceres Partners"
+    industry: farmland_investor
+    priority: HIGH
+    monitoring: serp_only
+    website: "https://www.cerespartners.com"
+    scrape_urls: []
+    rss_feeds: []
+    serp_queries:
+      - "Ceres Partners WisdomTree farmland technology"
+
+  - name: "Farmland Partners Inc."
+    industry: farmland_investor
+    priority: HIGH
+    monitoring: sec_ir
+    website: "https://www.farmlandpartners.com"
+    ticker: "FPI"
+    scrape_urls:
+      - "https://ir.farmlandpartners.com/press-releases"
+    rss_feeds: []
+    serp_queries:
+      - "Farmland Partners precision agriculture"
+
+  - name: "Hancock Natural Resource Group"
+    industry: farmland_investor
+    priority: MEDIUM
+    monitoring: serp_only
+    website: "https://www.hnrg.com"
+    scrape_urls: []
+    rss_feeds: []
+    serp_queries:
+      - "Hancock farmland technology ESG"
+
+  # ── Food Processors ──
+  - name: "McCain Foods"
+    industry: food_processor
+    priority: HIGH
+    monitoring: direct_scrape
+    website: "https://www.mccain.com"
+    scrape_urls:
+      - "https://www.mccain.com/information-centre/news/"
+    rss_feeds: []
+    serp_queries:
+      - "McCain Foods precision agriculture supplier"
+
+  - name: "Lamb Weston"
+    industry: food_processor
+    priority: HIGH
+    monitoring: direct_scrape
+    website: "https://www.lambweston.com"
+    ticker: "LW"
+    scrape_urls:
+      - "https://news.lambweston.com/newsroom-home/default.aspx"
+    rss_feeds: []
+    serp_queries:
+      - "Lamb Weston agtech supply chain"
+
+  - name: "RPE Inc."
+    industry: food_processor
+    priority: MEDIUM
+    monitoring: serp_only
+    website: "https://www.rpeproduce.com"
+    scrape_urls: []
+    rss_feeds: []
+    serp_queries:
+      - "RPE produce sustainability technology"
+
+  - name: "Potandon Produce"
+    industry: food_processor
+    priority: MEDIUM
+    monitoring: serp_only
+    website: "https://www.potandon.com"
+    scrape_urls: []
+    rss_feeds: []
+    serp_queries:
+      - "Potandon produce innovation"
+
+  # ── Crop Insurance ──
+  - name: "American Farm Bureau Federation"
+    industry: crop_insurance
+    priority: HIGH
+    monitoring: direct_scrape
+    website: "https://www.fb.org"
+    scrape_urls:
+      - "https://www.fb.org/news-release"
+    rss_feeds: []
+    serp_queries:
+      - "Farm Bureau precision agriculture data"
+
+  - name: "Crop Risk Services (AIG)"
+    industry: crop_insurance
+    priority: MEDIUM
+    monitoring: serp_only
+    website: "https://www.croprisks.com"
+    scrape_urls: []
+    rss_feeds: []
+    serp_queries:
+      - "AIG crop insurance precision agriculture data"
+
+  - name: "ProAg (Tokio Marine)"
+    industry: crop_insurance
+    priority: MEDIUM
+    monitoring: serp_only
+    website: "https://www.proag.com"
+    scrape_urls: []
+    rss_feeds: []
+    serp_queries:
+      - "ProAg Tokio Marine farm data insurance"
+
+  # ── Agri Input Companies ──
+  - name: "Bayer Crop Science"
+    industry: agri_input
+    priority: HIGH
+    monitoring: direct_scrape
+    website: "https://www.bayer.com"
+    ticker: "BAYRY"
+    scrape_urls:
+      - "https://www.cropscience.bayer.us/news-press"
+    rss_feeds: []
+    serp_queries:
+      - "Bayer Climate FieldView precision agriculture partnership"
+
+  - name: "Corteva Agriscience"
+    industry: agri_input
+    priority: MEDIUM
+    monitoring: serp_only
+    website: "https://www.corteva.com"
+    ticker: "CTVA"
+    scrape_urls: []
+    rss_feeds: []
+    serp_queries:
+      - "Corteva precision agriculture acquisitions"
+
+  - name: "Nutrien Ag Solutions"
+    industry: agri_input
+    priority: MEDIUM
+    monitoring: serp_only
+    website: "https://www.nutrien.com"
+    ticker: "NTR"
+    scrape_urls: []
+    rss_feeds: []
+    serp_queries:
+      - "Nutrien digital agriculture platform"
+
+  - name: "Gavilon (Marubeni)"
+    industry: agri_input
+    priority: MEDIUM
+    monitoring: serp_only
+    website: "https://www.gavilon.com"
+    scrape_urls: []
+    rss_feeds: []
+    serp_queries:
+      - "Gavilon Marubeni grain technology"

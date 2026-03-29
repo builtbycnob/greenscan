@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GreenScan Alpha — Project Overview</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --forest: #1B3A2D;
+  --sage: #4A7C5E;
+  --lime: #8BC34A;
+  --sand: #F5F0E8;
+  --cream: #FDFBF7;
+  --bark: #3E2C1C;
+  --clay: #B8860B;
+  --mist: #E8EDE9;
+  --alert: #D84315;
+  --white: #FFFFFF;
+  --text: #2C2C2C;
+  --text-muted: #6B6B6B;
+  --border: rgba(27,58,45,0.1);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 2px 20px rgba(27,58,45,0.08);
+  --shadow-hover: 0 8px 40px rgba(27,58,45,0.12);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Hero ── */
+.hero {
+  background: var(--forest);
+  color: var(--white);
+  padding: 80px 40px 60px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139,195,74,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(74,124,94,0.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+.hero-badge {
+  display: inline-block;
+  background: rgba(139,195,74,0.15);
+  border: 1px solid rgba(139,195,74,0.3);
+  color: var(--lime);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+}
+.hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(36px, 6vw, 56px);
+  font-weight: 400;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+.hero h1 span { color: var(--lime); }
+.hero-sub {
+  font-size: 18px;
+  color: rgba(255,255,255,0.7);
+  max-width: 600px;
+  margin-bottom: 32px;
+}
+.hero-stats {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+.hero-stat {
+  text-align: left;
+}
+.hero-stat-value {
+  font-family: 'DM Serif Display', serif;
+  font-size: 32px;
+  color: var(--lime);
+}
+.hero-stat-label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Container ── */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* ── Tabs Navigation ── */
+.tabs-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--cream);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  backdrop-filter: blur(10px);
+}
+.tabs-nav-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs-nav-inner::-webkit-scrollbar { display: none; }
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 18px 24px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  transition: color 0.2s;
+}
+.tab-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 24px;
+  right: 24px;
+  height: 2px;
+  background: var(--sage);
+  transform: scaleX(0);
+  transition: transform 0.25s ease;
+}
+.tab-btn:hover { color: var(--forest); }
+.tab-btn.active { color: var(--forest); }
+.tab-btn.active::after { transform: scaleX(1); }
+
+/* ── Tab Content ── */
+.tab-content {
+  display: none;
+  padding: 48px 0 80px;
+  animation: fadeIn 0.3s ease;
+}
+.tab-content.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── Section Headers ── */
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--sage);
+  margin-bottom: 8px;
+}
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--forest);
+  margin-bottom: 12px;
+}
+.section-desc {
+  color: var(--text-muted);
+  font-size: 15px;
+  max-width: 640px;
+  margin-bottom: 32px;
+}
+
+/* ── Flow Diagram ── */
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 24px 0 40px;
+}
+.flow-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 24px 0;
+}
+.flow-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 48px;
+}
+.flow-dot {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.flow-line {
+  width: 2px;
+  flex: 1;
+  min-height: 20px;
+  background: var(--border);
+  margin-top: 4px;
+}
+.flow-step:last-child .flow-line { display: none; }
+
+.flow-dot.scrape { background: #E3F2E1; }
+.flow-dot.filter { background: #FFF3E0; }
+.flow-dot.ai { background: #E8EAF6; }
+.flow-dot.store { background: #E0F2F1; }
+.flow-dot.brief { background: #FCE4EC; }
+.flow-dot.deliver { background: #E1F5FE; }
+
+.flow-body h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--forest);
+  margin-bottom: 4px;
+}
+.flow-body p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.flow-body .flow-time {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sage);
+  background: var(--mist);
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+
+/* ── Info Cards ── */
+.info-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin: 24px 0 40px;
+}
+.info-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  transition: box-shadow 0.2s;
+}
+.info-card:hover { box-shadow: var(--shadow); }
+.info-card-icon {
+  font-size: 28px;
+  margin-bottom: 12px;
+}
+.info-card h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--forest);
+  margin-bottom: 6px;
+}
+.info-card p {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ── Timeline / Roadmap ── */
+.roadmap {
+  margin: 24px 0;
+}
+.sprint {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.sprint:hover { box-shadow: var(--shadow); }
+.sprint-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  cursor: pointer;
+  user-select: none;
+}
+.sprint-header:hover { background: var(--mist); }
+.sprint-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.sprint-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--forest);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.sprint-number.done { background: var(--sage); }
+.sprint-number.stretch { background: var(--clay); }
+.sprint-info h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--forest);
+}
+.sprint-info p {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.sprint-chevron {
+  font-size: 18px;
+  color: var(--text-muted);
+  transition: transform 0.25s ease;
+}
+.sprint.open .sprint-chevron { transform: rotate(180deg); }
+
+.sprint-body {
+  display: none;
+  padding: 0 24px 24px;
+  border-top: 1px solid var(--border);
+}
+.sprint.open .sprint-body { display: block; animation: fadeIn 0.25s ease; }
+
+.sprint-milestone {
+  background: var(--mist);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sprint-milestone span {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--forest);
+}
+
+.task-grid {
+  display: grid;
+  gap: 10px;
+}
+.task-row {
+  display: grid;
+  grid-template-columns: 1fr 120px 60px;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--cream);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+}
+.task-row:hover { background: var(--sand); }
+.task-name {
+  font-weight: 500;
+  color: var(--text);
+}
+.task-owner {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+.task-effort {
+  text-align: center;
+}
+.effort-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+.effort-xs { background: #E8F5E9; color: #2E7D32; }
+.effort-s { background: #E3F2FD; color: #1565C0; }
+.effort-m { background: #FFF3E0; color: #E65100; }
+.effort-l { background: #FCE4EC; color: #C62828; }
+
+/* ── Progress Bar ── */
+.progress-section { margin: 32px 0; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.progress-label span:first-child { font-weight: 600; color: var(--forest); }
+.progress-label span:last-child { color: var(--text-muted); }
+.progress-bar {
+  height: 8px;
+  background: var(--mist);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease;
+}
+.progress-fill.must { background: var(--sage); }
+.progress-fill.should { background: var(--clay); }
+
+/* ── Comparison Table ── */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0;
+  font-size: 14px;
+}
+.compare-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: var(--forest);
+  border-bottom: 2px solid var(--forest);
+  font-size: 13px;
+}
+.compare-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.compare-table tr:hover td { background: var(--mist); }
+.val-pareto { font-weight: 700; color: var(--sage); }
+.val-full { color: var(--text-muted); }
+
+/* ── Risks ── */
+.risk-list { margin: 24px 0; display: grid; gap: 12px; }
+.risk-item {
+  display: flex;
+  gap: 14px;
+  padding: 16px 20px;
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--border);
+  transition: box-shadow 0.2s;
+}
+.risk-item:hover { box-shadow: var(--shadow); }
+.risk-item.high { border-left-color: var(--alert); }
+.risk-item.medium { border-left-color: var(--clay); }
+.risk-item.low { border-left-color: var(--sage); }
+.risk-severity {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+.risk-item.high .risk-severity { color: var(--alert); }
+.risk-item.medium .risk-severity { color: var(--clay); }
+.risk-item.low .risk-severity { color: var(--sage); }
+.risk-body h4 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.risk-body p { font-size: 13px; color: var(--text-muted); }
+
+/* ── Cut features ── */
+.cut-grid { display: grid; gap: 10px; margin: 24px 0; }
+.cut-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.cut-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.cut-text h4 { font-size: 14px; font-weight: 600; color: var(--text); }
+.cut-text p { font-size: 13px; color: var(--text-muted); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center;
+  padding: 40px;
+  font-size: 13px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+}
+.footer strong { color: var(--forest); }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .hero { padding: 48px 20px 40px; }
+  .container { padding: 0 20px; }
+  .tabs-nav { padding: 0 16px; }
+  .tab-btn { padding: 14px 16px; font-size: 13px; }
+  .hero-stats { gap: 24px; }
+  .task-row { grid-template-columns: 1fr 80px 50px; }
+  .info-cards { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════ HERO ════════ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">ESADE I2P — Green Growth</div>
+    <h1>GreenScan <span>Alpha</span></h1>
+    <p class="hero-sub">An AI-powered competitive intelligence system for precision agriculture. Every morning, a brief on what your competitors did yesterday — delivered to your phone.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-value">30</div>
+        <div class="hero-stat-label">Competitors tracked</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value">3×/day</div>
+        <div class="hero-stat-label">Automatic scans</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value">€0</div>
+        <div class="hero-stat-label">Monthly cost</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value">2 weeks</div>
+        <div class="hero-stat-label">To working MVP</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ TABS ════════ -->
+<nav class="tabs-nav">
+  <div class="tabs-nav-inner">
+    <button class="tab-btn active" onclick="showTab('how')">How It Works</button>
+    <button class="tab-btn" onclick="showTab('roadmap')">Roadmap</button>
+    <button class="tab-btn" onclick="showTab('scope')">Scope Decisions</button>
+    <button class="tab-btn" onclick="showTab('risks')">Risks</button>
+  </div>
+</nav>
+
+<!-- ════════ TAB 1: HOW IT WORKS ════════ -->
+<div class="tab-content active" id="tab-how">
+  <div class="container">
+    <div class="section-label">Architecture</div>
+    <div class="section-title">From Competitor Websites to Your Phone</div>
+    <p class="section-desc">The system runs automatically 3 times a day. No human intervention needed — it collects, filters, analyzes, and delivers.</p>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-connector">
+          <div class="flow-dot scrape">🔍</div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-body">
+          <h3>Collect</h3>
+          <p>Scans 30 competitor websites, blogs, newsrooms, and press release pages. Also reads RSS feeds and searches Google for mentions on third-party sites (weekly).</p>
+          <span class="flow-time">~3-5 min</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-connector">
+          <div class="flow-dot filter">🧹</div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-body">
+          <h3>Deduplicate</h3>
+          <p>Removes content already seen in previous scans. Typically filters out 40-60% of results, so the AI only processes genuinely new information.</p>
+          <span class="flow-time">~1 sec</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-connector">
+          <div class="flow-dot ai">🤖</div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-body">
+          <h3>Classify with AI</h3>
+          <p>Each new signal is analyzed by AI, which assigns a <strong>category</strong> (product launch, partnership, hiring, expansion…), a <strong>relevance score</strong> (1-5), a <strong>summary</strong>, and extracts <strong>named entities</strong> (companies, people, products).</p>
+          <span class="flow-time">~30-60 sec</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-connector">
+          <div class="flow-dot store">💾</div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-body">
+          <h3>Store</h3>
+          <p>All classified signals are saved to a database — building a searchable history of competitor activity over time.</p>
+          <span class="flow-time">~1 sec</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-connector">
+          <div class="flow-dot brief">📋</div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-body">
+          <h3>Generate Brief</h3>
+          <p>AI compiles the most relevant signals (score ≥ 3) into a structured <strong>Battlefield Brief</strong>: executive summary, signals grouped by category, key takeaways, and suggested actions.</p>
+          <span class="flow-time">~10-20 sec</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-connector">
+          <div class="flow-dot deliver">📱</div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-body">
+          <h3>Deliver to Telegram</h3>
+          <p>The brief lands in the founder's Telegram every morning. Critical signals (score 5) trigger an <strong>immediate alert</strong> — don't wait for the next brief.</p>
+          <span class="flow-time">~2 sec</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">What the founder sees</div>
+    <div class="section-title">The Battlefield Brief</div>
+    <p class="section-desc">Every morning at 9 AM, a Telegram message with everything that matters.</p>
+
+    <div class="info-cards">
+      <div class="info-card">
+        <div class="info-card-icon">🎯</div>
+        <h4>Executive Summary</h4>
+        <p>2-3 sentences on today's most important findings across all competitors.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">🚀</div>
+        <h4>Signals by Category</h4>
+        <p>Product launches, partnerships, market moves, hiring — grouped and scored by relevance.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">💡</div>
+        <h4>Key Takeaways</h4>
+        <p>2-3 strategic insights connecting the dots across competitor signals.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">✅</div>
+        <h4>Suggested Actions</h4>
+        <p>Concrete next steps the founder could take today based on the intelligence.</p>
+      </div>
+    </div>
+
+    <div class="section-label">Signal Categories</div>
+    <div class="section-title">What We Track</div>
+    <div class="info-cards" style="margin-bottom: 0;">
+      <div class="info-card">
+        <div class="info-card-icon">🚀</div>
+        <h4>Product Launches</h4>
+        <p>New products, features, services, major updates.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">🤝</div>
+        <h4>Partnerships</h4>
+        <p>Alliances, integrations, distribution deals.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">💰</div>
+        <h4>Funding</h4>
+        <p>Investment rounds, acquisitions, IPOs.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">👔</div>
+        <h4>Hiring</h4>
+        <p>Key hires, leadership changes.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">🌍</div>
+        <h4>Expansion</h4>
+        <p>New markets, regions, offices.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">📊</div>
+        <h4>Market Moves</h4>
+        <p>Pricing changes, strategy pivots.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ TAB 2: ROADMAP ════════ -->
+<div class="tab-content" id="tab-roadmap">
+  <div class="container">
+    <div class="section-label">Delivery Plan</div>
+    <div class="section-title">From Zero to Daily Brief in 2 Weeks</div>
+    <p class="section-desc">14 tasks, 4 people, 2 sprints. Week 3 is for stabilization and handoff — no new features.</p>
+
+    <div class="progress-section">
+      <div class="progress-label">
+        <span>Must Have (13 tasks)</span>
+        <span>Core MVP — system doesn't work without these</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill must" style="width: 93%"></div></div>
+    </div>
+    <div class="progress-section" style="margin-top: 16px;">
+      <div class="progress-label">
+        <span>Should Have (1 task)</span>
+        <span>Google search enrichment — valuable but not blocking</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill should" style="width: 7%"></div></div>
+    </div>
+
+    <div class="roadmap" style="margin-top: 40px;">
+
+      <!-- Sprint 1 -->
+      <div class="sprint open">
+        <div class="sprint-header" onclick="toggleSprint(this)">
+          <div class="sprint-left">
+            <div class="sprint-number">1</div>
+            <div class="sprint-info">
+              <h3>Week 1 — Foundations + Day 1 Demo</h3>
+              <p>Prove the concept works end-to-end with 3 competitors</p>
+            </div>
+          </div>
+          <span class="sprint-chevron">▼</span>
+        </div>
+        <div class="sprint-body">
+          <div class="sprint-milestone">
+            <span>🎯</span>
+            <span>Milestone: Run the pipeline on 3 competitors → see classified results on screen</span>
+          </div>
+          <div class="task-grid">
+            <div class="task-row" style="font-weight:600; color: var(--text-muted); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">
+              <span>Task</span><span style="text-align:center">Owner</span><span style="text-align:center">Effort</span>
+            </div>
+            <div class="task-row">
+              <span class="task-name">Set up project repository and configuration</span>
+              <span class="task-owner">Corrado</span>
+              <span class="task-effort"><span class="effort-badge effort-s">S</span></span>
+            </div>
+            <div class="task-row">
+              <span class="task-name">Set up database</span>
+              <span class="task-owner">Vittorio</span>
+              <span class="task-effort"><span class="effort-badge effort-s">S</span></span>
+            </div>
+            <div class="task-row">
+              <span class="task-name">Research &amp; populate 30 competitors</span>
+              <span class="task-owner">Corrado + Vittorio</span>
+              <span class="task-effort"><span class="effort-badge effort-l">L</span></span>
+            </div>
+            <div class="task-row">
+              <span class="task-name">Build website scanner</span>
+              <span class="task-owner">Tanguy</span>
+              <span class="task-effort"><span class="effort-badge effort-l">L</span></span>
+            </div>
+            <div class="task-row">
+              <span class="task-name">Build RSS feed reader</span>
+              <span class="task-owner">Vittorio</span>
+              <span class="task-effort"><span class="effort-badge effort-m">M</span></span>
+            </div>
+            <div class="task-row">
+              <span class="task-name">Build AI classification engine</span>
+              <span class="task-owner">Corrado</span>
+              <span class="task-effort"><span class="effort-badge effort-m">M</span></span>
+            </div>
+            <div class="task-row">
+              <span class="task-name">Build deduplication filter</span>
+              <span class="task-owner">Dusan</span>
+              <span class="task-effort"><span class="effort-badge effort-s">S</span></span>
+            </div>
+            <div class="task-row" style="background: var(--mist); font-weight: 600;">
+              <span class="task-name">🎯 Day 1 Demo</span>
+              <span class="task-owner">Everyone</span>
+              <span class="task-effort"><span class="effort-badge effort-s">S</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sprint 2 -->
+      <div class="sprint">
+        <div class="sprint-header" onclick="toggleSprint(this)">
+          <div class="sprint-left">
+            <div class="sprint-number">2</div>
+            <div class="sprint-info">
+              <h3>Week 2 — Full Pipeline + Telegram Delivery</h3>
+              <p>The founder receives the first real brief on his phone</p>
+            </div>
+          </div>
+          <span class="sprint-chevron">▼</span>
+        </div>
+        <div class="sprint-body">
+          <div class="sprint-milestone">
+            <span>📱</span>
+            <span>Milestone: The founder opens Telegram and reads today's Battlefield Brief</span>
+          </div>
+          <div class="task-grid">
+            <div class="task-row" style="font-weight:600; color: var(--text-muted); font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">
+              <span>Task</span><span style="text-align:center">Owner</span><span style="text-align:center">Effort</span>
+            </div>
+            <div class="task-row">
+              <span class="task-name">Build AI signal classifier (full categories + scoring)</span>
+              <span class="task-owner">Corrado</span>
+              <span class="task-effort"><span class="effort-badge effort-l">L</span></span>
+            </div>
+            <div class="task-row">
+              <span class="task-name">Build Battlefield Brief generator</span>
+              <span class="task-owner">Vittorio</span>
+              <span class="task-effort"><span class="effort-badge effort-m">M</span></span>
+            </div>
+            <div class="task-row">
+              <span class="task-name">Build Telegram delivery</span>
+              <span class="task-owner">Dusan</span>
+              <span class="task-effort"><span class="effort-badge effort-m">M</span></span>
+            </div>
+            <div class="task-row">
+              <span class="task-name">Build failure alerts</span>
+              <span class="task-owner">Dusan</span>
+              <span class="task-effort"><span class="effort-badge effort-xs">XS</span></span>
+            </div>
+            <div class="task-row">
+              <span class="task-name">Set up automatic scheduling (3×/day)</span>
+              <span class="task-owner">Dusan</span>
+              <span class="task-effort"><span class="effort-badge effort-m">M</span></span>
+            </div>
+            <div class="task-row">
+              <span class="task-name">Build Google search enrichment (weekly)</span>
+              <span class="task-owner">Tanguy</span>
+              <span class="task-effort"><span class="effort-badge effort-m">M</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Week 3 -->
+      <div class="sprint">
+        <div class="sprint-header" onclick="toggleSprint(this)">
+          <div class="sprint-left">
+            <div class="sprint-number stretch">3+</div>
+            <div class="sprint-info">
+              <h3>Week 3+ — Stabilize &amp; Handoff</h3>
+              <p>No new features. Tune, fix, expand to 30 competitors, document, deliver.</p>
+            </div>
+          </div>
+          <span class="sprint-chevron">▼</span>
+        </div>
+        <div class="sprint-body">
+          <div class="sprint-milestone">
+            <span>🤝</span>
+            <span>Milestone: System running reliably on 30 competitors. Founder is autonomous.</span>
+          </div>
+          <div class="task-grid">
+            <div class="task-row">
+              <span class="task-name">Expand from 3 to 30 competitors</span>
+              <span class="task-owner">Everyone</span>
+              <span class="task-effort"><span class="effort-badge effort-m">M</span></span>
+            </div>
+            <div class="task-row">
+              <span class="task-name">Tune AI classification accuracy (target ≥80%)</span>
+              <span class="task-owner">Corrado</span>
+              <span class="task-effort"><span class="effort-badge effort-m">M</span></span>
+            </div>
+            <div class="task-row">
+              <span class="task-name">Tune brief quality (format, length, actions)</span>
+              <span class="task-owner">Vittorio</span>
+              <span class="task-effort"><span class="effort-badge effort-s">S</span></span>
+            </div>
+            <div class="task-row">
+              <span class="task-name">Bugfix based on founder feedback</span>
+              <span class="task-owner">Everyone</span>
+              <span class="task-effort"><span class="effort-badge effort-m">M</span></span>
+            </div>
+            <div class="task-row">
+              <span class="task-name">Write operator handbook &amp; handoff</span>
+              <span class="task-owner">Vittorio</span>
+              <span class="task-effort"><span class="effort-badge effort-s">S</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section-label" style="margin-top:48px">Team Allocation</div>
+    <div class="section-title">Who Does What</div>
+    <div class="info-cards">
+      <div class="info-card">
+        <div class="info-card-icon">🧠</div>
+        <h4>Corrado</h4>
+        <p>Project setup, AI engine, signal classification, competitor research. Point of contact with the founder.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">📡</div>
+        <h4>Vittorio</h4>
+        <p>Database, RSS feeds, brief generator, competitor research, documentation and handoff.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">⚡</div>
+        <h4>Dusan</h4>
+        <p>Deduplication, Telegram delivery, failure alerts, scheduling. Sprint 1 flex resource — supports whoever needs help.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">🔍</div>
+        <h4>Tanguy</h4>
+        <p>Website scanner (main scraping engine), Google search enrichment. Testing and bugfixes.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ TAB 3: SCOPE DECISIONS ════════ -->
+<div class="tab-content" id="tab-scope">
+  <div class="container">
+    <div class="section-label">Pareto Principle</div>
+    <div class="section-title">We Cut 55% of Features to Ship 2× Faster</div>
+    <p class="section-desc">The original plan had 31 tasks, a web dashboard, email delivery, natural language search, and data visualizations. We kept only what delivers the core value: a daily brief on Telegram.</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Full Plan</th>
+          <th>Pareto MVP</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Total tasks</td><td class="val-full">31</td><td class="val-pareto">14</td></tr>
+        <tr><td>Web dashboard</td><td class="val-full">Next.js, 5 pages</td><td class="val-pareto">None</td></tr>
+        <tr><td>Email delivery</td><td class="val-full">Yes</td><td class="val-pareto">No</td></tr>
+        <tr><td>Natural language search</td><td class="val-full">Yes</td><td class="val-pareto">No</td></tr>
+        <tr><td>Data visualizations</td><td class="val-full">Heatmaps, charts</td><td class="val-pareto">None</td></tr>
+        <tr><td>Cross-signal correlation</td><td class="val-full">Yes (stretch)</td><td class="val-pareto">No</td></tr>
+        <tr><td>Time to working MVP</td><td class="val-full">3 weeks</td><td class="val-pareto">2 weeks</td></tr>
+        <tr><td>Risk of not finishing</td><td class="val-full">High</td><td class="val-pareto">Low</td></tr>
+        <tr><td>Monthly cost</td><td class="val-full">€0</td><td class="val-pareto">€0</td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-label" style="margin-top:48px">What We Cut</div>
+    <div class="section-title">And Why It's the Right Call</div>
+
+    <div class="cut-grid">
+      <div class="cut-item">
+        <span class="cut-icon">🖥️</span>
+        <div class="cut-text">
+          <h4>Web Dashboard</h4>
+          <p>The founder reads the brief on Telegram, not on a dashboard. A frontend only makes sense if the brief isn't enough — and we won't know that until it's running.</p>
+        </div>
+      </div>
+      <div class="cut-item">
+        <span class="cut-icon">💬</span>
+        <div class="cut-text">
+          <h4>Natural Language Search</h4>
+          <p>"Who is responsible for PepsiCo sustainability in Argentina?" — valuable, but requires building an AI-to-database query engine plus a UI. Phase 2: add this as a Telegram bot command instead.</p>
+        </div>
+      </div>
+      <div class="cut-item">
+        <span class="cut-icon">📧</span>
+        <div class="cut-text">
+          <h4>Email Delivery</h4>
+          <p>Telegram covers 100% of the use case. Adding email means another service to configure, another failure point, and zero additional value.</p>
+        </div>
+      </div>
+      <div class="cut-item">
+        <span class="cut-icon">🔗</span>
+        <div class="cut-text">
+          <h4>Cross-Signal Correlation</h4>
+          <p>The team already flagged this as highest technical risk. In the brief, AI can spot basic patterns through prompting alone — no custom correlation logic needed.</p>
+        </div>
+      </div>
+      <div class="cut-item">
+        <span class="cut-icon">👥</span>
+        <div class="cut-text">
+          <h4>Contact Management</h4>
+          <p>Without a frontend, there's no place to manage contacts. They're still extracted and saved in the database — ready for Phase 2.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:48px">After the MVP</div>
+    <div class="section-title">Expansion Roadmap</div>
+    <p class="section-desc">If the founder uses the brief daily, these are the next features — in priority order.</p>
+
+    <div class="info-cards">
+      <div class="info-card">
+        <div class="info-card-icon">1️⃣</div>
+        <h4>NL Query via Telegram</h4>
+        <p>Ask the bot questions in chat — no web UI needed. Maximum value, zero frontend.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">2️⃣</div>
+        <h4>Real-Time Score 5 Alerts</h4>
+        <p>Instant notification for critical competitive moves. Already partially built into the MVP.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">3️⃣</div>
+        <h4>Entity Linking</h4>
+        <p>Auto-connect people, companies, and products across signals. Enriches the database for better queries.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">4️⃣</div>
+        <h4>Minimal Web Dashboard</h4>
+        <p>Only if the founder explicitly asks. One page showing the latest brief, signal feed, and search.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ TAB 4: RISKS ════════ -->
+<div class="tab-content" id="tab-risks">
+  <div class="container">
+    <div class="section-label">Risk Register</div>
+    <div class="section-title">Known Risks &amp; Mitigations</div>
+    <p class="section-desc">These have been verified as of March 2026. No assumptions — all limits checked against official documentation.</p>
+
+    <div class="risk-list">
+      <div class="risk-item high">
+        <span class="risk-severity">High</span>
+        <div class="risk-body">
+          <h4>AI request limits lower than expected</h4>
+          <p>The primary AI service allows 1,000 requests/day (not 14,400 as initially estimated). With ~100 requests per scan × 3 scans/day = 300/day, we fit — but with little margin. Mitigation: batch 10 signals per request, use backup AI for overflow.</p>
+        </div>
+      </div>
+      <div class="risk-item high">
+        <span class="risk-severity">High</span>
+        <div class="risk-body">
+          <h4>Competitor URLs may be broken or blocked</h4>
+          <p>Testing revealed 2 of 3 initial URLs returned errors. Some competitor websites actively block automated access. Mitigation: test every URL before adding, maintain fallback sources (RSS, Google search results).</p>
+        </div>
+      </div>
+      <div class="risk-item medium">
+        <span class="risk-severity">Medium</span>
+        <div class="risk-body">
+          <h4>Google search credits are one-time, not monthly</h4>
+          <p>The 2,500 free search queries are a lifetime allowance, not renewable. At 30 queries/week, they last ~19 months. Mitigation: acceptable for MVP, plan budget for credits after depletion.</p>
+        </div>
+      </div>
+      <div class="risk-item medium">
+        <span class="risk-severity">Medium</span>
+        <div class="risk-body">
+          <h4>Scheduled tasks may be paused on inactive repositories</h4>
+          <p>GitHub disables scheduled jobs after 60 days without a code commit. Mitigation: at least 1 commit/month or trigger runs manually as backup.</p>
+        </div>
+      </div>
+      <div class="risk-item low">
+        <span class="risk-severity">Low</span>
+        <div class="risk-body">
+          <h4>Scheduled scans can be delayed 5-29 minutes</h4>
+          <p>The scheduler is not guaranteed to run exactly on time. Mitigation: for a daily brief this is completely acceptable — the founder reads it at 9 AM regardless.</p>
+        </div>
+      </div>
+      <div class="risk-item low">
+        <span class="risk-severity">Low</span>
+        <div class="risk-body">
+          <h4>Telegram messages have a 4,096 character limit</h4>
+          <p>Long briefs need to be split across multiple messages. Mitigation: automatic splitting is built into the delivery module.</p>
+        </div>
+      </div>
+      <div class="risk-item low">
+        <span class="risk-severity">Low</span>
+        <div class="risk-body">
+          <h4>Database cold starts after inactivity</h4>
+          <p>The free database goes to sleep when unused and takes 0.5-2 seconds to wake up. Mitigation: negligible — the pipeline runs for several minutes anyway.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ FOOTER ════════ -->
+<div class="footer">
+  <strong>GreenScan Alpha</strong> — ESADE I2P × Green Growth<br>
+  Corrado · Vittorio · Dusan · Tanguy
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+function toggleSprint(header) {
+  header.parentElement.classList.toggle('open');
+}
+</script>
+</body>
+</html>
