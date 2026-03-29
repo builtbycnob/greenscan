@@ -122,3 +122,56 @@ class Database:
         async with self._pool.acquire() as conn:
             row = await conn.fetchrow("SELECT * FROM briefs ORDER BY generated_at DESC LIMIT 1")
         return dict(row) if row else None
+
+    async def start_scrape_log(self, run_id: str, targets_total: int) -> int:
+        """Create a scrape_logs entry at pipeline start."""
+        async with self._pool.acquire() as conn:
+            log_id = await conn.fetchval(
+                """
+                INSERT INTO scrape_logs (run_id, status, targets_total)
+                VALUES ($1, 'running', $2) RETURNING id
+                """,
+                run_id,
+                targets_total,
+            )
+        return log_id
+
+    async def finish_scrape_log(
+        self,
+        log_id: int,
+        *,
+        status: str,
+        targets_success: int = 0,
+        targets_failed: int = 0,
+        signals_new: int = 0,
+        signals_deduped: int = 0,
+        duration_ms: int = 0,
+        error_message: str | None = None,
+        metadata: dict | None = None,
+    ) -> None:
+        """Update scrape_logs entry at pipeline end."""
+        async with self._pool.acquire() as conn:
+            await conn.execute(
+                """
+                UPDATE scrape_logs SET
+                    status = $2,
+                    targets_success = $3,
+                    targets_failed = $4,
+                    signals_new = $5,
+                    signals_deduped = $6,
+                    duration_ms = $7,
+                    error_message = $8,
+                    metadata = $9,
+                    completed_at = NOW()
+                WHERE id = $1
+                """,
+                log_id,
+                status,
+                targets_success,
+                targets_failed,
+                signals_new,
+                signals_deduped,
+                duration_ms,
+                error_message,
+                json.dumps(metadata or {}),
+            )

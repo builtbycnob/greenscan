@@ -9,6 +9,7 @@ from pipeline.classifier.categorizer import classify_signals
 from pipeline.classifier.llm import LLMClient
 from pipeline.delivery.telegram import send_brief, send_failure_alert
 from pipeline.enrichment.dedup import Deduplicator
+from pipeline.enrichment.linker import link_entities
 from pipeline.scraper.registry import get_scrapable_targets, load_targets
 from pipeline.scraper.web import scrape_targets
 from pipeline.storage.db import Database
@@ -92,25 +93,47 @@ async def run_demo(max_targets: int = 3) -> None:
 
 
 async def run_daily() -> None:
-    """Full daily pipeline run with DB persistence."""
+    """Full daily pipeline run with DB persistence and logging."""
+    import time
+    import uuid
+
+    run_id = str(uuid.uuid4())[:8]
+    start_time = time.monotonic()
+
     try:
         async with Database() as db:
             targets = load_targets()
             scrapable = get_scrapable_targets(targets)
-            logger.info(f"=== Daily Pipeline — {len(scrapable)} targets ===")
+            logger.info(f"=== Daily Pipeline {run_id} — {len(scrapable)} targets ===")
+
+            log_id = await db.start_scrape_log(run_id, len(scrapable))
 
             # Scrape
             raw_signals = await scrape_targets(scrapable)
             if not raw_signals:
                 logger.warning("No signals scraped")
+                await db.finish_scrape_log(
+                    log_id,
+                    status="success",
+                    targets_success=0,
+                    duration_ms=int((time.monotonic() - start_time) * 1000),
+                )
                 return
 
             # Dedup against DB
             known_hashes = await db.load_known_hashes()
             dedup = Deduplicator(known_hashes)
             unique = dedup.filter(raw_signals)
+
             if not unique:
                 logger.info("No new signals")
+                await db.finish_scrape_log(
+                    log_id,
+                    status="success",
+                    targets_success=len(raw_signals),
+                    signals_deduped=len(raw_signals),
+                    duration_ms=int((time.monotonic() - start_time) * 1000),
+                )
                 return
 
             # Classify in batches of 5
@@ -124,6 +147,9 @@ async def run_daily() -> None:
                     )
                     all_classified.extend(classified)
 
+            # Link entities to companies/contacts
+            await link_entities(db._pool, all_classified)
+
             # Store in DB
             inserted = await db.insert_signals_batch(unique, all_classified)
             logger.info(f"Stored {inserted} signals in DB")
@@ -131,15 +157,39 @@ async def run_daily() -> None:
             # Generate brief
             brief = await generate_brief(unique, all_classified)
             if brief:
-                signal_count = len(all_classified)
-                await db.save_brief(brief, signal_count)
+                await db.save_brief(brief, len(all_classified))
                 await send_brief(brief)
                 logger.info("Brief delivered and saved")
-            else:
-                logger.info("No brief (no signals above threshold)")
+
+            # Log success
+            duration_ms = int((time.monotonic() - start_time) * 1000)
+            await db.finish_scrape_log(
+                log_id,
+                status="success",
+                targets_success=len(scrapable),
+                signals_new=inserted,
+                signals_deduped=len(raw_signals) - len(unique),
+                duration_ms=duration_ms,
+                metadata={
+                    "total_scraped": len(raw_signals),
+                    "total_classified": len(all_classified),
+                    "brief_generated": brief is not None,
+                },
+            )
+            logger.info(f"Pipeline {run_id} complete in {duration_ms}ms")
 
     except Exception as e:
-        logger.exception(f"Pipeline failed: {e}")
+        logger.exception(f"Pipeline {run_id} failed: {e}")
+        try:
+            async with Database() as db:
+                await db.finish_scrape_log(
+                    log_id,
+                    status="failure",
+                    error_message=str(e),
+                    duration_ms=int((time.monotonic() - start_time) * 1000),
+                )
+        except Exception:
+            pass
         await send_failure_alert(str(e), "daily_pipeline")
 
 
