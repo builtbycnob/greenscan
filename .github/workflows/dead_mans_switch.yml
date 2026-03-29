@@ -1,0 +1,50 @@
+name: Dead Man's Switch
+on:
+  schedule:
+    - cron: '0 7 * * *'  # 07:00 UTC daily
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Check for today's brief
+        run: |
+          uv run python -c "
+          import asyncio, sys
+          from pipeline.storage.db import Database
+
+          async def check():
+              async with Database() as db:
+                  count = await db.get_signal_count(days=1)
+                  brief = await db.get_latest_brief()
+                  if brief is None:
+                      print('NO BRIEF FOUND')
+                      sys.exit(1)
+                  print(f'Latest brief: {brief[\"generated_at\"]}')
+                  print(f'Signals today: {count}')
+
+          asyncio.run(check())
+          "
+        env:
+          GROQ_API_KEY: dummy
+          CEREBRAS_API_KEY: dummy
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+
+      - name: Alert on failure
+        if: failure()
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d text="⚠️ GreenScan Dead Man's Switch: No brief generated today. Check pipeline."

@@ -1,7 +1,7 @@
 """Battlefield Brief generator using Gemini 2.5 Flash."""
 
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 
 import httpx
 
@@ -64,7 +64,7 @@ async def generate_brief(
     filtered_raw = [p[0] for p in pairs]
     filtered_cls = [p[1] for p in pairs]
     signals_text = _format_signals_for_brief(filtered_raw, filtered_cls)
-    today = datetime.utcnow().strftime("%Y-%m-%d")
+    today = datetime.now(UTC).strftime("%Y-%m-%d")
 
     user_prompt = (
         f"Generate the Battlefield Brief for {today}.\n\n"
