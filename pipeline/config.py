@@ -4,9 +4,9 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    # LLM providers
-    groq_api_key: str
-    cerebras_api_key: str
+    # LLM providers (empty string = not configured, validated at call time)
+    groq_api_key: str = ""
+    cerebras_api_key: str = ""
     gemini_api_key: str = ""
 
     # Database

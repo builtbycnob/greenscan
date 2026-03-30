@@ -154,8 +154,8 @@ async def run_daily() -> None:
             inserted = await db.insert_signals_batch(unique, all_classified)
             logger.info(f"Stored {inserted} signals in DB")
 
-            # Generate brief
-            brief = await generate_brief(unique, all_classified)
+            # Generate brief (min_score=1: always generate if there are signals)
+            brief = await generate_brief(unique, all_classified, min_score=1)
             if brief:
                 await db.save_brief(brief, len(all_classified))
                 await send_brief(brief)
