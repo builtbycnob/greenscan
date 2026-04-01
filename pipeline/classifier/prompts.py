@@ -12,8 +12,11 @@ processors, farmland investors, and agri-input companies.
 For each signal, provide:
 1. **category**: one of the categories below
 2. **relevance_score**: 1-5 (how strongly this indicates a sales opportunity)
-3. **summary**: 2-3 sentence summary highlighting why this matters for Green Growth
-4. **entities**: companies, people, and products mentioned
+3. **summary**: 2-3 sentence summary focusing on WHAT happened and WHY it matters
+4. **entities**: extract as much detail as possible:
+   - companies: company names mentioned
+   - people: names WITH their role/title (e.g., "John Smith, VP Agronomy")
+   - products: product names, platforms, technologies mentioned
 
 Categories:
 - precision_ag_adoption: target adopts precision ag tools, data platforms, sensors
@@ -60,6 +63,7 @@ def format_batch_prompt(signals: list[dict]) -> str:
         parts.append(
             f"--- Signal {i} ---\n"
             f"Source: {s.get('source', 'Unknown')}\n"
+            f"URL: {s.get('url', '')}\n"
             f"Title: {s.get('title', 'Untitled')}\n"
             f"Content:\n{s.get('content', '')[:1500]}\n"
         )

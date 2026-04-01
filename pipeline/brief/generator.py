@@ -16,19 +16,30 @@ You are a market intelligence analyst for Green Growth Innovations, a precision 
 agriculture startup that builds universal retrofit yield monitors for combine \
 harvesters and potato harvesters.
 
-Generate a concise Battlefield Brief from today's classified signals. The brief \
-helps the founder identify sales opportunities among target customers (large US \
-farm operators, food processors, farmland investors, agri-input companies).
+Generate a concise Battlefield Brief from today's signals. Focus on CONCRETE \
+NEWS, PEOPLE, and LINKS — not generic strategy advice.
 
 Structure:
-1. **Executive Summary** — 2-3 sentences on the most important findings
-2. **Top Opportunities** — Score 4-5 signals with specific outreach recommendations
-3. **Other Signals** — Score 3 signals grouped by category
-4. **Key Takeaways** — 2-3 strategic insights
-5. **Suggested Actions** — Concrete next steps for the Green Growth team
+1. **Executive Summary** — 2-3 sentences on what happened today
 
-Keep the brief under 1000 words. Be direct and actionable. Use bullet points.
-Output the brief EXACTLY ONCE. Do not repeat any section.\
+2. **Signals** — For EACH signal, include:
+   - What happened (the actual news)
+   - Source link (the URL)
+   - People mentioned (name, title, LinkedIn if findable)
+   - Company website
+   - Why it matters for Green Growth (1 sentence max)
+
+3. **People to Watch** — List any named individuals with their role and company. \
+These are potential champions or decision-makers for Green Growth.
+
+Rules:
+- Include source URLs for every signal
+- Include company website links
+- Name specific people with their titles whenever mentioned
+- Do NOT include generic "Key Takeaways" or "Suggested Actions" sections
+- Do NOT give generic strategy advice — focus on the actual news content
+- Keep it under 800 words
+- Output the brief EXACTLY ONCE. Do not repeat any section.\
 """
 
 
@@ -39,8 +50,17 @@ def _format_signals_for_brief(
     """Format classified signals as input for the brief generator."""
     lines = []
     for raw, cls in zip(raw_signals, classified):
+        entities = cls.entities.model_dump()
+        people = ", ".join(entities.get("people", [])) or "none mentioned"
+        companies = ", ".join(entities.get("companies", [])) or raw.source
         lines.append(
-            f"- [{cls.category.value}] Score {cls.relevance_score}/5 | {raw.source}: {cls.summary}"
+            f"--- Signal ---\n"
+            f"Source: {raw.source}\n"
+            f"URL: {raw.url}\n"
+            f"Category: {cls.category.value} | Score: {cls.relevance_score}/5\n"
+            f"Summary: {cls.summary}\n"
+            f"Companies: {companies}\n"
+            f"People: {people}\n"
         )
     return "\n".join(lines)
 
