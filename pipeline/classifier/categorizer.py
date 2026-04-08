@@ -20,6 +20,8 @@ class Category(StrEnum):
     LEADERSHIP_CHANGE = "leadership_change"
     PARTNERSHIP = "partnership"
     FUNDING_M_AND_A = "funding_m_and_a"
+    PRODUCT_LAUNCH = "product_launch"
+    MARKET_MOVE = "market_move"
     OTHER = "other"
 
 
@@ -40,7 +42,7 @@ class EntityList(BaseModel):
 
 class ClassifiedSignal(BaseModel):
     category: Category
-    relevance_score: int = Field(ge=1, le=5)
+    relevance_score: int = Field(ge=0, le=5)
     summary: str
     entities: EntityList = Field(default_factory=EntityList)
 
@@ -70,7 +72,7 @@ CLASSIFICATION_SCHEMA = {
                     },
                     "relevance_score": {
                         "type": "integer",
-                        "minimum": 1,
+                        "minimum": 0,
                         "maximum": 5,
                     },
                     "summary": {"type": "string"},
@@ -109,13 +111,19 @@ CLASSIFICATION_SCHEMA = {
 async def classify_signals(
     client: LLMClient,
     raw_signals: list[dict],
+    target_types: list[str] | None = None,
 ) -> list[ClassifiedSignal]:
     """Classify a batch of raw signals (max 5 per request).
+
+    Args:
+        client: LLM client instance
+        raw_signals: signal dicts with source, url, title, content
+        target_types: parallel list of "customer" or "competitor" per signal
 
     Returns validated ClassifiedSignal objects. Signals that fail validation
     are logged and skipped.
     """
-    user_prompt = format_batch_prompt(raw_signals)
+    user_prompt = format_batch_prompt(raw_signals, target_types)
 
     result = await client.classify(
         system_prompt=SYSTEM_PROMPT,

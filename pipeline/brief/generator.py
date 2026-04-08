@@ -16,21 +16,22 @@ You are a market intelligence analyst for Green Growth Innovations, a precision 
 agriculture startup that builds universal retrofit yield monitors for combine \
 harvesters and potato harvesters.
 
-Generate a concise Battlefield Brief from today's signals. Focus on CONCRETE \
-NEWS, PEOPLE, and LINKS — not generic strategy advice.
+Generate a concise Battlefield Brief from today's signals. The brief has TWO \
+sections matching two intelligence layers:
 
 Structure:
 1. **Executive Summary** — 2-3 sentences on what happened today
 
-2. **Signals** — For EACH signal, include:
-   - What happened (the actual news)
-   - Source link (the URL)
-   - People mentioned (name, title, LinkedIn if findable)
-   - Company website
-   - Why it matters for Green Growth (1 sentence max)
+2. **Opportunity Radar** (customer signals) — Sales opportunities detected:
+   - For EACH signal: what happened, source URL, people mentioned with title, \
+company website, why it matters for Green Growth (1 sentence max)
 
-3. **People to Watch** — List any named individuals with their role and company. \
-These are potential champions or decision-makers for Green Growth.
+3. **Competitive Intelligence** (competitor signals) — Competitive moves:
+   - For EACH signal: what the competitor did, source URL, threat assessment \
+(1 sentence), how Green Growth should respond (1 sentence max)
+
+4. **People to Watch** — Named individuals from BOTH sections with role, \
+company, and why they matter (potential champions OR competitive leaders)
 
 Rules:
 - Include source URLs for every signal
@@ -38,6 +39,7 @@ Rules:
 - Name specific people with their titles whenever mentioned
 - Do NOT include generic "Key Takeaways" or "Suggested Actions" sections
 - Do NOT give generic strategy advice — focus on the actual news content
+- If one section has no signals, include the section header with "No signals today"
 - Keep it under 800 words
 - Output the brief EXACTLY ONCE. Do not repeat any section.\
 """
@@ -46,14 +48,20 @@ Rules:
 def _format_signals_for_brief(
     raw_signals: list[RawSignal],
     classified: list[ClassifiedSignal],
-) -> str:
-    """Format classified signals as input for the brief generator."""
-    lines = []
-    for raw, cls in zip(raw_signals, classified):
+    target_types: list[str],
+) -> tuple[str, str]:
+    """Format classified signals into customer and competitor sections.
+
+    Returns (customer_text, competitor_text).
+    """
+    customer_lines = []
+    competitor_lines = []
+
+    for raw, cls, ttype in zip(raw_signals, classified, target_types):
         entities = cls.entities.model_dump()
         people = ", ".join(entities.get("people", [])) or "none mentioned"
         companies = ", ".join(entities.get("companies", [])) or raw.source
-        lines.append(
+        line = (
             f"--- Signal ---\n"
             f"Source: {raw.source}\n"
             f"URL: {raw.url}\n"
@@ -62,34 +70,67 @@ def _format_signals_for_brief(
             f"Companies: {companies}\n"
             f"People: {people}\n"
         )
-    return "\n".join(lines)
+        if ttype == "competitor":
+            competitor_lines.append(line)
+        else:
+            customer_lines.append(line)
+
+    return "\n".join(customer_lines), "\n".join(competitor_lines)
 
 
 async def generate_brief(
     raw_signals: list[RawSignal],
     classified: list[ClassifiedSignal],
-    min_score: int = 3,
+    target_types: list[str] | None = None,
+    min_score: int = 1,
 ) -> str | None:
     """Generate a Battlefield Brief from today's classified signals.
 
     Uses Gemini 2.5 Flash for narrative quality. Falls back to Groq if
     Gemini is not configured.
     """
-    pairs = [(r, c) for r, c in zip(raw_signals, classified) if c.relevance_score >= min_score]
+    if target_types is None:
+        target_types = ["customer"] * len(raw_signals)
+
+    # Filter by score per type
+    pairs = []
+    for r, c, tt in zip(raw_signals, classified, target_types):
+        if tt == "competitor":
+            if c.relevance_score >= settings.brief_min_score_competitor:
+                pairs.append((r, c, tt))
+        elif c.relevance_score >= settings.brief_min_score_customer:
+            pairs.append((r, c, tt))
 
     if not pairs:
-        logger.info("No signals with score >= %d, skipping brief", min_score)
+        logger.info("No signals above threshold, skipping brief")
         return None
+
+    # Cap competitor signals
+    customer_pairs = [(r, c, t) for r, c, t in pairs if t == "customer"]
+    competitor_pairs = [(r, c, t) for r, c, t in pairs if t == "competitor"]
+    competitor_pairs = sorted(competitor_pairs, key=lambda x: x[1].relevance_score, reverse=True)[
+        : settings.competitor_signals_cap
+    ]
+    pairs = customer_pairs + competitor_pairs
 
     filtered_raw = [p[0] for p in pairs]
     filtered_cls = [p[1] for p in pairs]
-    signals_text = _format_signals_for_brief(filtered_raw, filtered_cls)
+    filtered_types = [p[2] for p in pairs]
+
+    customer_text, competitor_text = _format_signals_for_brief(
+        filtered_raw, filtered_cls, filtered_types
+    )
+
     today = datetime.now(UTC).strftime("%Y-%m-%d")
+    n_cust = len(customer_pairs)
+    n_comp = len(competitor_pairs)
 
     user_prompt = (
         f"Generate the Battlefield Brief for {today}.\n\n"
-        f"Today's signals ({len(pairs)} with relevance >= {min_score}):\n"
-        f"{signals_text}"
+        f"OPPORTUNITY RADAR ({n_cust} customer signals):\n"
+        f"{customer_text or 'No customer signals today.'}\n\n"
+        f"COMPETITIVE INTELLIGENCE ({n_comp} competitor signals):\n"
+        f"{competitor_text or 'No competitor signals today.'}"
     )
 
     if settings.gemini_api_key:
@@ -98,7 +139,7 @@ async def generate_brief(
 
 
 async def _generate_with_gemini(user_prompt: str) -> str:
-    """Use Gemini 2.5 Flash for brief generation (best narrative quality)."""
+    """Use Gemini 2.5 Flash for brief generation."""
     async with httpx.AsyncClient(timeout=60.0) as client:
         resp = await client.post(
             f"https://generativelanguage.googleapis.com/v1beta/models/"
