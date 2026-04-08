@@ -54,7 +54,8 @@ GROUP BY date(scraped_at) ORDER BY 1 DESC LIMIT 7;
 | "All providers exhausted" | All 3 LLM APIs are down or rate-limited. Wait and retry. |
 | Groq 429 errors | Normal — Cerebras handles overflow automatically. |
 | Telegram not delivered | Check bot token hasn't expired. Re-create with @BotFather if needed. |
-| Brief not generated | No signals scored >= 3. This is normal if no relevant news today. |
+| Telegram sent to wrong people | Check TELEGRAM_CHAT_ID in .env / GitHub Secret — comma-separated list. |
+| Brief not generated | No signals scored >= 1. Static pages get score 0 and are filtered. |
 | Pipeline runs but no new signals | Dedup working correctly. Content hasn't changed since last run. |
 | GitHub Actions cron stopped | Repo inactive >60 days. Push any commit to reactivate. |
 
@@ -82,6 +83,7 @@ uv run python -m pipeline daily
 | `GEMINI_API_KEY` | aistudio.google.com → Get API Key |
 | `NEON_DATABASE_URL` | Neon dashboard → Connection Details |
 | `TELEGRAM_BOT_TOKEN` | @BotFather → /revoke then /newbot |
+| `TELEGRAM_CHAT_ID` | Comma-separated IDs (e.g., `128370791,281584044`) |
 | `SERPER_API_KEY` | serper.dev → Dashboard |
 
 ### Neon Database Password
@@ -128,7 +130,7 @@ GitHub Actions (06:17, 12:17, 18:17 UTC)
     → enrichment/linker.py (pg_trgm fuzzy match)
     → storage/db.py (Neon Postgres)
     → brief/generator.py (Groq or Gemini)
-    → delivery/telegram.py (httpx)
+    → delivery/telegram.py (httpx, multi-recipient)
 ```
 
 ## LLM Provider Limits

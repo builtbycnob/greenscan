@@ -1,7 +1,7 @@
 # GreenScan — Product Backlog & Roadmap
 
-**Last updated:** March 30, 2026
-**Status:** MVP live, cron running 1x/day at 08:00 CET
+**Last updated:** April 8, 2026
+**Status:** Dual intelligence live (124 targets), cron 1x/day at 07:00 UTC, multi-recipient
 
 ---
 
@@ -9,16 +9,19 @@
 
 | Feature | Status | Notes |
 |---|---|---|
-| Web scraping (7 targets) | ✅ Live | Crawl4AI, stealth mode |
-| Signal classification (9 categories) | ✅ Live | Groq primary, Cerebras fallback |
+| Web scraping (65 targets) | ✅ Live | Crawl4AI, stealth mode |
+| RSS scraping (26 targets) | ✅ Live | feedparser + newspaper4k |
+| Signal classification (11 categories) | ✅ Live | Groq primary, Cerebras fallback, dual rubrics |
 | Content deduplication | ✅ Live | SHA256, cross-run via DB |
 | Entity linking (pg_trgm) | ✅ Live | Fuzzy match to companies/contacts |
-| Battlefield Brief generation | ✅ Live | Groq (Gemini when key added) |
-| Telegram delivery | ✅ Live | Daily brief + failure alerts |
+| Dual-section Brief | ✅ Live | Opportunity Radar + Competitive Intelligence |
+| Contact discovery (customers) | ✅ Live | Serper LinkedIn lookup, 20/day cap |
+| Telegram delivery | ✅ Live | Multi-recipient (dev + founder), daily brief + alerts |
 | Database persistence | ✅ Live | Neon Postgres 17, 6 tables |
 | GitHub Actions cron | ✅ Live | 07:00 UTC daily |
 | Dead man's switch | ✅ Live | Alerts if no brief by 07:00 UTC |
-| CI/CD (lint + tests) | ✅ Live | 18 unit + 6 integration tests |
+| CI/CD (lint + tests) | ✅ Live | 47 unit tests |
+| 124 targets (67 cust + 57 comp) | ✅ Live | EU + US, extended metadata from founder CSV |
 
 ---
 
@@ -31,13 +34,9 @@ These improve the MVP immediately with minimal effort.
 
 The brief generator already supports Gemini 2.5 Flash (1M context window, better narrative quality). Just needs an API key from aistudio.google.com added to `.env` and GitHub Secrets.
 
-### 1.2 Tune Classification Prompts with Real Feedback
-**Effort:** 1-2h | **Impact:** High
+### 1.2 ~~Tune Classification Prompts with Real Feedback~~ ✅ DONE (2026-04-06)
 
-After 1-2 weeks of live briefs, review which classifications were useful vs noise. Adjust:
-- Few-shot examples in `prompts.py` based on actual signals
-- Category definitions (are all 9 used? merge or split?)
-- Relevance score calibration (what does a "4" really mean for Green Growth?)
+Applied founder feedback: added CRITICAL FILTER to reject static page descriptions (score 0). Signals must be event-driven. Relevance scale expanded to 0-5.
 
 ### 1.3 Fix Farmland Partners Scraping
 **Effort:** 1h | **Impact:** Low
@@ -130,7 +129,20 @@ After 30+ days of data, identify patterns:
 - Add "Trend & Correlations" section to the brief
 - Requires sufficient signal volume to be meaningful
 
-### 3.3 Signal Enrichment Pipeline
+### 3.3 ~~Contact Discovery for Brief Signals~~ ✅ DONE (2026-04-08)
+
+Implemented: Serper LinkedIn lookup for customer signals. Direct match (named people) + company lookup (🔍 tagged). 20/day Serper cap. Phase 2: Hunter.io/Apollo for email.
+- Extract person names from scraped content via LLM (NER in classification prompt)
+- SERP lookup: `"Name Surname" site:linkedin.com {company}` via Serper (~1 query/contact)
+- Add "Key Contacts" section to brief: **name, LinkedIn headline, LinkedIn URL**
+- If signal mentions specific people → show those (direct match)
+- If no people mentioned → lookup company C-level/procurement via SERP, tag as "🔍 company lookup"
+- Store in existing `contacts` table (full_name, title, email, linkedin_url, company_id)
+- Sources: scraped page content → Serper LinkedIn lookup → company /about /team pages
+- GDPR: only publicly available info, no login-wall scraping
+- **Phase 2:** Add Hunter.io (50 free lookups/month) and/or Apollo.io (free tier) for email discovery
+
+### 3.4 Signal Enrichment Pipeline
 **Effort:** 3h | **Impact:** Medium
 
 Enrich each signal with additional context:
@@ -216,11 +228,26 @@ Expose pipeline health via a simple API or Telegram command:
 
 ---
 
+## Priority 6 — Cron Reliability
+
+### 6.1 Fix GitHub Actions Cron Delay (2-3h average)
+**Effort:** 30min | **Impact:** High
+
+GH Actions cron free tier delays 2-3.5 hours on the `07:00 UTC` slot (peak Europe). Brief arrives 11:00-12:45 CEST instead of ~07:30.
+Options (pick one):
+- Move cron to `05:00 UTC` (off-peak) — expected delay ~30-60 min, brief ~07:30 CEST
+- External cron (cron-job.org) calling `workflow_dispatch` via GH API — near-zero delay, €0
+- Cloudflare Worker cron trigger — near-zero delay, €0
+Also shift Dead Man's Switch to 1 hour after pipeline cron to avoid false alarms.
+
+---
+
 ## Technical Debt
 
 | Item | Effort | Priority |
 |---|---|---|
 | Groq sometimes duplicates brief content | 1h | Medium — add response post-processing |
+| Static page content classified as signals | ✅ Fixed | Score-0 filter + CRITICAL FILTER in prompt |
 | `datetime.utcnow()` deprecation in storage module | 15min | Low — use `datetime.now(UTC)` |
 | Farmland Partners URL always fails | 30min | Low — switch to SERP or remove |
 | No retry on Telegram send failure | 1h | Low — add tenacity retry |
@@ -257,3 +284,9 @@ Once the pipeline runs for 1-2 weeks, evaluate:
 | 2026-03-29 | Custom circuit breaker over pybreaker | pybreaker has broken Tornado dependency |
 | 2026-03-30 | Cron 1x/day at 08:00 CET | 3x/day was overkill; saves CI minutes and API quota |
 | 2026-03-30 | Brief threshold min_score=1 | Score≥3 was too restrictive; always send a brief if signals exist |
+| 2026-04-06 | Multi-recipient Telegram delivery | Founder @easavin added; comma-separated TELEGRAM_CHAT_ID |
+| 2026-04-06 | Event-driven signal filter (score 0) | Founder feedback: static page descriptions are noise, only classify actual events |
+| 2026-04-08 | Dual intelligence (customer + competitor) | Founder provided CSV with 124 targets (EU + US); monitor both ICP and competitors |
+| 2026-04-08 | Contact discovery for customers only | Serper budget savings: no LinkedIn lookups for competitors |
+| 2026-04-08 | Competitor signals capped at 5 in brief | Prevent competitor noise from dominating the Battlefield Brief |
+| 2026-04-08 | Deprecate greenscanalpha/ | Was design-only prototype (no code), all useful data migrated |

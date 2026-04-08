@@ -12,9 +12,16 @@ class Settings(BaseSettings):
     # Database
     neon_database_url: str = ""
 
-    # Telegram
+    # Telegram (comma-separated chat IDs for multi-recipient delivery)
     telegram_bot_token: str = ""
     telegram_chat_id: str = ""
+
+    @property
+    def telegram_chat_ids(self) -> list[str]:
+        """Parse comma-separated chat IDs into a list."""
+        if not self.telegram_chat_id:
+            return []
+        return [cid.strip() for cid in self.telegram_chat_id.split(",") if cid.strip()]
 
     # Optional (Phase 2)
     serper_api_key: str = ""
@@ -34,6 +41,15 @@ class Settings(BaseSettings):
     # Pipeline
     scraper_max_concurrent: int = 5
     scraper_delay_range: tuple[float, float] = (1.0, 3.0)
+
+    # Brief settings
+    competitor_signals_cap: int = 5
+    brief_min_score_customer: int = 1
+    brief_min_score_competitor: int = 3
+
+    # Contact discovery
+    serper_daily_contact_cap: int = 20
+    contact_min_score: int = 3
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 

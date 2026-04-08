@@ -8,9 +8,15 @@ from pipeline.brief.generator import generate_brief
 from pipeline.classifier.categorizer import classify_signals
 from pipeline.classifier.llm import LLMClient
 from pipeline.delivery.telegram import send_brief, send_failure_alert
+from pipeline.enrichment.contacts import discover_contacts
 from pipeline.enrichment.dedup import Deduplicator
 from pipeline.enrichment.linker import link_entities
-from pipeline.scraper.registry import get_scrapable_targets, load_targets
+from pipeline.scraper.registry import (
+    get_rss_targets,
+    get_scrapable_targets,
+    load_targets,
+)
+from pipeline.scraper.rss import parse_rss_feeds
 from pipeline.scraper.web import scrape_targets
 from pipeline.storage.db import Database
 
@@ -22,21 +28,37 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def _build_target_type_map(targets: list) -> dict[str, str]:
+    """Build source_name → target_type map for classification context."""
+    return {t.name: t.type.value for t in targets}
+
+
+def _build_titles_map(targets: list) -> dict[str, list[str]]:
+    """Build source_name → decision_maker_titles map for contact lookup."""
+    return {t.name: t.decision_maker_titles for t in targets if t.decision_maker_titles}
+
+
 async def run_demo(max_targets: int = 3) -> None:
     """E2E demo: scrape → dedup → classify → brief → deliver."""
     targets = load_targets()
     scrapable = get_scrapable_targets(targets)[:max_targets]
+    rss_targets = get_rss_targets(targets)[:max_targets]
+    type_map = _build_target_type_map(targets)
 
-    if not scrapable:
-        logger.error("No scrapable targets found")
+    if not scrapable and not rss_targets:
+        logger.error("No scrapable or RSS targets found")
         return
 
-    logger.info(f"=== GreenScan Demo — {len(scrapable)} targets ===")
+    logger.info(
+        f"=== GreenScan Demo — {len(scrapable)} scrape + {len(rss_targets)} RSS targets ==="
+    )
 
-    # Stage 1: Scrape
+    # Stage 1: Scrape + RSS
     logger.info("Stage 1: Scraping...")
     raw_signals = await scrape_targets(scrapable)
-    logger.info(f"Got {len(raw_signals)} raw signals")
+    rss_signals = await parse_rss_feeds(rss_targets)
+    raw_signals.extend(rss_signals)
+    logger.info(f"Got {len(raw_signals)} raw signals (web + RSS)")
 
     if not raw_signals:
         logger.warning("No signals scraped. Check target URLs.")
@@ -54,16 +76,20 @@ async def run_demo(max_targets: int = 3) -> None:
 
     # Stage 3: Classify (batch of up to 5)
     logger.info("Stage 3: Classifying...")
+    batch = unique_signals[:5]
+    batch_types = [type_map.get(s.source, "customer") for s in batch]
     async with LLMClient() as client:
         classified = await classify_signals(
             client,
-            [s.model_dump() for s in unique_signals[:5]],
+            [s.model_dump() for s in batch],
+            target_types=batch_types,
         )
 
     # Print classified signals
-    for i, (raw, cls) in enumerate(zip(unique_signals[:5], classified), 1):
+    for i, (raw, cls) in enumerate(zip(batch, classified), 1):
         score_bar = "🟢" * cls.relevance_score + "⚪" * (5 - cls.relevance_score)
-        print(f"\n--- Signal {i} ---")
+        ttype = type_map.get(raw.source, "?")
+        print(f"\n--- Signal {i} [{ttype.upper()}] ---")
         print(f"Source:   {raw.source}")
         print(f"Category: {cls.category.value}")
         print(f"Score:    {score_bar} ({cls.relevance_score}/5)")
@@ -71,7 +97,12 @@ async def run_demo(max_targets: int = 3) -> None:
 
     # Stage 4: Generate brief
     logger.info("Stage 4: Generating brief...")
-    brief = await generate_brief(unique_signals[:5], classified, min_score=2)
+    brief = await generate_brief(
+        batch,
+        classified,
+        target_types=batch_types,
+        min_score=2,
+    )
 
     if brief:
         print(f"\n{'=' * 60}")
@@ -104,12 +135,27 @@ async def run_daily() -> None:
         async with Database() as db:
             targets = load_targets()
             scrapable = get_scrapable_targets(targets)
-            logger.info(f"=== Daily Pipeline {run_id} — {len(scrapable)} targets ===")
+            rss_targets = get_rss_targets(targets)
+            type_map = _build_target_type_map(targets)
 
-            log_id = await db.start_scrape_log(run_id, len(scrapable))
+            total_sources = len(scrapable) + len(rss_targets)
+            logger.info(
+                f"=== Daily Pipeline {run_id} — "
+                f"{len(scrapable)} scrape + {len(rss_targets)} RSS ==="
+            )
 
-            # Scrape
+            log_id = await db.start_scrape_log(run_id, total_sources)
+
+            # Scrape + RSS
             raw_signals = await scrape_targets(scrapable)
+            rss_signals = await parse_rss_feeds(rss_targets)
+            raw_signals.extend(rss_signals)
+            logger.info(
+                f"Got {len(raw_signals)} raw signals "
+                f"(web: {len(raw_signals) - len(rss_signals)}, "
+                f"RSS: {len(rss_signals)})"
+            )
+
             if not raw_signals:
                 logger.warning("No signals scraped")
                 await db.finish_scrape_log(
@@ -138,24 +184,43 @@ async def run_daily() -> None:
 
             # Classify in batches of 5
             all_classified = []
+            all_types = []
             async with LLMClient() as client:
                 for i in range(0, len(unique), 5):
                     batch = unique[i : i + 5]
+                    batch_types = [type_map.get(s.source, "customer") for s in batch]
                     classified = await classify_signals(
                         client,
                         [s.model_dump() for s in batch],
+                        target_types=batch_types,
                     )
                     all_classified.extend(classified)
+                    all_types.extend(batch_types)
 
             # Link entities to companies/contacts
             await link_entities(db._pool, all_classified)
+
+            # Discover contacts for customer signals
+            titles_map = _build_titles_map(targets)
+            source_names = [s.source for s in unique]
+            signal_contacts = await discover_contacts(
+                all_classified,
+                all_types,
+                source_names,
+                decision_maker_titles=titles_map,
+            )
 
             # Store in DB
             inserted = await db.insert_signals_batch(unique, all_classified)
             logger.info(f"Stored {inserted} signals in DB")
 
-            # Generate brief (min_score=1: always generate if there are signals)
-            brief = await generate_brief(unique, all_classified, min_score=1)
+            # Generate brief
+            brief = await generate_brief(
+                unique,
+                all_classified,
+                target_types=all_types,
+                contacts=signal_contacts,
+            )
             if brief:
                 await db.save_brief(brief, len(all_classified))
                 await send_brief(brief)
@@ -166,12 +231,13 @@ async def run_daily() -> None:
             await db.finish_scrape_log(
                 log_id,
                 status="success",
-                targets_success=len(scrapable),
+                targets_success=total_sources,
                 signals_new=inserted,
                 signals_deduped=len(raw_signals) - len(unique),
                 duration_ms=duration_ms,
                 metadata={
                     "total_scraped": len(raw_signals),
+                    "rss_scraped": len(rss_signals),
                     "total_classified": len(all_classified),
                     "brief_generated": brief is not None,
                 },
