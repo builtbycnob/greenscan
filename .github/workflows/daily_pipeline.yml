@@ -1,7 +1,7 @@
 name: Daily Pipeline
 on:
   schedule:
-    - cron: '0 7 * * *'  # 07:00 UTC = 08:00 CET
+    - cron: '0 4 * * *'  # 04:00 UTC = 06:00 CEST (off-peak, less delay)
   workflow_dispatch:
 
 jobs:
