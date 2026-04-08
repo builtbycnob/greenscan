@@ -8,6 +8,7 @@ from pipeline.brief.generator import generate_brief
 from pipeline.classifier.categorizer import classify_signals
 from pipeline.classifier.llm import LLMClient
 from pipeline.delivery.telegram import send_brief, send_failure_alert
+from pipeline.enrichment.contacts import discover_contacts
 from pipeline.enrichment.dedup import Deduplicator
 from pipeline.enrichment.linker import link_entities
 from pipeline.scraper.registry import (
@@ -30,6 +31,11 @@ logger = logging.getLogger(__name__)
 def _build_target_type_map(targets: list) -> dict[str, str]:
     """Build source_name → target_type map for classification context."""
     return {t.name: t.type.value for t in targets}
+
+
+def _build_titles_map(targets: list) -> dict[str, list[str]]:
+    """Build source_name → decision_maker_titles map for contact lookup."""
+    return {t.name: t.decision_maker_titles for t in targets if t.decision_maker_titles}
 
 
 async def run_demo(max_targets: int = 3) -> None:
@@ -194,6 +200,16 @@ async def run_daily() -> None:
             # Link entities to companies/contacts
             await link_entities(db._pool, all_classified)
 
+            # Discover contacts for customer signals
+            titles_map = _build_titles_map(targets)
+            source_names = [s.source for s in unique]
+            signal_contacts = await discover_contacts(
+                all_classified,
+                all_types,
+                source_names,
+                decision_maker_titles=titles_map,
+            )
+
             # Store in DB
             inserted = await db.insert_signals_batch(unique, all_classified)
             logger.info(f"Stored {inserted} signals in DB")
@@ -203,6 +219,7 @@ async def run_daily() -> None:
                 unique,
                 all_classified,
                 target_types=all_types,
+                contacts=signal_contacts,
             )
             if brief:
                 await db.save_brief(brief, len(all_classified))

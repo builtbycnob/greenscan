@@ -83,8 +83,13 @@ async def generate_brief(
     classified: list[ClassifiedSignal],
     target_types: list[str] | None = None,
     min_score: int = 1,
+    contacts: dict[int, list] | None = None,
 ) -> str | None:
     """Generate a Battlefield Brief from today's classified signals.
+
+    Args:
+        contacts: optional dict mapping signal index → list of ContactResult
+            (from enrichment.contacts.discover_contacts)
 
     Uses Gemini 2.5 Flash for narrative quality. Falls back to Groq if
     Gemini is not configured.
@@ -125,12 +130,30 @@ async def generate_brief(
     n_cust = len(customer_pairs)
     n_comp = len(competitor_pairs)
 
+    # Build contacts section for customer signals
+    contacts_text = ""
+    if contacts:
+        contact_lines = []
+        for idx, contact_list in contacts.items():
+            if idx < len(filtered_raw):
+                source = filtered_raw[idx].source
+                for c in contact_list:
+                    prefix = "🔍 " if c.source == "company_lookup" else ""
+                    contact_lines.append(
+                        f"  {prefix}{c.name} — {c.headline} ({c.linkedin_url}) [from: {source}]"
+                    )
+        if contact_lines:
+            contacts_text = "\n\nKEY CONTACTS (include in People to Watch):\n" + "\n".join(
+                contact_lines
+            )
+
     user_prompt = (
         f"Generate the Battlefield Brief for {today}.\n\n"
         f"OPPORTUNITY RADAR ({n_cust} customer signals):\n"
         f"{customer_text or 'No customer signals today.'}\n\n"
         f"COMPETITIVE INTELLIGENCE ({n_comp} competitor signals):\n"
         f"{competitor_text or 'No competitor signals today.'}"
+        f"{contacts_text}"
     )
 
     if settings.gemini_api_key:
