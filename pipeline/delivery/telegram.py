@@ -14,12 +14,12 @@ MAX_MESSAGE_LENGTH = 4000  # safe limit under 4096
 
 
 async def send_brief(brief_markdown: str) -> bool:
-    """Send the daily brief to Telegram.
+    """Send the daily brief to all configured Telegram recipients.
 
     Splits long messages at paragraph boundaries.
-    Returns True if all parts sent successfully.
+    Returns True if all parts sent to all recipients successfully.
     """
-    if not settings.telegram_bot_token or not settings.telegram_chat_id:
+    if not settings.telegram_bot_token or not settings.telegram_chat_ids:
         logger.warning("Telegram not configured, printing to stdout")
         print("\n" + brief_markdown)
         return False
@@ -28,38 +28,49 @@ async def send_brief(brief_markdown: str) -> bool:
     success = True
 
     async with httpx.AsyncClient(timeout=30.0) as client:
-        for chunk in chunks:
-            ok = await _send_message(client, chunk)
-            if not ok:
-                success = False
+        for chat_id in settings.telegram_chat_ids:
+            for chunk in chunks:
+                ok = await _send_message(client, chunk, chat_id)
+                if not ok:
+                    success = False
 
     return success
 
 
 async def send_alert(message: str) -> bool:
-    """Send a short alert message (score-5 signal)."""
-    if not settings.telegram_bot_token or not settings.telegram_chat_id:
+    """Send a short alert message (score-5 signal) to all recipients."""
+    if not settings.telegram_bot_token or not settings.telegram_chat_ids:
         logger.warning("Telegram not configured, printing alert to stdout")
         print(f"\n🚨 ALERT: {message}")
         return False
 
+    success = True
     async with httpx.AsyncClient(timeout=30.0) as client:
-        return await _send_message(client, f"🚨 *CRITICAL SIGNAL*\n\n{message}")
+        for chat_id in settings.telegram_chat_ids:
+            ok = await _send_message(client, f"🚨 *CRITICAL SIGNAL*\n\n{message}", chat_id)
+            if not ok:
+                success = False
+    return success
 
 
 async def send_failure_alert(error: str, step: str) -> bool:
-    """Send pipeline failure notification."""
+    """Send pipeline failure notification to all recipients."""
     msg = f"⚠️ *Pipeline Failure*\n\nStep: {step}\nError: {error}"
-    if not settings.telegram_bot_token or not settings.telegram_chat_id:
+    if not settings.telegram_bot_token or not settings.telegram_chat_ids:
         logger.error(f"Pipeline failure (Telegram not configured): {step}: {error}")
         return False
 
+    success = True
     async with httpx.AsyncClient(timeout=30.0) as client:
-        return await _send_message(client, msg)
+        for chat_id in settings.telegram_chat_ids:
+            ok = await _send_message(client, msg, chat_id)
+            if not ok:
+                success = False
+    return success
 
 
-async def _send_message(client: httpx.AsyncClient, text: str) -> bool:
-    """Send a single message via Telegram Bot API."""
+async def _send_message(client: httpx.AsyncClient, text: str, chat_id: str) -> bool:
+    """Send a single message to a specific chat via Telegram Bot API."""
     try:
         converted = telegramify_markdown.markdownify(text)
     except Exception:
@@ -67,7 +78,7 @@ async def _send_message(client: httpx.AsyncClient, text: str) -> bool:
 
     url = f"{TELEGRAM_API.format(token=settings.telegram_bot_token)}/sendMessage"
     payload = {
-        "chat_id": settings.telegram_chat_id,
+        "chat_id": chat_id,
         "text": converted,
         "parse_mode": "MarkdownV2",
         "disable_web_page_preview": True,
