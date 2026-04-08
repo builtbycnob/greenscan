@@ -1,222 +1,2282 @@
-# GreenScan — Target Companies (Green Growth ICP)
-# These are Green Growth's potential customers, not competitors.
-# Monitoring goal: detect sales opportunities for retrofit yield monitors.
+# GreenScan — Target Companies & Competitors
+# Generated from founder's March 2026 CSV export + existing verified URLs.
+# Total: 124 (67 customers + 57 competitors)
+# Pending URL discovery: 104
 
 targets:
-  # ── Direct Farm Operators ──
-  - name: "R.D. Offutt Farms"
-    industry: direct_farm_operator
-    priority: HIGH
-    monitoring: direct_scrape
-    website: "https://www.rdoffuttfarms.com"
-    scrape_urls:
-      - "https://www.rdoffuttfarms.com/news"
-      - "https://www.rdoffuttfarms.com/blog"
-    rss_feeds: []
-    serp_queries:
-      - "R.D. Offutt Farms precision agriculture"
-
-  - name: "J.R. Simplot Company"
-    industry: direct_farm_operator
-    priority: HIGH
-    monitoring: direct_scrape
-    website: "https://www.simplot.com"
-    scrape_urls:
-      - "https://www.simplot.com/company/news"
-    rss_feeds: []
-    serp_queries:
-      - "Simplot precision agriculture technology"
-
-  - name: "CSS Farms"
-    industry: direct_farm_operator
-    priority: HIGH
-    monitoring: serp_only
-    website: "https://www.cssfarms.com"
-    scrape_urls: []
-    rss_feeds: []
-    serp_queries:
-      - "CSS Farms agtech news"
-
-  - name: "Black Gold Farms"
-    industry: direct_farm_operator
-    priority: HIGH
-    monitoring: serp_only
-    website: "https://www.blackgoldfarms.com"
-    scrape_urls: []
-    rss_feeds: []
-    serp_queries:
-      - "Black Gold Farms precision agriculture"
-
-  - name: "Alsum Farms & Produce"
-    industry: direct_farm_operator
-    priority: MEDIUM
-    monitoring: serp_only
-    website: "https://www.alsumfarms.com"
-    scrape_urls: []
-    rss_feeds: []
-    serp_queries:
-      - "Alsum Farms technology news"
-
-  - name: "Wada Farms"
-    industry: direct_farm_operator
-    priority: MEDIUM
-    monitoring: serp_only
-    website: "https://www.wadafarms.com"
-    scrape_urls: []
-    rss_feeds: []
-    serp_queries:
-      - "Wada Farms sustainability technology"
-
-  # ── Farmland Investors ──
-  - name: "Ceres Partners"
-    industry: farmland_investor
-    priority: HIGH
-    monitoring: serp_only
-    website: "https://www.cerespartners.com"
-    scrape_urls: []
-    rss_feeds: []
-    serp_queries:
-      - "Ceres Partners WisdomTree farmland technology"
-
-  - name: "Farmland Partners Inc."
-    industry: farmland_investor
-    priority: HIGH
-    monitoring: sec_ir
-    website: "https://www.farmlandpartners.com"
-    ticker: "FPI"
-    scrape_urls:
-      - "https://ir.farmlandpartners.com/press-releases"
-    rss_feeds: []
-    serp_queries:
-      - "Farmland Partners precision agriculture"
-
-  - name: "Hancock Natural Resource Group"
-    industry: farmland_investor
-    priority: MEDIUM
-    monitoring: serp_only
-    website: "https://www.hnrg.com"
-    scrape_urls: []
-    rss_feeds: []
-    serp_queries:
-      - "Hancock farmland technology ESG"
-
-  # ── Food Processors ──
-  - name: "McCain Foods"
-    industry: food_processor
-    priority: HIGH
-    monitoring: direct_scrape
-    website: "https://www.mccain.com"
-    scrape_urls:
-      - "https://www.mccain.com/information-centre/news/"
-    rss_feeds: []
-    serp_queries:
-      - "McCain Foods precision agriculture supplier"
-
-  - name: "Lamb Weston"
-    industry: food_processor
-    priority: HIGH
-    monitoring: direct_scrape
-    website: "https://www.lambweston.com"
-    ticker: "LW"
-    scrape_urls:
-      - "https://news.lambweston.com/newsroom-home/default.aspx"
-    rss_feeds: []
-    serp_queries:
-      - "Lamb Weston agtech supply chain"
-
-  - name: "RPE Inc."
-    industry: food_processor
-    priority: MEDIUM
-    monitoring: serp_only
-    website: "https://www.rpeproduce.com"
-    scrape_urls: []
-    rss_feeds: []
-    serp_queries:
-      - "RPE produce sustainability technology"
-
-  - name: "Potandon Produce"
-    industry: food_processor
-    priority: MEDIUM
-    monitoring: serp_only
-    website: "https://www.potandon.com"
-    scrape_urls: []
-    rss_feeds: []
-    serp_queries:
-      - "Potandon produce innovation"
-
-  # ── Crop Insurance ──
-  - name: "American Farm Bureau Federation"
-    industry: crop_insurance
-    priority: HIGH
-    monitoring: direct_scrape
-    website: "https://www.fb.org"
-    scrape_urls:
-      - "https://www.fb.org/news-release"
-    rss_feeds: []
-    serp_queries:
-      - "Farm Bureau precision agriculture data"
-
-  - name: "Crop Risk Services (AIG)"
-    industry: crop_insurance
-    priority: MEDIUM
-    monitoring: serp_only
-    website: "https://www.croprisks.com"
-    scrape_urls: []
-    rss_feeds: []
-    serp_queries:
-      - "AIG crop insurance precision agriculture data"
-
-  - name: "ProAg (Tokio Marine)"
-    industry: crop_insurance
-    priority: MEDIUM
-    monitoring: serp_only
-    website: "https://www.proag.com"
-    scrape_urls: []
-    rss_feeds: []
-    serp_queries:
-      - "ProAg Tokio Marine farm data insurance"
-
-  # ── Agri Input Companies ──
-  - name: "Bayer Crop Science"
-    industry: agri_input
-    priority: HIGH
-    monitoring: direct_scrape
-    website: "https://www.bayer.com"
-    ticker: "BAYRY"
-    scrape_urls:
-      - "https://www.cropscience.bayer.us/news-press"
-    rss_feeds: []
-    serp_queries:
-      - "Bayer Climate FieldView precision agriculture partnership"
-
-  - name: "Corteva Agriscience"
-    industry: agri_input
-    priority: MEDIUM
-    monitoring: serp_only
-    website: "https://www.corteva.com"
-    ticker: "CTVA"
-    scrape_urls: []
-    rss_feeds: []
-    serp_queries:
-      - "Corteva precision agriculture acquisitions"
-
-  - name: "Nutrien Ag Solutions"
-    industry: agri_input
-    priority: MEDIUM
-    monitoring: serp_only
-    website: "https://www.nutrien.com"
-    ticker: "NTR"
-    scrape_urls: []
-    rss_feeds: []
-    serp_queries:
-      - "Nutrien digital agriculture platform"
-
-  - name: "Gavilon (Marubeni)"
-    industry: agri_input
-    priority: MEDIUM
-    monitoring: serp_only
-    website: "https://www.gavilon.com"
-    scrape_urls: []
-    rss_feeds: []
-    serp_queries:
-      - "Gavilon Marubeni grain technology"
+- name: ADM (Archer-Daniels-Midland)
+  type: customer
+  region:
+  - US
+  industry: grain_trader
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://adm.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - President North America
+  - VP Grain Origination
+  - Director Digital Farming
+  crop_focus: Corn, Wheat, Soybeans
+  why_icp: Massive grain handler interacting with thousands of large US farms. Digital farming investment growing.
+  hq: Illinois
+- name: ARVALIS – Institut du Végétal
+  type: customer
+  region:
+  - EU
+  industry: direct_farm_operator
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://arvalis.fr
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Director of Crop Innovation
+  - Head of Precision Ag
+  crop_focus: Wheat, Maize, Potato, Sugar Beet
+  why_icp: Influential in French precision ag adoption. Works with large commercial farms.
+  hq: France
+- name: AgReserves / AgriNorthwest
+  type: customer
+  region:
+  - US
+  industry: direct_farm_operator
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://agreserves.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - President/CEO AgReserves
+  - General Manager
+  - Precision Ag Manager
+  crop_focus: Potatoes, Onions, Carrots, Corn, Wheat
+  why_icp: One of the largest single farm operators in the US. Grows all GG target crops.
+  hq: Washington
+- name: AgriSompo North America
+  type: customer
+  region:
+  - US
+  industry: crop_insurance
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://agrisompo.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - CEO
+  - Head of Digital Ag
+  - VP Technology
+  crop_focus: All crops
+  why_icp: Blends crop insurance with precision-ag software development. Targets large tech-savvy growers.
+  hq: Texas
+- name: American Farm Bureau Federation
+  type: customer
+  region:
+  - US
+  industry: crop_insurance
+  priority: HIGH
+  monitoring: direct_scrape
+  website: https://www.fb.org
+  contact_lookup: true
+  scrape_urls:
+  - https://www.fb.org/news-release
+  rss_feeds: []
+  serp_queries:
+  - Farm Bureau precision agriculture data
+  decision_maker_titles:
+  - Underwriting Manager
+  - Agricultural Risk Analyst
+  crop_focus: All crops
+  why_icp: Largest US farm insurer. Needs farm performance data to price policies.
+  hq: Illinois
+- name: American Farm Bureau Insurance
+  type: customer
+  region:
+  - US
+  industry: crop_insurance
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://fbfs.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Underwriting Manager
+  - Agricultural Risk Analyst
+  crop_focus: All crops
+  why_icp: Needs farm performance data to price policies. Direct fit with Ori's target segment.
+  hq: Illinois
+- name: Aquila Capital (AquAgroFund)
+  type: customer
+  region:
+  - EU
+  industry: farmland_investor
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://aquila-capital.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Head of Agriculture
+  - Portfolio Manager
+  crop_focus: Arable, Mixed
+  why_icp: Institutional investor needing yield monitoring across managed farms for IRR reporting.
+  hq: Germany
+- name: Aviko (Royal Cosun)
+  type: customer
+  region:
+  - EU
+  industry: food_processor
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://aviko.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Head of Agronomy
+  - Grower Relations Manager
+  crop_focus: Potatoes
+  why_icp: Part of Royal Cosun coop. Contracts thousands of EU potato growers. Wants yield data.
+  hq: Netherlands
+- name: BayWa AG (Agri Finance)
+  type: customer
+  region:
+  - EU
+  industry: agri_finance
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://baywa.de
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Head of Digital Farming
+  - Agri Finance Manager
+  crop_focus: Cereals, Potatoes, Vegetables
+  why_icp: BayWa r.e. and agri trading arm uses field data for client portfolios.
+  hq: Germany
+- name: Bayer Crop Science
+  type: customer
+  region:
+  - EU
+  - US
+  industry: agri_input
+  priority: HIGH
+  monitoring: direct_scrape
+  website: https://bayer.com/agriculture
+  contact_lookup: true
+  scrape_urls:
+  - https://www.cropscience.bayer.us/news-press
+  rss_feeds: []
+  serp_queries:
+  - Bayer Climate FieldView precision agriculture partnership
+  decision_maker_titles:
+  - Digital Farming Lead EU
+  - Precision Ag Manager
+  crop_focus: Cereals, Rapeseed, Sugar Beet
+  why_icp: FieldView EU expansion — harvest data partnership potential.
+  hq: Germany
+  ticker: BAYRY
+- name: Black Gold Farms
+  type: customer
+  region:
+  - US
+  industry: direct_farm_operator
+  priority: HIGH
+  monitoring: serp_only
+  website: https://blackgoldfarms.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries:
+  - Black Gold Farms precision agriculture
+  decision_maker_titles:
+  - CEO
+  - VP Farming
+  - Director of Agronomy
+  - Precision Ag/Remote Sensing Lead
+  crop_focus: Potatoes (chipping, processing, fresh, sweet), Grain
+  why_icp: One of the largest US potato growers. Multiple locations, advanced precision-ag adoption (Agremo).
+  hq: North Dakota
+- name: Bunge North America
+  type: customer
+  region:
+  - US
+  industry: grain_trader
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://bunge.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - President North America Agribusiness
+  - Director Low-Carbon Solutions
+  crop_focus: Corn, Soybeans, Wheat
+  why_icp: World leader in grain origination. Farmer partnerships for sustainability and low-carbon supply chains.
+  hq: Missouri
+- name: CSS Farms
+  type: customer
+  region:
+  - US
+  industry: direct_farm_operator
+  priority: HIGH
+  monitoring: serp_only
+  website: https://cssfarms.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries:
+  - CSS Farms agtech news
+  decision_maker_titles:
+  - COO
+  - Regional Farm Managers
+  - Precision Farming Manager
+  crop_focus: Potatoes, Wheat, Carrots
+  why_icp: Multi-state potato ops, sustainability focus, vertically integrated seed production.
+  hq: Nebraska
+- name: Cargill
+  type: customer
+  region:
+  - EU
+  - US
+  industry: grain_trader
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://cargill.eu
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - EU Origination Head
+  - Digital Ag Manager
+  crop_focus: Wheat, Barley, Rapeseed, Maize
+  why_icp: Needs verified yield data from contracted EU growers for sourcing decisions.
+  hq: Belgium
+- name: Cavendish Farms
+  type: customer
+  region:
+  - US
+  industry: food_processor
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://cavendishfarms.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - VP Operations US
+  - Plant Manager Jamestown
+  - Grower Relations Manager
+  crop_focus: Potatoes
+  why_icp: 4th largest frozen potato processor in NA. US plant sources from major potato-growing states.
+  hq: North Dakota
+- name: Ceres Partners
+  type: customer
+  region:
+  - US
+  industry: farmland_investor
+  priority: HIGH
+  monitoring: serp_only
+  website: https://cerespartners.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries:
+  - Ceres Partners WisdomTree farmland technology
+  decision_maker_titles:
+  - Portfolio Manager
+  - Agronomist
+  - Farm Manager
+  crop_focus: Corn, Soybeans, Wheat
+  why_icp: Corporate farmland operator. Data-driven yield optimization core to investment model.
+  hq: Indiana
+- name: Crédit Agricole – Agri Division
+  type: customer
+  region:
+  - EU
+  industry: agri_finance
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://credit-agricole.fr
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Director Agri Solutions
+  - Head of Digital Agri
+  crop_focus: All crops incl. sugar beet, potatoes
+  why_icp: Dominant French agri lender. Yield data integration for smart credit scoring.
+  hq: France
+- name: Dumeco / Royal Agrifirm Group
+  type: customer
+  region:
+  - EU
+  industry: direct_farm_operator
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://agrifirm.nl
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Head of Farming Operations
+  - Precision Ag Lead
+  crop_focus: Potatoes, Onions, Sugar Beet
+  why_icp: Scale potato and root crop harvesting. Direct need for yield sensing.
+  hq: Netherlands
+- name: Farmers Mutual Hail (FMH)
+  type: customer
+  region:
+  - US
+  industry: crop_insurance
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://fmh.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - CEO/President
+  - VP Precision Solutions
+  - Digital Partnerships Lead
+  crop_focus: All row crops
+  why_icp: Explicitly uses precision-ag data for crop insurance. Partnered with Bayer FieldView.
+  hq: Iowa
+- name: Farmland Partners Inc.
+  type: customer
+  region:
+  - US
+  industry: farmland_investor
+  priority: HIGH
+  monitoring: sec_ir
+  website: https://farmlandpartners.com
+  contact_lookup: true
+  scrape_urls:
+  - https://ir.farmlandpartners.com/press-releases
+  rss_feeds: []
+  serp_queries:
+  - Farmland Partners precision agriculture
+  decision_maker_titles:
+  - COO
+  - Director of Agronomy
+  crop_focus: Corn, Soybeans, Wheat, Potatoes
+  why_icp: 'Listed REIT (NYSE: FPI). Needs yield data for ESG investor reporting.'
+  hq: Colorado
+  ticker: FPI
+- name: Grimmway Farms / Cal-Organic
+  type: customer
+  region:
+  - US
+  industry: direct_farm_operator
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://grimmway.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - President/CEO
+  - VP Farming Operations
+  - Director Organic Production
+  crop_focus: Carrots, Potatoes, Organic Veg
+  why_icp: World's largest carrot producer + major potato grower. Root crop at scale = perfect sensor fit.
+  hq: California
+- name: J.R. Simplot Company
+  type: customer
+  region:
+  - US
+  industry: food_processor
+  priority: HIGH
+  monitoring: direct_scrape
+  website: https://simplot.com
+  contact_lookup: true
+  scrape_urls:
+  - https://www.simplot.com/company/news
+  rss_feeds: []
+  serp_queries:
+  - Simplot precision agriculture technology
+  decision_maker_titles:
+  - President Food Group
+  - VP Agribusiness
+  - Director Grower Solutions
+  - Chief Digital Officer
+  crop_focus: Potatoes, Grain, Fertilizers
+  why_icp: Named by Ori. McDonald's primary supplier. Operates own farms + Simplot Grower Solutions chain.
+  hq: Idaho
+- name: Lamb Weston Holdings
+  type: customer
+  region:
+  - US
+  industry: food_processor
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://lambweston.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - VP Supply Chain
+  - VP Agriculture/Grower Relations
+  - Director Sustainability
+  - VP Digital & Analytics
+  crop_focus: Potatoes
+  why_icp: 'Named by Ori. Publicly traded (NYSE: LW). Needs farmer yield data for annual volume planning.'
+  hq: Idaho
+- name: McCain Foods
+  type: customer
+  region:
+  - EU
+  - US
+  industry: food_processor
+  priority: HIGH
+  monitoring: direct_scrape
+  website: https://mccain.com
+  contact_lookup: true
+  scrape_urls:
+  - https://www.mccain.com/information-centre/news/
+  rss_feeds: []
+  serp_queries:
+  - McCain Foods precision agriculture supplier
+  decision_maker_titles:
+  - VP Agronomy
+  - Supply Chain Director
+  - Procurement Lead
+  crop_focus: Potatoes
+  why_icp: Needs yield and quality data from contracted growers. Direct synergy with GG sensors.
+  hq: Belgium
+- name: NAU Country Insurance (QBE)
+  type: customer
+  region:
+  - US
+  industry: crop_insurance
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://naucountry.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - President
+  - Chief Underwriting Officer
+  - Precision Ag Program Manager
+  crop_focus: All row crops
+  why_icp: Leading US crop insurer with mobile technology tools for large row-crop farms.
+  hq: Minnesota
+- name: Nutrien Ag Solutions
+  type: customer
+  region:
+  - US
+  industry: agri_input
+  priority: HIGH
+  monitoring: serp_only
+  website: https://nutrien.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries:
+  - Nutrien digital agriculture platform
+  decision_maker_titles:
+  - President Retail
+  - Digital Agriculture Director
+  - Sustainability Program Lead
+  crop_focus: All crops
+  why_icp: Retail arm serves thousands of large farms. Farm data partnerships strengthen advisory value.
+  hq: Colorado
+  ticker: NTR
+- name: Nuveen Natural Capital (TIAA)
+  type: customer
+  region:
+  - US
+  industry: farmland_investor
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://nuveen.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Head of Agriculture
+  - Portfolio Manager
+  - Director of Agronomy
+  - ESG Lead
+  crop_focus: Row Crops, Permanent Crops
+  why_icp: One of the largest institutional farmland investors in the US. Yield data = asset performance reporting.
+  hq: Illinois
+- name: Ostbalticum (Baltic Large Farm Group)
+  type: customer
+  region:
+  - EU
+  industry: direct_farm_operator
+  priority: HIGH
+  monitoring: pending_discovery
+  website: ''
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - CEO
+  - Farm Operations Manager
+  crop_focus: Wheat, Rapeseed, Potatoes, Sugar Beet
+  why_icp: Baltic mega-farms upgrading harvest tech. Low legacy system penetration — GG entry opportunity.
+  hq: Latvia / Estonia
+- name: R.D. Offutt Farms
+  type: customer
+  region:
+  - US
+  industry: direct_farm_operator
+  priority: HIGH
+  monitoring: direct_scrape
+  website: https://rdoffutt.com
+  contact_lookup: true
+  scrape_urls:
+  - https://www.rdoffuttfarms.com/news
+  - https://www.rdoffuttfarms.com/blog
+  rss_feeds: []
+  serp_queries:
+  - R.D. Offutt Farms precision agriculture
+  decision_maker_titles:
+  - Chair/CEO
+  - President
+  - Director of Agronomy
+  - Precision Ag Manager
+  crop_focus: Potatoes, Grain
+  why_icp: Largest US potato grower. Highly mechanized, irrigated ops. Exact ICP fit.
+  hq: North Dakota
+- name: RCIS (Zurich NA)
+  type: customer
+  region:
+  - US
+  industry: crop_insurance
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://rcis.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Head of RCIS
+  - Chief Underwriting Officer
+  - Precision Ag & Mapping Lead
+  crop_focus: All row crops
+  why_icp: Explicitly offers precision-ag technology and mapping tools. Part of Zurich 2025-2027 plan.
+  hq: Minnesota
+- name: Rabobank (Netherlands)
+  type: customer
+  region:
+  - EU
+  industry: agri_finance
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://rabobank.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Head of Food & Agri EU
+  - Precision Ag Lead
+  crop_focus: All crops
+  why_icp: Rabobank integrates yield data into lending decisions. Strong GG partnership signal.
+  hq: Netherlands
+- name: Syngenta
+  type: customer
+  region:
+  - EU
+  - US
+  industry: agri_input
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://syngenta.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Head of Digital Agriculture EU
+  - Agronomy Director
+  crop_focus: Cereals, Potato, Sugar Beet
+  why_icp: Cropwise platform expanding — yield data integration opportunity.
+  hq: Switzerland
+- name: Südzucker AG
+  type: customer
+  region:
+  - EU
+  industry: sugar_processor
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://suedzucker.de
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Head of Agricultural Policy
+  - Precision Ag Lead
+  crop_focus: Sugar Beet
+  why_icp: 'Europe''s #1 sugar beet processor. Yield data per field critical for payment and contracts.'
+  hq: Germany
+- name: Unifarm / De Heus Group (NL)
+  type: customer
+  region:
+  - EU
+  industry: direct_farm_operator
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://unifarm.nl
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - CEO
+  - Director of Agronomy
+  - Precision Ag Manager
+  crop_focus: Potatoes, Wheat, Sugar Beet
+  why_icp: One of Europe's largest integrated farm operators. Highly mechanised potato ops — exact ICP fit.
+  hq: Netherlands
+- name: Viterra (Glencore Agri) Europe
+  type: customer
+  region:
+  - EU
+  industry: grain_trader
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://viterra.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - EU Origination Director
+  - Supply Chain Analytics Lead
+  crop_focus: Wheat, Barley, Oilseeds
+  why_icp: Harvest data verification for contracted growers a top priority.
+  hq: Netherlands
+- name: Wada Farms
+  type: customer
+  region:
+  - US
+  industry: direct_farm_operator
+  priority: HIGH
+  monitoring: serp_only
+  website: https://wadafarms.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries:
+  - Wada Farms sustainability technology
+  decision_maker_titles:
+  - CEO
+  - VP Operations
+  - Farm Manager
+  - Technology/Automation Manager
+  crop_focus: Potatoes, Onions, Sweet Potatoes
+  why_icp: Early adopter of AI grading and sorting. ~$37.5M revenue. Precision-ag ready.
+  hq: Idaho
+- name: AgFirst Farm Credit Bank
+  type: customer
+  region:
+  - US
+  industry: agri_finance
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://agfirst.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - President
+  - Chief Credit Officer
+  - Innovation Lead
+  crop_focus: All crops + Agribusiness
+  why_icp: Funds farm operations across 15 states. Yield data = better credit risk modeling.
+  hq: South Carolina
+- name: Agro-Sierakowski (Poland)
+  type: customer
+  region:
+  - EU
+  industry: direct_farm_operator
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: ''
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Owner/CEO
+  - Agronomist
+  crop_focus: Potatoes, Wheat, Rapeseed
+  why_icp: Poland is a top-3 EU potato producer. Large operators invest in yield monitoring.
+  hq: Poland
+- name: Alsum Farms & Produce
+  type: customer
+  region:
+  - US
+  industry: direct_farm_operator
+  priority: MEDIUM
+  monitoring: serp_only
+  website: https://alsumfarms.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries:
+  - Alsum Farms technology news
+  decision_maker_titles:
+  - Operations Manager
+  - Farm Director
+  crop_focus: Potatoes (Russet, Red, Yellow, Blue)
+  why_icp: Large-scale Wisconsin potato operation with multi-machine harvest. Strong processor ties.
+  hq: Wisconsin
+- name: Ardo Group
+  type: customer
+  region:
+  - EU
+  industry: food_processor
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://ardo.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Group Agronomy Director
+  - Procurement Manager
+  crop_focus: Peas, Beans, Spinach, Carrots
+  why_icp: Large-scale contracted vegetable harvesting — GG root crop sensors applicable.
+  hq: Belgium
+- name: BASF Agricultural Solutions
+  type: customer
+  region:
+  - EU
+  - US
+  industry: agri_input
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://basf.com/agriculture
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Head of Digital Farming
+  - European Agronomist
+  crop_focus: Wheat, Canola, Sugar Beet
+  why_icp: BASF xarvio platform integration opportunity. Crop data synergy.
+  hq: Germany
+- name: Bolthouse Farms
+  type: customer
+  region:
+  - US
+  industry: direct_farm_operator
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://bolthouse.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - VP Farming
+  - Director of Agronomy
+  - Operations Manager
+  crop_focus: Carrots, Vegetables
+  why_icp: One of the largest carrot growers in the US. Root crop harvesting at scale.
+  hq: California
+- name: CHS Inc.
+  type: customer
+  region:
+  - US
+  industry: grain_trader
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://chsinc.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - CEO
+  - VP Grain Marketing
+  - Director Agronomy Services
+  - Digital Ag Manager
+  crop_focus: Corn, Soybeans, Wheat, Sunflowers
+  why_icp: Largest farmer-owned cooperative in US. Direct relationships with thousands of large grain farms.
+  hq: Minnesota
+- name: CoBank (Farm Credit System)
+  type: customer
+  region:
+  - US
+  industry: agri_finance
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://cobank.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Head of Agricultural Finance
+  - Chief Digital Officer
+  crop_focus: Grain, Rural Infrastructure
+  why_icp: Lends to farmer cooperatives and agribusinesses. Yield data improves portfolio risk management.
+  hq: Colorado
+- name: Crop Risk Services (AIG)
+  type: customer
+  region:
+  - US
+  industry: crop_insurance
+  priority: MEDIUM
+  monitoring: serp_only
+  website: https://croprisks.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries:
+  - AIG crop insurance precision agriculture data
+  decision_maker_titles:
+  - Crop Insurance Specialist
+  - Risk Manager
+  crop_focus: Corn, Soybeans, Wheat, Potatoes
+  why_icp: Uses yield/performance data to adjust premiums. Benefits from real-time harvest analytics.
+  hq: Georgia
+- name: Duda Farm Fresh Foods
+  type: customer
+  region:
+  - US
+  industry: direct_farm_operator
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://dudafresh.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - VP Farming Operations
+  - Agronomy Director
+  - Technology Manager
+  crop_focus: Celery, Radishes, Corn, Potatoes, Onions
+  why_icp: Large diversified vegetable operation. Root crop + grain. Multi-state harvesting fleet.
+  hq: Florida
+- name: Farm Credit Services of America
+  type: customer
+  region:
+  - US
+  industry: agri_finance
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://fcsamerica.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - CEO
+  - Chief Credit Officer
+  - Digital Banking Director
+  crop_focus: All crops
+  why_icp: Farm performance data directly impacts lending decisions and risk assessment.
+  hq: Nebraska
+- name: Foresight Group – Agri
+  type: customer
+  region:
+  - EU
+  industry: farmland_investor
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://foresightgroup.eu
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Investment Manager
+  - Farm Operations Director
+  crop_focus: Arable, Permanent Crops
+  why_icp: ESG reporting and yield data requirements for LP reporting.
+  hq: UK / Luxembourg
+- name: Gavilon (Marubeni)
+  type: customer
+  region:
+  - US
+  industry: grain_trader
+  priority: MEDIUM
+  monitoring: serp_only
+  website: https://gavilon.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries:
+  - Gavilon Marubeni grain technology
+  decision_maker_titles:
+  - Grain Operations Manager
+  - Technology Director
+  crop_focus: Corn, Soybeans, Wheat
+  why_icp: Massive grain handling footprint. Yield data across hundreds of farms is core to trading operations.
+  hq: Nebraska
+- name: Grant 4-D Farms
+  type: customer
+  region:
+  - US
+  industry: direct_farm_operator
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://grant4dfarms.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Owner/CEO
+  - Farm Manager
+  - Precision Ag Lead
+  crop_focus: Potatoes (multiple varieties)
+  why_icp: Large potato operation in key growing region. Multi-variety, processing + fresh markets.
+  hq: Idaho
+- name: Great American Insurance – Crop Division
+  type: customer
+  region:
+  - US
+  industry: crop_insurance
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://gaig.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - President Crop Division
+  - Chief Underwriting Officer
+  - Product & Innovation Director
+  crop_focus: Row + Specialty Crops
+  why_icp: MPCI, crop-hail, named-peril coverage. Key user of yield and risk data from large operators.
+  hq: Ohio
+- name: Gresham House Forestry & Farmland
+  type: customer
+  region:
+  - EU
+  industry: farmland_investor
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://greshamhouse.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Head of Agri Assets
+  - CEO
+  crop_focus: Arable, Grassland
+  why_icp: Needs transparent yield data for investor reporting and valuation.
+  hq: UK
+- name: Hancock Natural Resource Group
+  type: customer
+  region:
+  - US
+  industry: farmland_investor
+  priority: MEDIUM
+  monitoring: serp_only
+  website: https://hnrg.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries:
+  - Hancock farmland technology ESG
+  decision_maker_titles:
+  - Portfolio Manager
+  - Agronomist
+  crop_focus: Row Crops, Grain
+  why_icp: Institutional operators need performance data for LP reporting and insurance.
+  hq: Massachusetts
+- name: Idahoan Foods
+  type: customer
+  region:
+  - US
+  industry: food_processor
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://idahoan.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - VP Raw Material Procurement
+  - Director Grower Relations
+  - Plant Managers
+  crop_focus: Potatoes
+  why_icp: Relies on consistent quality/yield from contracted Idaho potato growers. Field-to-fork supply chain.
+  hq: Idaho
+- name: Lutosa (PinguinLutosa)
+  type: customer
+  region:
+  - EU
+  industry: food_processor
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://lutosa.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Agricultural Procurement Manager
+  - Quality Director
+  crop_focus: Potatoes
+  why_icp: Belgian processor needing field-level yield traceability from contracted growers.
+  hq: Belgium
+- name: Michigan Sugar Company
+  type: customer
+  region:
+  - US
+  industry: sugar_processor
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://michigansugar.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - CEO
+  - VP Operations
+  - Grower Relations Director
+  - Precision Ag Manager
+  crop_focus: Sugar Beets
+  why_icp: Sugar beet = root crop requiring heavy mechanized harvest. Cooperative covers all member farms.
+  hq: Michigan
+- name: Peri & Sons Farms
+  type: customer
+  region:
+  - US
+  industry: direct_farm_operator
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://periandsons.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - CEO/Owner
+  - Farm Manager
+  - Agronomy Lead
+  crop_focus: Onions (red, white, yellow, organic)
+  why_icp: One of the largest US onion producers. Root vegetable harvesting at scale. GlobalGAP certified.
+  hq: Nevada
+- name: Potandon Produce
+  type: customer
+  region:
+  - US
+  industry: food_processor
+  priority: MEDIUM
+  monitoring: serp_only
+  website: https://potandon.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries:
+  - Potandon produce innovation
+  decision_maker_titles:
+  - VP Grower Relations
+  - Director Supply Chain
+  - Sustainability Manager
+  crop_focus: Potatoes, Onions
+  why_icp: Largest marketer of fresh tablestock potatoes in the US. Manages large grower network.
+  hq: Idaho
+- name: ProAg (Tokio Marine)
+  type: customer
+  region:
+  - US
+  industry: crop_insurance
+  priority: MEDIUM
+  monitoring: serp_only
+  website: https://proag.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries:
+  - ProAg Tokio Marine farm data insurance
+  decision_maker_titles:
+  - Agronomy Risk Manager
+  - Underwriter
+  - Digital Risk Director
+  crop_focus: All row crops
+  why_icp: Large crop insurance portfolio. Actively seeking farm performance data sources.
+  hq: Texas
+- name: RPE Inc. (Wysocki Family)
+  type: customer
+  region:
+  - US
+  industry: direct_farm_operator
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://rpeproduce.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - CEO
+  - VP Farming
+  - Director Category Insights
+  - Digital Ag Manager
+  crop_focus: Potatoes, Onions
+  why_icp: Second-gen family farm with multiple growing and packing locations. Sustainability focus.
+  hq: Wisconsin
+- name: Rabo AgriFinance (Rabobank US)
+  type: customer
+  region:
+  - US
+  industry: agri_finance
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://raboagrifinance.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Head of Agricultural Lending
+  - Risk Manager
+  - Portfolio Director
+  crop_focus: Grain, Row Crops, Specialty
+  why_icp: Farm performance data helps assess loan risk. GG's yield data = loan collateral intelligence.
+  hq: Missouri
+- name: Sackett Ranch Inc.
+  type: customer
+  region:
+  - US
+  industry: direct_farm_operator
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: ''
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Farm Manager
+  - Quality Manager
+  crop_focus: Potatoes (chipping), Peas
+  why_icp: 7,500 acres above ICP threshold. Long-term Frito-Lay supplier.
+  hq: Michigan
+- name: Taylor Farms
+  type: customer
+  region:
+  - US
+  industry: direct_farm_operator
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://taylorfarms.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - VP Operations
+  - Director of Agronomy
+  - Technology Lead
+  crop_focus: Leafy Greens, Vegetables, Value-added
+  why_icp: One of the largest US vegetable growers. Data-driven farming culture. Heavy machinery fleet.
+  hq: California
+- name: Toepfer International (ADM Europe)
+  type: customer
+  region:
+  - EU
+  industry: grain_trader
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://admtoepfer.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Head of EU Origination
+  - Agronomy Lead
+  crop_focus: Wheat, Rapeseed, Corn
+  why_icp: ADM digital farming initiative aligns with harvest sensor data.
+  hq: Germany
+- name: UBS Farmland / Westchester Group
+  type: customer
+  region:
+  - US
+  industry: farmland_investor
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://ubswestchester.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Managing Director
+  - Portfolio Manager
+  - Agronomy Director
+  crop_focus: Row Crops, Grain
+  why_icp: Institutional farmland manager. Performance data needed for investor reporting.
+  hq: Illinois
+- name: Western Sugar Cooperative
+  type: customer
+  region:
+  - US
+  industry: sugar_processor
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://westernsugar.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - CEO
+  - COO
+  - Grower Services Director
+  - Technology Lead
+  crop_focus: Sugar Beets
+  why_icp: Sugar beet harvesting is exactly GG's root crop sensor use case. 4-state grower network.
+  hq: Colorado
+- name: Wilbur-Ellis Holdings
+  type: customer
+  region:
+  - US
+  industry: agri_input
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://wilburellis.com
+  contact_lookup: true
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  decision_maker_titles:
+  - Agronomy Director
+  - Digital Ag Manager
+  - Sustainability Lead
+  crop_focus: All crops
+  why_icp: Leading international marketer/distributor of agricultural products. Farm data improves advisory services.
+  hq: California
+- name: AGCO Fuse Technology (Fendt / Massey)
+  type: competitor
+  region:
+  - EU
+  industry: precision_ag
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://agcocorp.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: oem_platform
+  threat_level: HIGH
+  overlap: Yield mapping + machine data — GG overlap especially in potato-growing markets (Fendt)
+  core_product: 'Precision ag platform across AGCO brands: Fendt, Massey, Valtra — yield, telematics, VRA'
+  hq: USA / Germany
+- name: Ag Leader Technology
+  type: competitor
+  region:
+  - EU
+  - US
+  industry: precision_ag
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://agleader.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: direct
+  threat_level: HIGH
+  overlap: Grain yield sensors + heat maps — almost identical use case to GG grain sensors
+  core_product: Yield monitors, moisture sensors, precision displays for combine harvesters
+  hq: Iowa, USA (EU distribution)
+- name: CLAAS (EASY Precision Farming)
+  type: competitor
+  region:
+  - EU
+  - US
+  industry: precision_ag
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://claas.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: oem_platform
+  threat_level: HIGH
+  overlap: Yield mapping + CAN bus machine data — GG's core offering built into CLAAS OEM ecosystem
+  core_product: 'Full precision ag suite integrated in CLAAS combine harvesters: yield mapping, CEMOS, telematics'
+  hq: Germany
+- name: CNH (Case IH / New Holland AFS Connect)
+  type: competitor
+  region:
+  - EU
+  - US
+  industry: precision_ag
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://caseih.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: oem_platform
+  threat_level: HIGH
+  overlap: Yield monitoring, field analytics — broad overlap with GG. OEM lock-in risk.
+  core_product: AFS and PLM precision ag platforms with yield monitoring + telematics
+  hq: UK / Italy
+- name: Corteva Agriscience
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: HIGH
+  monitoring: direct_scrape
+  website: https://granular.ag
+  contact_lookup: false
+  scrape_urls:
+  - https://investors.corteva.com/news-events/news-releases
+  - https://www.corteva.com/us/news.html
+  rss_feeds: []
+  serp_queries:
+  - Corteva precision agriculture acquisitions
+  competitor_type: oem_platform
+  threat_level: MEDIUM
+  overlap: Aggregates yield and sensor data. Helps farmers understand ROI of agronomic decisions.
+  core_product: 'Farm management software: crop planning, financial forecasting, yield analytics'
+  hq: Indiana, USA
+  ticker: CTVA
+- name: FarmTRX (In Front Ag)
+  type: competitor
+  region:
+  - EU
+  - US
+  industry: precision_ag
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://farmtrx.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: direct
+  threat_level: HIGH
+  overlap: Aftermarket yield sensor + yield maps for older machines — same retrofit positioning as GG
+  core_product: Retrofit yield monitor + mapping for any combine. App-based, plug-and-play.
+  hq: Canada / EU distribution
+- name: John Deere
+  type: competitor
+  region:
+  - EU
+  - US
+  industry: precision_ag
+  priority: HIGH
+  monitoring: direct_scrape
+  website: https://johndeeere.com
+  contact_lookup: false
+  scrape_urls:
+  - https://www.deere.com/en/our-company/news-and-announcements/
+  rss_feeds:
+  - https://investor.deere.com/rss/pressrelease.aspx
+  serp_queries:
+  - John Deere precision agriculture technology news 2026
+  competitor_type: oem_platform
+  threat_level: HIGH
+  overlap: Yield mapping, CAN bus data, field analytics — GG's entire value prop in Deere ecosystem
+  core_product: 'Full precision ag suite: yield monitoring, field documentation, machine telematics'
+  hq: Germany / Belgium
+- name: MC Elettronica
+  type: competitor
+  region:
+  - EU
+  - US
+  industry: precision_ag
+  priority: HIGH
+  monitoring: pending_discovery
+  website: https://mcelettronica.it
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: direct
+  threat_level: HIGH
+  overlap: Root crop yield sensors for harvesting machines — SAME segment as GG root crop sensor
+  core_product: Yield sensors for combine harvesters incl. potato & root crop-specific sensors
+  hq: Italy
+- name: AGCO Fuse Technology
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://agcocorp.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: direct
+  threat_level: MEDIUM
+  overlap: OEM yield monitoring built into AGCO machines. Farmers with AGCO may not need GG.
+  core_product: Precision ag platform across Fendt, Massey Ferguson, Valtra — yield mapping, connectivity
+  hq: Georgia, USA
+- name: Climate FieldView (Bayer)
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://climate.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: oem_platform
+  threat_level: MEDIUM
+  overlap: Aggregates yield data from farm equipment. Farmers using FieldView may reduce need for GG analytics.
+  core_product: 'Farm data platform: field mapping, yield data aggregation, VRA prescriptions'
+  hq: Missouri, USA
+- name: Cropwise (Syngenta)
+  type: competitor
+  region:
+  - EU
+  industry: precision_ag
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://cropwise.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: MEDIUM
+  overlap: Field data analytics and crop monitoring — partial overlap with GG agronomic layer
+  core_product: Crop protection decision platform, field scouting, agronomic recommendations
+  hq: Switzerland
+- name: Dickey-John
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://dickey-john.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: direct
+  threat_level: MEDIUM
+  overlap: Yield monitoring hardware and moisture sensors for combines
+  core_product: Sensors and hardware for precision application and yield monitoring on harvesters
+  hq: Illinois, USA
+- name: Exfarm (Italy)
+  type: competitor
+  region:
+  - EU
+  - US
+  industry: precision_ag
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://exfarm.it
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: MEDIUM
+  overlap: Yield data entry and field management — partial overlap with GG data layer for EU farmers
+  core_product: Farm management software with yield recording and field mapping for Italian farmers
+  hq: Italy
+- name: Farmers Edge
+  type: competitor
+  region:
+  - EU
+  - US
+  industry: remote_sensing
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://farmersedge.ca
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: MEDIUM
+  overlap: Field-level crop intelligence and yield estimation — partial overlap with GG analytics
+  core_product: Farm management software + satellite field intelligence
+  hq: Canada / UK
+- name: John Deere See & Spray
+  type: competitor
+  region:
+  - US
+  industry: oem_platform
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://deere.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: oem_platform
+  threat_level: MEDIUM
+  overlap: Computer vision on farm machinery — similar AI camera approach to Root Vision
+  core_product: AI-powered camera system on sprayers for real-time crop/weed identification
+  hq: Illinois, USA
+- name: Müller Elektronik
+  type: competitor
+  region:
+  - EU
+  industry: precision_ag
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://mueller-elektronik.de
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: direct
+  threat_level: MEDIUM
+  overlap: ISOBUS yield documentation and mapping overlaps with GG data collection approach
+  core_product: 'Precision ag hardware: ISOBUS terminals, yield documentation, VRA systems'
+  hq: Germany
+- name: Precision Planting (AGCO)
+  type: competitor
+  region:
+  - US
+  industry: oem_platform
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://precisionplanting.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: oem_platform
+  threat_level: MEDIUM
+  overlap: Harvest data analytics and agronomic decision support — partial overlap with GG's output layer
+  core_product: 20|20 platform for agronomic planting data + harvest analytics
+  hq: Illinois, USA
+- name: Proagrica (RELX)
+  type: competitor
+  region:
+  - EU
+  - US
+  industry: precision_ag
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://proagrica.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: MEDIUM
+  overlap: Supply chain data connectivity — partial overlap with GG processor data integration
+  core_product: Agri data platform connecting farmers, retailers, and processors
+  hq: UK
+- name: Raven Industries (CNH)
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://ravenind.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: direct
+  threat_level: MEDIUM
+  overlap: Machine data collection, yield monitoring, CAN bus — similar technical approach to GG
+  core_product: 'Precision ag hardware + autonomy: yield monitoring, field computers, autonomous equipment'
+  hq: South Dakota, USA
+- name: TOMRA Food
+  type: competitor
+  region:
+  - US
+  industry: food_processing_tech
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://tomra.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: MEDIUM
+  overlap: Computer vision for potato quality grading — direct overlap with Root Vision product
+  core_product: AI-powered optical sorting and grading machines for potatoes, vegetables, food products
+  hq: Norway
+- name: Topcon Agriculture
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://topconpositioning.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: direct
+  threat_level: MEDIUM
+  overlap: Yield monitoring + field mapping overlaps with GG's core offering
+  core_product: Precision ag sensors, guidance, yield mapping — sold through AGCO partnership
+  hq: Japan/USA
+- name: Trimble Agriculture
+  type: competitor
+  region:
+  - EU
+  - US
+  industry: precision_ag
+  priority: MEDIUM
+  monitoring: direct_scrape
+  website: https://ptxtrimble.com
+  contact_lookup: false
+  scrape_urls:
+  - https://news.trimble.com/news-releases?l=100
+  rss_feeds:
+  - https://news.trimble.com/index.php?s=20324&rsspage=20295
+  serp_queries:
+  - Trimble PTx agriculture technology news 2026
+  competitor_type: oem_platform
+  threat_level: MEDIUM
+  overlap: Yield mapping, CAN bus machine data, field analytics — broad EU overlap with GG
+  core_product: 'Full precision ag suite: yield monitoring, guidance, VRA, farm management software'
+  hq: Colorado, USA / EU offices
+- name: xarvio (BASF)
+  type: competitor
+  region:
+  - EU
+  industry: precision_ag
+  priority: MEDIUM
+  monitoring: pending_discovery
+  website: https://xarvio.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: MEDIUM
+  overlap: Crop field data management and decision support — indirect overlap with GG data outputs
+  core_product: 'Digital crop management: field manager, scouting, VRA maps'
+  hq: Germany
+- name: Ag Connections
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://agconnections.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Yield data management and field analytics platform
+  core_product: 'Farm management software: field records, yield data management, analytics'
+  hq: Kentucky, USA
+- name: AgJunction (Hexagon)
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://agjunction.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: direct
+  threat_level: LOW
+  overlap: Machine control and data collection on farming equipment
+  core_product: Precision agriculture guidance and machine control systems
+  hq: Kansas, USA
+- name: AgVantage Software
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://agvantage.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Grain handling data and yield records for cooperatives and elevators
+  core_product: Grain management and agribusiness ERP software for elevators and cooperatives
+  hq: Iowa, USA
+- name: AgriWebb
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://agriwebb.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Farm operations platform — adjacent market, livestock vs crops
+  core_product: Livestock management software for grazing, animal health, and compliance reporting
+  hq: Australia/USA
+- name: Agrivi
+  type: competitor
+  region:
+  - EU
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://agrivi.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Yield tracking and field reporting — indirect overlap with GG data outputs
+  core_product: 'Farm management platform: field records, crop planning, yield tracking'
+  hq: Croatia / UK
+- name: Arable
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://arable.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: IoT farm sensors + analytics platform — similar B2B model to GG
+  core_product: In-field weather and crop monitoring devices + analytics software
+  hq: California, USA
+- name: Bushel (formerly FBN Tech)
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://bushel.ag
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Field analytics and benchmarking for large grain farms
+  core_product: Digital platform for grain marketing, farm analytics, input purchasing
+  hq: North Dakota, USA
+- name: Bühler Group (Sortex)
+  type: competitor
+  region:
+  - US
+  industry: food_processing_tech
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://buhlergroup.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: AI-based grading and sorting of potatoes — overlaps with Root Vision
+  core_product: Optical sorting and processing technology for food including potatoes and vegetables
+  hq: Switzerland
+- name: Conservis
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://conservis.ag
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Farm data management and yield tracking — partial overlap with GG's analytics output
+  core_product: 'Real-time enterprise farm operations platform: activities, resources, performance tracking'
+  hq: Minnesota, USA
+- name: CropX
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://cropx.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: IoT sensors on farms feeding into analytics platform — similar business model to GG
+  core_product: Soil sensor-based system for precision irrigation, fertilization, crop monitoring
+  hq: Israel/USA
+- name: Cropin
+  type: competitor
+  region:
+  - EU
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://cropin.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Yield forecasting and farm digitisation — overlaps with GG data analytics layer
+  core_product: 'AI-powered farm intelligence: crop monitoring, yield forecasting, traceability'
+  hq: India / Netherlands
+- name: Cropio (Granular)
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://cropio.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Field analytics and yield monitoring — partial overlap with GG's analytics layer
+  core_product: Crop monitoring platform using satellite and field data for commercial farms
+  hq: Ukraine/USA
+- name: Decisive Farming (AgriTrend)
+  type: competitor
+  region:
+  - US
+  industry: farm_management
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://decisivefarming.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Field analytics and yield data management — partial overlap with GG analytics output
+  core_product: Agronomic decision support platform and farm management software
+  hq: Canada
+- name: Descartes Labs
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://descarteslabs.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Yield prediction and crop monitoring — adjacent to GG's field analytics output
+  core_product: Satellite imagery and AI analytics for large-scale crop monitoring
+  hq: New Mexico, USA
+- name: FarmLogs (Bushel)
+  type: competitor
+  region:
+  - US
+  industry: farm_management
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://farmlogs.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Yield monitoring via integration with existing equipment. Data analytics overlap.
+  core_product: 'All-in-one farm management: record-keeping, scouting, analytics'
+  hq: Michigan, USA
+- name: Farmers Business Network (FBN)
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://fbn.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Field performance analysis and yield benchmarking — partial data overlap with GG
+  core_product: 'Digital ag platform: agronomic analytics, benchmarking, e-commerce for inputs'
+  hq: California, USA
+- name: Gro Intelligence
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://gro-intelligence.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Crop analytics and yield forecasting at macro level — adjacent to GG's field-level analytics
+  core_product: Agricultural data analytics platform aggregating global crop and market data
+  hq: New York, USA
+- name: Growers Edge
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://growersedge.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Farm financial performance analytics — adjacent to insurance use case Ori is targeting
+  core_product: Financial tools and risk analytics for agricultural lenders and input retailers
+  hq: Minnesota, USA
+- name: Hexagon Agriculture (Leica Geosystems)
+  type: competitor
+  region:
+  - US
+  industry: oem_platform
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://hexagonpositioning.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: oem_platform
+  threat_level: LOW
+  overlap: Precision guidance and field data collection — indirect overlap with GG's field analytics
+  core_product: GNSS/GPS guidance systems and precision ag solutions for farming equipment
+  hq: Switzerland/USA
+- name: Hummingbird Technologies
+  type: competitor
+  region:
+  - EU
+  - US
+  industry: remote_sensing
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://hummingbirdtech.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Crop intelligence and yield forecasting — upstream data, no harvest integration
+  core_product: AI-powered aerial crop analytics from drone/satellite imagery
+  hq: UK
+- name: Iteris (ClearAg)
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://iteris.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Field condition data and agronomic analytics — partial analytics layer overlap with GG
+  core_product: Weather-based agricultural analytics and field monitoring platform
+  hq: California, USA
+- name: Key Technology (Duravant)
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://key.net
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Computer vision grading for potatoes in processing — overlaps with Root Vision classification
+  core_product: Optical sorters and inspection systems for potato processing lines
+  hq: Washington, USA
+- name: Kubota Precision Ag
+  type: competitor
+  region:
+  - US
+  industry: oem_platform
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://kubota.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: oem_platform
+  threat_level: LOW
+  overlap: OEM yield monitoring and machine data on Kubota tractors and harvesters
+  core_product: Precision farming features across Kubota equipment lines
+  hq: Japan/USA
+- name: Kuhn Group Digital
+  type: competitor
+  region:
+  - EU
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://kuhn.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Field data documentation via ISOBUS — light overlap with GG data collection
+  core_product: Agricultural machinery + emerging digital services (KUHN Farm Expert)
+  hq: France
+- name: OneSoil
+  type: competitor
+  region:
+  - EU
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://onesoil.ai
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Crop biomass and field variability monitoring — complementary but no harvest data
+  core_product: Satellite-based crop monitoring and field analytics
+  hq: Belarus / Netherlands
+- name: Precisionhawk
+  type: competitor
+  region:
+  - US
+  industry: remote_sensing
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://precisionhawk.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Aerial field analytics and crop monitoring — adjacent to GG's field analytics output
+  core_product: Drone analytics platform for precision agriculture and infrastructure inspection
+  hq: North Carolina, USA
+- name: SAME Deutz-Fahr / SDF Group
+  type: competitor
+  region:
+  - US
+  industry: oem_platform
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://sdfgroup.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: oem_platform
+  threat_level: LOW
+  overlap: OEM harvest data collection on SDF combine harvesters
+  core_product: Precision farming features across SAME, Deutz-Fahr, Lamborghini Trattori equipment
+  hq: Germany/Italy
+- name: SST Software (Proagrica)
+  type: competitor
+  region:
+  - US
+  industry: farm_management
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://sstsoftware.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Yield data storage and basic mapping — partial overlap with GG analytics output
+  core_product: Farm record-keeping and agronomy analytics software
+  hq: Ohio, USA
+- name: Samsara (Ag vertical)
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://samsara.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Machine data from farm equipment — partial overlap with GG's CAN bus data approach
+  core_product: Fleet and equipment telematics including agricultural machinery monitoring
+  hq: California, USA
+- name: Sentera
+  type: competitor
+  region:
+  - US
+  industry: remote_sensing
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://sentera.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Field analytics and yield variability mapping — similar output to GG heat maps
+  core_product: Drone-based crop scouting and agronomic analytics for large farms
+  hq: Minnesota, USA
+- name: Solinftec
+  type: competitor
+  region:
+  - US
+  industry: precision_ag
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://solinftec.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: AI field analytics and machine monitoring — similar B2B model to GG
+  core_product: AI-powered precision agriculture robotics and analytics for row crops
+  hq: Brazil/USA
+- name: Taranis (Wilbur-Ellis)
+  type: competitor
+  region:
+  - US
+  industry: remote_sensing
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://taranis.com
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: AI-powered field analytics and yield optimization recommendations
+  core_product: AI crop scouting via high-resolution aerial imagery and AI analytics
+  hq: Israel/USA
+- name: Taranis EU (Wilbur-Ellis)
+  type: competitor
+  region:
+  - EU
+  industry: remote_sensing
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://taranis.ag
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Crop monitoring and early stress detection — no yield sensor overlap
+  core_product: High-resolution aerial imagery + AI crop diagnostics for EU farmers
+  hq: Israel / Netherlands
+- name: VISAR (Tectronics)
+  type: competitor
+  region:
+  - US
+  industry: food_processing_tech
+  priority: LOW
+  monitoring: pending_discovery
+  website: https://visar.co.uk
+  contact_lookup: false
+  scrape_urls: []
+  rss_feeds: []
+  serp_queries: []
+  competitor_type: partial_indirect
+  threat_level: LOW
+  overlap: Automated potato grading/sizing — direct overlap with Root Vision's classification use case
+  core_product: Computer vision inspection and grading systems for potatoes and root vegetables
+  hq: UK
