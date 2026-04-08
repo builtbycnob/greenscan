@@ -1,7 +1,6 @@
 # GreenScan — Target Companies & Competitors
-# Generated from founder's March 2026 CSV export + existing verified URLs.
+# Updated with URL discovery results.
 # Total: 124 (67 customers + 57 competitors)
-# Pending URL discovery: 104
 
 targets:
 - name: ADM (Archer-Daniels-Midland)
@@ -10,10 +9,11 @@ targets:
   - US
   industry: grain_trader
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://adm.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://adm.com/news
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -29,11 +29,13 @@ targets:
   - EU
   industry: direct_farm_operator
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://arvalis.fr
   contact_lookup: true
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://arvalis.fr/news
+  rss_feeds:
+  - https://arvalis.fr/rss.xml
   serp_queries: []
   decision_maker_titles:
   - Director of Crop Innovation
@@ -47,11 +49,13 @@ targets:
   - US
   industry: direct_farm_operator
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: rss
   website: https://agreserves.com
   contact_lookup: true
   scrape_urls: []
-  rss_feeds: []
+  rss_feeds:
+  - https://agreserves.com/comments/feed/
+  - https://agreserves.com/feed/
   serp_queries: []
   decision_maker_titles:
   - President/CEO AgReserves
@@ -66,7 +70,7 @@ targets:
   - US
   industry: crop_insurance
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://agrisompo.com
   contact_lookup: true
   scrape_urls: []
@@ -105,10 +109,11 @@ targets:
   - US
   industry: crop_insurance
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://fbfs.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://fbfs.com/newsroom
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -123,10 +128,11 @@ targets:
   - EU
   industry: farmland_investor
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://aquila-capital.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://aquila-capital.com/press
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -141,7 +147,7 @@ targets:
   - EU
   industry: food_processor
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://aviko.com
   contact_lookup: true
   scrape_urls: []
@@ -159,7 +165,7 @@ targets:
   - EU
   industry: agri_finance
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://baywa.de
   contact_lookup: true
   scrape_urls: []
@@ -220,10 +226,13 @@ targets:
   - US
   industry: grain_trader
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://bunge.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://bunge.com/news
+  - https://bunge.com/newsroom
+  - https://bunge.com/press-releases
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -259,7 +268,7 @@ targets:
   - US
   industry: grain_trader
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://cargill.eu
   contact_lookup: true
   scrape_urls: []
@@ -277,10 +286,13 @@ targets:
   - US
   industry: food_processor
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://cavendishfarms.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://cavendishfarms.com/news
+  - https://cavendishfarms.com/newsroom
+  - https://cavendishfarms.com/blog
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -316,10 +328,11 @@ targets:
   - EU
   industry: agri_finance
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://credit-agricole.fr
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://credit-agricole.fr/blog
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -334,7 +347,7 @@ targets:
   - EU
   industry: direct_farm_operator
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://agrifirm.nl
   contact_lookup: true
   scrape_urls: []
@@ -352,10 +365,12 @@ targets:
   - US
   industry: crop_insurance
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://fmh.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://fmh.com/news
+  - https://fmh.com/about/news
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -392,11 +407,16 @@ targets:
   - US
   industry: direct_farm_operator
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://grimmway.com
   contact_lookup: true
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://grimmway.com/news
+  - https://grimmway.com/newsroom
+  - https://grimmway.com/press
+  rss_feeds:
+  - https://grimmway.com/feed
+  - https://grimmway.com/rss
   serp_queries: []
   decision_maker_titles:
   - President/CEO
@@ -433,7 +453,7 @@ targets:
   - US
   industry: food_processor
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://lambweston.com
   contact_lookup: true
   scrape_urls: []
@@ -475,10 +495,11 @@ targets:
   - US
   industry: crop_insurance
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://naucountry.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://naucountry.com/about-us/news
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -515,10 +536,13 @@ targets:
   - US
   industry: farmland_investor
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://nuveen.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://nuveen.com/news
+  - https://nuveen.com/newsroom
+  - https://nuveen.com/blog
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -535,7 +559,7 @@ targets:
   - EU
   industry: direct_farm_operator
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: ''
   contact_lookup: true
   scrape_urls: []
@@ -576,10 +600,13 @@ targets:
   - US
   industry: crop_insurance
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://rcis.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://rcis.com/news
+  - https://rcis.com/newsroom
+  - https://rcis.com/blog
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -595,7 +622,7 @@ targets:
   - EU
   industry: agri_finance
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://rabobank.com
   contact_lookup: true
   scrape_urls: []
@@ -614,11 +641,14 @@ targets:
   - US
   industry: agri_input
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://syngenta.com
   contact_lookup: true
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://syngenta.com/newsroom
+  - https://syngenta.com/media
+  rss_feeds:
+  - https://syngenta.com/rss.xml
   serp_queries: []
   decision_maker_titles:
   - Head of Digital Agriculture EU
@@ -632,10 +662,11 @@ targets:
   - EU
   industry: sugar_processor
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://suedzucker.de
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://suedzucker.de/press
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -650,7 +681,7 @@ targets:
   - EU
   industry: direct_farm_operator
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://unifarm.nl
   contact_lookup: true
   scrape_urls: []
@@ -669,7 +700,7 @@ targets:
   - EU
   industry: grain_trader
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://viterra.com
   contact_lookup: true
   scrape_urls: []
@@ -708,10 +739,11 @@ targets:
   - US
   industry: agri_finance
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://agfirst.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://agfirst.com/news
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -727,7 +759,7 @@ targets:
   - EU
   industry: direct_farm_operator
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: ''
   contact_lookup: true
   scrape_urls: []
@@ -764,7 +796,7 @@ targets:
   - EU
   industry: food_processor
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://ardo.com
   contact_lookup: true
   scrape_urls: []
@@ -783,7 +815,7 @@ targets:
   - US
   industry: agri_input
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://basf.com/agriculture
   contact_lookup: true
   scrape_urls: []
@@ -801,11 +833,16 @@ targets:
   - US
   industry: direct_farm_operator
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://bolthouse.com
   contact_lookup: true
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://bolthouse.com/news
+  - https://bolthouse.com/newsroom
+  - https://bolthouse.com/blog
+  rss_feeds:
+  - https://bolthouse.com/feed
+  - https://bolthouse.com/rss
   serp_queries: []
   decision_maker_titles:
   - VP Farming
@@ -820,10 +857,11 @@ targets:
   - US
   industry: grain_trader
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://chsinc.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://chsinc.com/news
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -840,7 +878,7 @@ targets:
   - US
   industry: agri_finance
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://cobank.com
   contact_lookup: true
   scrape_urls: []
@@ -877,10 +915,11 @@ targets:
   - US
   industry: direct_farm_operator
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://dudafresh.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://www.dudafresh.com/news
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -896,10 +935,11 @@ targets:
   - US
   industry: agri_finance
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://fcsamerica.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://fcsamerica.com/news
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -915,10 +955,13 @@ targets:
   - EU
   industry: farmland_investor
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://foresightgroup.eu
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://foresightgroup.eu/news
+  - https://foresightgroup.eu/newsroom
+  - https://foresightgroup.eu/blog
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -952,7 +995,7 @@ targets:
   - US
   industry: direct_farm_operator
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://grant4dfarms.com
   contact_lookup: true
   scrape_urls: []
@@ -971,10 +1014,11 @@ targets:
   - US
   industry: crop_insurance
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://gaig.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://gaig.com/news
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -990,11 +1034,14 @@ targets:
   - EU
   industry: farmland_investor
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://greshamhouse.com
   contact_lookup: true
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://greshamhouse.com/news
+  rss_feeds:
+  - https://greshamhouse.com/feed
+  - https://greshamhouse.com/rss
   serp_queries: []
   decision_maker_titles:
   - Head of Agri Assets
@@ -1027,10 +1074,12 @@ targets:
   - US
   industry: food_processor
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://idahoan.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://idahoan.com/blog
+  - https://idahoan.com/press
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -1046,7 +1095,7 @@ targets:
   - EU
   industry: food_processor
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://lutosa.com
   contact_lookup: true
   scrape_urls: []
@@ -1064,11 +1113,16 @@ targets:
   - US
   industry: sugar_processor
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://michigansugar.com
   contact_lookup: true
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://michigansugar.com/news
+  - https://michigansugar.com/press
+  - https://michigansugar.com/company/news
+  rss_feeds:
+  - https://michigansugar.com/feed
+  - https://michigansugar.com/rss
   serp_queries: []
   decision_maker_titles:
   - CEO
@@ -1084,10 +1138,13 @@ targets:
   - US
   industry: direct_farm_operator
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://periandsons.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://periandsons.com/news
+  - https://periandsons.com/newsroom
+  - https://periandsons.com/blog
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -1143,11 +1200,16 @@ targets:
   - US
   industry: direct_farm_operator
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://rpeproduce.com
   contact_lookup: true
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://rpeproduce.com/news
+  - https://rpeproduce.com/newsroom
+  - https://rpeproduce.com/blog
+  rss_feeds:
+  - https://www.rpespud.com/feed/
+  - https://www.rpespud.com/comments/feed/
   serp_queries: []
   decision_maker_titles:
   - CEO
@@ -1163,7 +1225,7 @@ targets:
   - US
   industry: agri_finance
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://raboagrifinance.com
   contact_lookup: true
   scrape_urls: []
@@ -1182,7 +1244,7 @@ targets:
   - US
   industry: direct_farm_operator
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: ''
   contact_lookup: true
   scrape_urls: []
@@ -1200,10 +1262,11 @@ targets:
   - US
   industry: direct_farm_operator
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://taylorfarms.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://taylorfarms.com/newsroom
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -1219,7 +1282,7 @@ targets:
   - EU
   industry: grain_trader
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://admtoepfer.com
   contact_lookup: true
   scrape_urls: []
@@ -1237,7 +1300,7 @@ targets:
   - US
   industry: farmland_investor
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://ubswestchester.com
   contact_lookup: true
   scrape_urls: []
@@ -1256,7 +1319,7 @@ targets:
   - US
   industry: sugar_processor
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://westernsugar.com
   contact_lookup: true
   scrape_urls: []
@@ -1276,11 +1339,16 @@ targets:
   - US
   industry: agri_input
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://wilburellis.com
   contact_lookup: true
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://wilburellis.com/news
+  - https://wilburellis.com/blog
+  - https://wilburellis.com/company/news
+  rss_feeds:
+  - https://wilburellis.com/feed
+  - https://wilburellis.com/rss
   serp_queries: []
   decision_maker_titles:
   - Agronomy Director
@@ -1295,7 +1363,7 @@ targets:
   - EU
   industry: precision_ag
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://agcocorp.com
   contact_lookup: false
   scrape_urls: []
@@ -1313,11 +1381,15 @@ targets:
   - US
   industry: precision_ag
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://agleader.com
   contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://agleader.com/blog
+  - https://agleader.com/media-center
+  rss_feeds:
+  - https://agleader.com/feed
+  - https://agleader.com/rss
   serp_queries: []
   competitor_type: direct
   threat_level: HIGH
@@ -1331,10 +1403,13 @@ targets:
   - US
   industry: precision_ag
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://claas.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://claas.com/news
+  - https://claas.com/newsroom
+  - https://claas.com/blog
   rss_feeds: []
   serp_queries: []
   competitor_type: oem_platform
@@ -1349,7 +1424,7 @@ targets:
   - US
   industry: precision_ag
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://caseih.com
   contact_lookup: false
   scrape_urls: []
@@ -1388,11 +1463,14 @@ targets:
   - US
   industry: precision_ag
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://farmtrx.com
   contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://farmtrx.com/blog
+  rss_feeds:
+  - https://farmtrx.com/feed
+  - https://farmtrx.com/rss
   serp_queries: []
   competitor_type: direct
   threat_level: HIGH
@@ -1427,7 +1505,7 @@ targets:
   - US
   industry: precision_ag
   priority: HIGH
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://mcelettronica.it
   contact_lookup: false
   scrape_urls: []
@@ -1444,7 +1522,7 @@ targets:
   - US
   industry: precision_ag
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://agcocorp.com
   contact_lookup: false
   scrape_urls: []
@@ -1461,7 +1539,7 @@ targets:
   - US
   industry: precision_ag
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://climate.com
   contact_lookup: false
   scrape_urls: []
@@ -1478,7 +1556,7 @@ targets:
   - EU
   industry: precision_ag
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://cropwise.com
   contact_lookup: false
   scrape_urls: []
@@ -1495,10 +1573,11 @@ targets:
   - US
   industry: precision_ag
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://dickey-john.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://dickey-john.com/news
   rss_feeds: []
   serp_queries: []
   competitor_type: direct
@@ -1513,7 +1592,7 @@ targets:
   - US
   industry: precision_ag
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://exfarm.it
   contact_lookup: false
   scrape_urls: []
@@ -1531,11 +1610,15 @@ targets:
   - US
   industry: remote_sensing
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://farmersedge.ca
   contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://farmersedge.ca/about-us/news
+  - https://farmersedge.ca/information-centre/news
+  rss_feeds:
+  - https://farmersedge.ca/rss
+  - https://corvian.com/feed/
   serp_queries: []
   competitor_type: partial_indirect
   threat_level: MEDIUM
@@ -1548,10 +1631,13 @@ targets:
   - US
   industry: oem_platform
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://deere.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://deere.com/news
+  - https://deere.com/newsroom
+  - https://deere.com/en/our-company/news-and-announcements
   rss_feeds: []
   serp_queries: []
   competitor_type: oem_platform
@@ -1565,11 +1651,16 @@ targets:
   - EU
   industry: precision_ag
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://mueller-elektronik.de
   contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://mueller-elektronik.de/news
+  - https://mueller-elektronik.de/company/news
+  - https://mueller-elektronik.de/about/news
+  rss_feeds:
+  - https://mueller-elektronik.de/feed
+  - https://mueller-elektronik.de/rss
   serp_queries: []
   competitor_type: direct
   threat_level: MEDIUM
@@ -1582,7 +1673,7 @@ targets:
   - US
   industry: oem_platform
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://precisionplanting.com
   contact_lookup: false
   scrape_urls: []
@@ -1600,7 +1691,7 @@ targets:
   - US
   industry: precision_ag
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://proagrica.com
   contact_lookup: false
   scrape_urls: []
@@ -1617,10 +1708,12 @@ targets:
   - US
   industry: precision_ag
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://ravenind.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://ravenind.com/news
+  - https://ravenind.com/blog
   rss_feeds: []
   serp_queries: []
   competitor_type: direct
@@ -1634,7 +1727,7 @@ targets:
   - US
   industry: food_processing_tech
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://tomra.com
   contact_lookup: false
   scrape_urls: []
@@ -1651,10 +1744,11 @@ targets:
   - US
   industry: precision_ag
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://topconpositioning.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://topconpositioning.com/news
   rss_feeds: []
   serp_queries: []
   competitor_type: direct
@@ -1689,7 +1783,7 @@ targets:
   - EU
   industry: precision_ag
   priority: MEDIUM
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://xarvio.com
   contact_lookup: false
   scrape_urls: []
@@ -1706,7 +1800,7 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://agconnections.com
   contact_lookup: false
   scrape_urls: []
@@ -1723,7 +1817,7 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://agjunction.com
   contact_lookup: false
   scrape_urls: []
@@ -1740,10 +1834,11 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://agvantage.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://agvantage.com/blog
   rss_feeds: []
   serp_queries: []
   competitor_type: partial_indirect
@@ -1757,11 +1852,16 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://agriwebb.com
   contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://agriwebb.com/news
+  - https://agriwebb.com/blog
+  - https://agriwebb.com/press
+  rss_feeds:
+  - https://agriwebb.com/feed
+  - https://agriwebb.com/rss
   serp_queries: []
   competitor_type: partial_indirect
   threat_level: LOW
@@ -1774,11 +1874,16 @@ targets:
   - EU
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://agrivi.com
   contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://agrivi.com/news
+  - https://agrivi.com/newsroom
+  - https://agrivi.com/blog
+  rss_feeds:
+  - https://agrivi.com/feed
+  - https://agrivi.com/rss
   serp_queries: []
   competitor_type: partial_indirect
   threat_level: LOW
@@ -1791,11 +1896,14 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://arable.com
   contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://arable.com/blog
+  rss_feeds:
+  - https://arable.com/feed
+  - https://arable.com/rss
   serp_queries: []
   competitor_type: partial_indirect
   threat_level: LOW
@@ -1808,10 +1916,11 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://bushel.ag
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://bushel.ag/blog
   rss_feeds: []
   serp_queries: []
   competitor_type: partial_indirect
@@ -1825,10 +1934,13 @@ targets:
   - US
   industry: food_processing_tech
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://buhlergroup.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://buhlergroup.com/news
+  - https://buhlergroup.com/newsroom
+  - https://buhlergroup.com/blog
   rss_feeds: []
   serp_queries: []
   competitor_type: partial_indirect
@@ -1842,10 +1954,13 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://conservis.ag
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://conservis.ag/news
+  - https://conservis.ag/newsroom
+  - https://conservis.ag/blog
   rss_feeds: []
   serp_queries: []
   competitor_type: partial_indirect
@@ -1859,11 +1974,16 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://cropx.com
   contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://cropx.com/news
+  - https://cropx.com/blog
+  - https://cropx.com/press
+  rss_feeds:
+  - https://cropx.com/feed
+  - https://cropx.com/rss
   serp_queries: []
   competitor_type: partial_indirect
   threat_level: LOW
@@ -1876,11 +1996,16 @@ targets:
   - EU
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://cropin.com
   contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://cropin.com/newsroom
+  - https://cropin.com/blog
+  - https://cropin.com/media
+  rss_feeds:
+  - https://cropin.com/feed
+  - https://cropin.com/rss
   serp_queries: []
   competitor_type: partial_indirect
   threat_level: LOW
@@ -1893,7 +2018,7 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://cropio.com
   contact_lookup: false
   scrape_urls: []
@@ -1910,11 +2035,16 @@ targets:
   - US
   industry: farm_management
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://decisivefarming.com
   contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://decisivefarming.com/news
+  - https://decisivefarming.com/blog
+  - https://decisivefarming.com/company/news
+  rss_feeds:
+  - https://decisivefarming.com/feed
+  - https://decisivefarming.com/rss
   serp_queries: []
   competitor_type: partial_indirect
   threat_level: LOW
@@ -1927,7 +2057,7 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://descarteslabs.com
   contact_lookup: false
   scrape_urls: []
@@ -1944,10 +2074,13 @@ targets:
   - US
   industry: farm_management
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://farmlogs.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://farmlogs.com/news
+  - https://farmlogs.com/newsroom
+  - https://farmlogs.com/blog
   rss_feeds: []
   serp_queries: []
   competitor_type: partial_indirect
@@ -1961,11 +2094,12 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: rss
   website: https://fbn.com
   contact_lookup: false
   scrape_urls: []
-  rss_feeds: []
+  rss_feeds:
+  - https://fbnfarmers.libsyn.com/rss
   serp_queries: []
   competitor_type: partial_indirect
   threat_level: LOW
@@ -1978,7 +2112,7 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://gro-intelligence.com
   contact_lookup: false
   scrape_urls: []
@@ -1995,11 +2129,16 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://growersedge.com
   contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://growersedge.com/news
+  - https://growersedge.com/blog
+  - https://growersedge.com/company/news
+  rss_feeds:
+  - https://growersedge.com/feed
+  - https://growersedge.com/rss
   serp_queries: []
   competitor_type: partial_indirect
   threat_level: LOW
@@ -2012,7 +2151,7 @@ targets:
   - US
   industry: oem_platform
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://hexagonpositioning.com
   contact_lookup: false
   scrape_urls: []
@@ -2030,7 +2169,7 @@ targets:
   - US
   industry: remote_sensing
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://hummingbirdtech.com
   contact_lookup: false
   scrape_urls: []
@@ -2047,10 +2186,12 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://iteris.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://iteris.com/news
+  - https://iteris.com/blog
   rss_feeds: []
   serp_queries: []
   competitor_type: partial_indirect
@@ -2064,11 +2205,16 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://key.net
   contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://key.net/news
+  - https://key.net/company/news
+  - https://key.net/about/news
+  rss_feeds:
+  - https://key.net/feed
+  - https://key.net/rss
   serp_queries: []
   competitor_type: partial_indirect
   threat_level: LOW
@@ -2081,10 +2227,12 @@ targets:
   - US
   industry: oem_platform
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://kubota.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://kubota.com/news
+  - https://kubota.com/newsroom
   rss_feeds: []
   serp_queries: []
   competitor_type: oem_platform
@@ -2098,11 +2246,14 @@ targets:
   - EU
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://kuhn.com
   contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://kuhn.com/news
+  - https://kuhn.com/press-releases
+  rss_feeds:
+  - https://kuhn.com/rss.xml
   serp_queries: []
   competitor_type: partial_indirect
   threat_level: LOW
@@ -2116,10 +2267,11 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://onesoil.ai
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://onesoil.ai/media
   rss_feeds: []
   serp_queries: []
   competitor_type: partial_indirect
@@ -2133,7 +2285,7 @@ targets:
   - US
   industry: remote_sensing
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://precisionhawk.com
   contact_lookup: false
   scrape_urls: []
@@ -2150,7 +2302,7 @@ targets:
   - US
   industry: oem_platform
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://sdfgroup.com
   contact_lookup: false
   scrape_urls: []
@@ -2167,7 +2319,7 @@ targets:
   - US
   industry: farm_management
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://sstsoftware.com
   contact_lookup: false
   scrape_urls: []
@@ -2184,10 +2336,12 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape
   website: https://samsara.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://samsara.com/blog
+  - https://samsara.com/company/news
   rss_feeds: []
   serp_queries: []
   competitor_type: partial_indirect
@@ -2201,7 +2355,7 @@ targets:
   - US
   industry: remote_sensing
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://sentera.com
   contact_lookup: false
   scrape_urls: []
@@ -2218,11 +2372,15 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://solinftec.com
   contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://solinftec.com/news
+  - https://solinftec.com/blog
+  rss_feeds:
+  - https://solinftec.com/feed
+  - https://solinftec.com/rss
   serp_queries: []
   competitor_type: partial_indirect
   threat_level: LOW
@@ -2235,11 +2393,15 @@ targets:
   - US
   industry: remote_sensing
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: direct_scrape_and_rss
   website: https://taranis.com
   contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://taranis.com/blog
+  - https://taranis.com/media
+  rss_feeds:
+  - https://taranis.com/feed
+  - https://taranis.com/rss
   serp_queries: []
   competitor_type: partial_indirect
   threat_level: LOW
@@ -2252,7 +2414,7 @@ targets:
   - EU
   industry: remote_sensing
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: serp_only
   website: https://taranis.ag
   contact_lookup: false
   scrape_urls: []
@@ -2269,11 +2431,13 @@ targets:
   - US
   industry: food_processing_tech
   priority: LOW
-  monitoring: pending_discovery
+  monitoring: rss
   website: https://visar.co.uk
   contact_lookup: false
   scrape_urls: []
-  rss_feeds: []
+  rss_feeds:
+  - https://visar.co.uk/feed
+  - https://visar.co.uk/rss
   serp_queries: []
   competitor_type: partial_indirect
   threat_level: LOW
