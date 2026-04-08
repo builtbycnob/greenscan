@@ -1,7 +1,7 @@
 # GreenScan — Product Backlog & Roadmap
 
 **Last updated:** April 8, 2026
-**Status:** Dual intelligence live (124 targets), cron 1x/day at 07:00 UTC, multi-recipient
+**Status:** Dual intelligence live (124 targets), cron 1x/day at 04:00 UTC (06:00 CEST), multi-recipient
 
 ---
 
@@ -9,8 +9,8 @@
 
 | Feature | Status | Notes |
 |---|---|---|
-| Web scraping (65 targets) | ✅ Live | Crawl4AI, stealth mode |
-| RSS scraping (26 targets) | ✅ Live | feedparser + newspaper4k |
+| Web scraping (66 targets) | ✅ Live | Crawl4AI, stealth mode |
+| RSS scraping (28 targets) | ✅ Live | feedparser + newspaper4k |
 | Signal classification (11 categories) | ✅ Live | Groq primary, Cerebras fallback, dual rubrics |
 | Content deduplication | ✅ Live | SHA256, cross-run via DB |
 | Entity linking (pg_trgm) | ✅ Live | Fuzzy match to companies/contacts |
@@ -18,8 +18,8 @@
 | Contact discovery (customers) | ✅ Live | Serper LinkedIn lookup, 20/day cap |
 | Telegram delivery | ✅ Live | Multi-recipient (dev + founder), daily brief + alerts |
 | Database persistence | ✅ Live | Neon Postgres 17, 6 tables |
-| GitHub Actions cron | ✅ Live | 07:00 UTC daily |
-| Dead man's switch | ✅ Live | Alerts if no brief by 07:00 UTC |
+| GitHub Actions cron | ✅ Live | 04:00 UTC daily (06:00 CEST) |
+| Dead man's switch | ✅ Live | Alerts if no brief by 05:00 UTC |
 | CI/CD (lint + tests) | ✅ Live | 47 unit tests |
 | 124 targets (67 cust + 57 comp) | ✅ Live | EU + US, extended metadata from founder CSV |
 
@@ -251,7 +251,7 @@ Also shift Dead Man's Switch to 1 hour after pipeline cron to avoid false alarms
 | `datetime.utcnow()` deprecation in storage module | 15min | Low — use `datetime.now(UTC)` |
 | Farmland Partners URL always fails | 30min | Low — switch to SERP or remove |
 | No retry on Telegram send failure | 1h | Low — add tenacity retry |
-| RSS module exists but unused (no feeds found) | 0h | None — keep for future use |
+| ~~RSS module exists but unused~~ | ✅ Fixed | RSS active, 28 targets with feeds |
 | `_pool` accessed directly from linker | 30min | Low — add pool property to Database |
 | Integration tests don't clean up DB state | 1h | Low — add test fixtures with rollback |
 

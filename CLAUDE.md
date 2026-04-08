@@ -10,9 +10,10 @@ Competitive Intelligence sections. Budget: €0/month (all free tiers).
 - **LLM Primary:** Groq (Llama 3.3 70B, 1000 RPD, 12K TPM)
 - **LLM Fallback:** Cerebras (Qwen 3 235B, 14400 RPD, 1M TPD)
 - **LLM Brief:** Gemini 2.5 Flash (250 RPD) or Groq fallback
+- **LLM Classify Fallback:** Gemini 2.5 Flash Lite (3rd tier after Groq → Cerebras)
 - **Database:** Neon Postgres 17 (0.5GB, pg_trgm, scale-to-zero, aws-us-east-1)
 - **Delivery:** Telegram Bot API, multi-recipient (comma-separated TELEGRAM_CHAT_ID)
-- **Scheduling:** GitHub Actions cron (07:00 UTC daily)
+- **Scheduling:** GitHub Actions cron (04:00 UTC daily = 06:00 CEST)
 - **SERP:** Serper.dev (2,500 lifetime credits) for contact LinkedIn lookups
 
 ## Commands
