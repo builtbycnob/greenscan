@@ -1,6 +1,5 @@
 # GreenScan — Target Companies & Competitors
-# Updated with URL discovery results.
-# Total: 124 (67 customers + 57 competitors)
+# Total: 120 (67 customers + 53 competitors)
 
 targets:
 - name: ADM (Archer-Daniels-Midland)
@@ -70,10 +69,11 @@ targets:
   - US
   industry: crop_insurance
   priority: HIGH
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://agrisompo.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://www.agrisompo.com/resources/company-and-industry-news/
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -148,7 +148,7 @@ targets:
   industry: food_processor
   priority: HIGH
   monitoring: serp_only
-  website: https://aviko.com
+  website: https://corporate.aviko.com/en
   contact_lookup: true
   scrape_urls: []
   rss_feeds: []
@@ -165,10 +165,11 @@ targets:
   - EU
   industry: agri_finance
   priority: HIGH
-  monitoring: serp_only
-  website: https://baywa.de
+  monitoring: direct_scrape
+  website: https://www.baywa.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://www.baywa.com/en/pressinformation
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -205,10 +206,12 @@ targets:
   - US
   industry: direct_farm_operator
   priority: HIGH
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://blackgoldfarms.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://www.blackgoldfarms.com/news
+  - https://www.blackgoldfarms.com/sustainability/news
   rss_feeds: []
   serp_queries:
   - Black Gold Farms precision agriculture
@@ -247,11 +250,13 @@ targets:
   - US
   industry: direct_farm_operator
   priority: HIGH
-  monitoring: serp_only
+  monitoring: rss
   website: https://cssfarms.com
   contact_lookup: true
   scrape_urls: []
-  rss_feeds: []
+  rss_feeds:
+  - https://cssfarms.com/feed
+  - https://cssfarms.com/rss
   serp_queries:
   - CSS Farms agtech news
   decision_maker_titles:
@@ -268,10 +273,11 @@ targets:
   - US
   industry: grain_trader
   priority: HIGH
-  monitoring: serp_only
-  website: https://cargill.eu
+  monitoring: direct_scrape
+  website: https://www.cargill.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://www.cargill.com/news/press-releases
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -308,11 +314,15 @@ targets:
   - US
   industry: farmland_investor
   priority: HIGH
-  monitoring: serp_only
+  monitoring: direct_scrape_and_rss
   website: https://cerespartners.com
   contact_lookup: true
-  scrape_urls: []
-  rss_feeds: []
+  scrape_urls:
+  - https://www.cerespartners.com/news
+  - https://www.cerespartners.com/news/ceres-farms
+  - https://www.cerespartners.com/news/private-equity
+  rss_feeds:
+  - https://www.cerespartners.com/news/feed.rss
   serp_queries:
   - Ceres Partners WisdomTree farmland technology
   decision_maker_titles:
@@ -347,10 +357,13 @@ targets:
   - EU
   industry: direct_farm_operator
   priority: HIGH
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://agrifirm.nl
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://www.agrifirm.nl/aanbod/goed-boeren-beter-boeren/nieuwbouw-met-oog-voor-de-toekomst/
+  - https://www.agrifirm.nl/nieuws/marktinformatie-grondstoffen/
+  - https://www.agrifirm.nl/nieuws/grasmonitor/
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -453,10 +466,11 @@ targets:
   - US
   industry: food_processor
   priority: HIGH
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://lambweston.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://www.lambweston.com/en/news.html
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -515,10 +529,13 @@ targets:
   - US
   industry: agri_input
   priority: HIGH
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://nutrien.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://www.nutrien.com/news
+  - https://www.nutrien.com/investors/press-releases
+  - https://www.nutrien.com/about/press-releases
   rss_feeds: []
   serp_queries:
   - Nutrien digital agriculture platform
@@ -622,10 +639,11 @@ targets:
   - EU
   industry: agri_finance
   priority: HIGH
-  monitoring: serp_only
-  website: https://rabobank.com
+  monitoring: direct_scrape
+  website: https://www.rabobank.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://www.rabobank.com/about-us/press/press-releases
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -675,16 +693,17 @@ targets:
   crop_focus: Sugar Beet
   why_icp: 'Europe''s #1 sugar beet processor. Yield data per field critical for payment and contracts.'
   hq: Germany
-- name: Unifarm / De Heus Group (NL)
+- name: De Heus Group (NL)
   type: customer
   region:
   - EU
   industry: direct_farm_operator
   priority: HIGH
-  monitoring: serp_only
-  website: https://unifarm.nl
+  monitoring: direct_scrape
+  website: https://www.deheus.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://www.deheus.com/news
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -700,10 +719,11 @@ targets:
   - EU
   industry: grain_trader
   priority: HIGH
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://viterra.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://www.viterra.com/Media/News
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -718,11 +738,13 @@ targets:
   - US
   industry: direct_farm_operator
   priority: HIGH
-  monitoring: serp_only
+  monitoring: rss
   website: https://wadafarms.com
   contact_lookup: true
   scrape_urls: []
-  rss_feeds: []
+  rss_feeds:
+  - https://wadafarms.com/feed
+  - https://wadafarms.com/rss
   serp_queries:
   - Wada Farms sustainability technology
   decision_maker_titles:
@@ -777,11 +799,13 @@ targets:
   - US
   industry: direct_farm_operator
   priority: MEDIUM
-  monitoring: serp_only
+  monitoring: rss
   website: https://alsumfarms.com
   contact_lookup: true
   scrape_urls: []
-  rss_feeds: []
+  rss_feeds:
+  - https://alsumfarms.com/feed
+  - https://alsumfarms.com/rss
   serp_queries:
   - Alsum Farms technology news
   decision_maker_titles:
@@ -796,10 +820,11 @@ targets:
   - EU
   industry: food_processor
   priority: MEDIUM
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://ardo.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://ardo.com/en/stories
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -815,10 +840,11 @@ targets:
   - US
   industry: agri_input
   priority: MEDIUM
-  monitoring: serp_only
-  website: https://basf.com/agriculture
+  monitoring: direct_scrape
+  website: https://agriculture.basf.com/global/en
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://agriculture.basf.com/global/en/media/press-releases
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -878,10 +904,11 @@ targets:
   - US
   industry: agri_finance
   priority: MEDIUM
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://cobank.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://cobank.com/corporate/news
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -897,7 +924,7 @@ targets:
   industry: crop_insurance
   priority: MEDIUM
   monitoring: serp_only
-  website: https://croprisks.com
+  website: https://www.cropriskservices.com
   contact_lookup: true
   scrape_urls: []
   rss_feeds: []
@@ -970,16 +997,17 @@ targets:
   crop_focus: Arable, Permanent Crops
   why_icp: ESG reporting and yield data requirements for LP reporting.
   hq: UK / Luxembourg
-- name: Gavilon (Marubeni)
+- name: Viterra US (ex-Gavilon)
   type: customer
   region:
   - US
   industry: grain_trader
   priority: MEDIUM
-  monitoring: serp_only
-  website: https://gavilon.com
+  monitoring: direct_scrape
+  website: https://www.viterra.us
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://www.viterra.us/media/news
   rss_feeds: []
   serp_queries:
   - Gavilon Marubeni grain technology
@@ -1055,10 +1083,11 @@ targets:
   - US
   industry: farmland_investor
   priority: MEDIUM
-  monitoring: serp_only
-  website: https://hnrg.com
+  monitoring: direct_scrape
+  website: https://hancocknaturalresourcegroup.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://hancocknaturalresourcegroup.com/newsroom/
   rss_feeds: []
   serp_queries:
   - Hancock farmland technology ESG
@@ -1095,10 +1124,11 @@ targets:
   - EU
   industry: food_processor
   priority: MEDIUM
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://lutosa.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://www.lutosa.com/en/news/
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -1160,10 +1190,11 @@ targets:
   - US
   industry: food_processor
   priority: MEDIUM
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://potandon.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://www.greengiantfreshpotatoes.com/blog/
   rss_feeds: []
   serp_queries:
   - Potandon produce innovation
@@ -1180,10 +1211,13 @@ targets:
   - US
   industry: crop_insurance
   priority: MEDIUM
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://proag.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://www.proag.com/news/
+  - https://www.proag.com/blog/
+  - https://www.proag.com/mediatypes-sitemap.xml
   rss_feeds: []
   serp_queries:
   - ProAg Tokio Marine farm data insurance
@@ -1225,10 +1259,11 @@ targets:
   - US
   industry: agri_finance
   priority: MEDIUM
-  monitoring: serp_only
-  website: https://raboagrifinance.com
+  monitoring: direct_scrape
+  website: https://www.raboag.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://www.raboag.com/news-press-108
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -1245,7 +1280,7 @@ targets:
   industry: direct_farm_operator
   priority: MEDIUM
   monitoring: serp_only
-  website: ''
+  website: https://www.sackettpotatoes.com
   contact_lookup: true
   scrape_urls: []
   rss_feeds: []
@@ -1276,16 +1311,17 @@ targets:
   crop_focus: Leafy Greens, Vegetables, Value-added
   why_icp: One of the largest US vegetable growers. Data-driven farming culture. Heavy machinery fleet.
   hq: California
-- name: Toepfer International (ADM Europe)
+- name: ADM Europe (ex-Toepfer International)
   type: customer
   region:
   - EU
   industry: grain_trader
   priority: MEDIUM
-  monitoring: serp_only
-  website: https://admtoepfer.com
+  monitoring: direct_scrape
+  website: https://www.adm.com
   contact_lookup: true
-  scrape_urls: []
+  scrape_urls:
+  - https://www.adm.com/en-us/news/news-releases/
   rss_feeds: []
   serp_queries: []
   decision_maker_titles:
@@ -1301,7 +1337,7 @@ targets:
   industry: farmland_investor
   priority: MEDIUM
   monitoring: serp_only
-  website: https://ubswestchester.com
+  website: https://www.ubs.com/global/en/assetmanagement/capabilities/food-agriculture.html
   contact_lookup: true
   scrape_urls: []
   rss_feeds: []
@@ -1424,10 +1460,11 @@ targets:
   - US
   industry: precision_ag
   priority: HIGH
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://caseih.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://media.cnh.com/NORTH-AMERICA/case-ih
   rss_feeds: []
   serp_queries: []
   competitor_type: oem_platform
@@ -1505,10 +1542,11 @@ targets:
   - US
   industry: precision_ag
   priority: HIGH
-  monitoring: serp_only
-  website: https://mcelettronica.it
+  monitoring: direct_scrape
+  website: https://www.mcelettronica.it/en/
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://www.mcelettronica.it/en/newsblog/
   rss_feeds: []
   serp_queries: []
   competitor_type: direct
@@ -1516,33 +1554,18 @@ targets:
   overlap: Root crop yield sensors for harvesting machines — SAME segment as GG root crop sensor
   core_product: Yield sensors for combine harvesters incl. potato & root crop-specific sensors
   hq: Italy
-- name: AGCO Fuse Technology
-  type: competitor
-  region:
-  - US
-  industry: precision_ag
-  priority: MEDIUM
-  monitoring: serp_only
-  website: https://agcocorp.com
-  contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
-  serp_queries: []
-  competitor_type: direct
-  threat_level: MEDIUM
-  overlap: OEM yield monitoring built into AGCO machines. Farmers with AGCO may not need GG.
-  core_product: Precision ag platform across Fendt, Massey Ferguson, Valtra — yield mapping, connectivity
-  hq: Georgia, USA
 - name: Climate FieldView (Bayer)
   type: competitor
   region:
   - US
   industry: precision_ag
   priority: MEDIUM
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://climate.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://climate.com/en-us/resources/blog.html
+  - https://climate.com/en-us/resources/press-releases.html
   rss_feeds: []
   serp_queries: []
   competitor_type: oem_platform
@@ -1556,10 +1579,11 @@ targets:
   - EU
   industry: precision_ag
   priority: MEDIUM
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://cropwise.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://www.syngenta.com/media/media-releases
   rss_feeds: []
   serp_queries: []
   competitor_type: partial_indirect
@@ -1593,7 +1617,7 @@ targets:
   industry: precision_ag
   priority: MEDIUM
   monitoring: serp_only
-  website: https://exfarm.it
+  website: https://xfarm.ag
   contact_lookup: false
   scrape_urls: []
   rss_feeds: []
@@ -1673,10 +1697,11 @@ targets:
   - US
   industry: oem_platform
   priority: MEDIUM
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://precisionplanting.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://www.precisionplanting.com/resources?category=news
   rss_feeds: []
   serp_queries: []
   competitor_type: oem_platform
@@ -1727,10 +1752,11 @@ targets:
   - US
   industry: food_processing_tech
   priority: MEDIUM
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://tomra.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://www.tomra.com/food/media-center/news
   rss_feeds: []
   serp_queries: []
   competitor_type: partial_indirect
@@ -1783,10 +1809,11 @@ targets:
   - EU
   industry: precision_ag
   priority: MEDIUM
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://xarvio.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://www.xarvio.com/global/en/news.html
   rss_feeds: []
   serp_queries: []
   competitor_type: partial_indirect
@@ -2018,10 +2045,11 @@ targets:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://cropio.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://operations.cropwise.com/d/users/sign_in
   rss_feeds: []
   serp_queries: []
   competitor_type: partial_indirect
@@ -2051,16 +2079,17 @@ targets:
   overlap: Field analytics and yield data management — partial overlap with GG analytics output
   core_product: Agronomic decision support platform and farm management software
   hq: Canada
-- name: Descartes Labs
+- name: EarthDaily Analytics (ex-Descartes Labs)
   type: competitor
   region:
   - US
   industry: precision_ag
   priority: LOW
-  monitoring: serp_only
-  website: https://descarteslabs.com
+  monitoring: direct_scrape
+  website: https://earthdaily.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://earthdaily.com/press/
   rss_feeds: []
   serp_queries: []
   competitor_type: partial_indirect
@@ -2106,23 +2135,6 @@ targets:
   overlap: Field performance analysis and yield benchmarking — partial data overlap with GG
   core_product: 'Digital ag platform: agronomic analytics, benchmarking, e-commerce for inputs'
   hq: California, USA
-- name: Gro Intelligence
-  type: competitor
-  region:
-  - US
-  industry: precision_ag
-  priority: LOW
-  monitoring: serp_only
-  website: https://gro-intelligence.com
-  contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
-  serp_queries: []
-  competitor_type: partial_indirect
-  threat_level: LOW
-  overlap: Crop analytics and yield forecasting at macro level — adjacent to GG's field-level analytics
-  core_product: Agricultural data analytics platform aggregating global crop and market data
-  hq: New York, USA
 - name: Growers Edge
   type: competitor
   region:
@@ -2151,10 +2163,11 @@ targets:
   - US
   industry: oem_platform
   priority: LOW
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://hexagonpositioning.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://hexagonpositioning.com/about-us/press-releases
   rss_feeds: []
   serp_queries: []
   competitor_type: oem_platform
@@ -2162,17 +2175,18 @@ targets:
   overlap: Precision guidance and field data collection — indirect overlap with GG's field analytics
   core_product: GNSS/GPS guidance systems and precision ag solutions for farming equipment
   hq: Switzerland/USA
-- name: Hummingbird Technologies
+- name: Agreena (ex-Hummingbird Technologies)
   type: competitor
   region:
   - EU
   - US
   industry: remote_sensing
   priority: LOW
-  monitoring: serp_only
-  website: https://hummingbirdtech.com
+  monitoring: direct_scrape
+  website: https://agreena.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://agreena.com/news
   rss_feeds: []
   serp_queries: []
   competitor_type: partial_indirect
@@ -2279,33 +2293,17 @@ targets:
   overlap: Crop biomass and field variability monitoring — complementary but no harvest data
   core_product: Satellite-based crop monitoring and field analytics
   hq: Belarus / Netherlands
-- name: Precisionhawk
-  type: competitor
-  region:
-  - US
-  industry: remote_sensing
-  priority: LOW
-  monitoring: serp_only
-  website: https://precisionhawk.com
-  contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
-  serp_queries: []
-  competitor_type: partial_indirect
-  threat_level: LOW
-  overlap: Aerial field analytics and crop monitoring — adjacent to GG's field analytics output
-  core_product: Drone analytics platform for precision agriculture and infrastructure inspection
-  hq: North Carolina, USA
 - name: SAME Deutz-Fahr / SDF Group
   type: competitor
   region:
   - US
   industry: oem_platform
   priority: LOW
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://sdfgroup.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://www.sdfgroup.com/en-us/news
   rss_feeds: []
   serp_queries: []
   competitor_type: oem_platform
@@ -2313,23 +2311,6 @@ targets:
   overlap: OEM harvest data collection on SDF combine harvesters
   core_product: Precision farming features across SAME, Deutz-Fahr, Lamborghini Trattori equipment
   hq: Germany/Italy
-- name: SST Software (Proagrica)
-  type: competitor
-  region:
-  - US
-  industry: farm_management
-  priority: LOW
-  monitoring: serp_only
-  website: https://sstsoftware.com
-  contact_lookup: false
-  scrape_urls: []
-  rss_feeds: []
-  serp_queries: []
-  competitor_type: partial_indirect
-  threat_level: LOW
-  overlap: Yield data storage and basic mapping — partial overlap with GG analytics output
-  core_product: Farm record-keeping and agronomy analytics software
-  hq: Ohio, USA
 - name: Samsara (Ag vertical)
   type: competitor
   region:
@@ -2355,10 +2336,11 @@ targets:
   - US
   industry: remote_sensing
   priority: LOW
-  monitoring: serp_only
+  monitoring: direct_scrape
   website: https://sentera.com
   contact_lookup: false
-  scrape_urls: []
+  scrape_urls:
+  - https://sentera.com/resources/news/
   rss_feeds: []
   serp_queries: []
   competitor_type: partial_indirect
@@ -2414,11 +2396,13 @@ targets:
   - EU
   industry: remote_sensing
   priority: LOW
-  monitoring: serp_only
+  monitoring: rss
   website: https://taranis.ag
   contact_lookup: false
   scrape_urls: []
-  rss_feeds: []
+  rss_feeds:
+  - https://www.taranis.com/feed/
+  - https://www.taranis.com/comments/feed/
   serp_queries: []
   competitor_type: partial_indirect
   threat_level: LOW
