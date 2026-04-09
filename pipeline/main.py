@@ -259,6 +259,7 @@ async def run_daily() -> None:
         except Exception:
             pass
         await send_failure_alert(str(e), "daily_pipeline")
+        raise
 
 
 def main() -> None:

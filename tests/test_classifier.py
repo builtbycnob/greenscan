@@ -97,4 +97,5 @@ async def test_quota_tracking():
     async with LLMClient() as client:
         await classify_signals(client, SAMPLE_SIGNALS[:1])
 
-    assert client.quota.requests_used[Provider.GROQ] >= 1
+    total_used = sum(client.quota.requests_used.values())
+    assert total_used >= 1

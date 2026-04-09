@@ -157,7 +157,10 @@ async def generate_brief(
     )
 
     if settings.gemini_api_key:
-        return await _generate_with_gemini(user_prompt)
+        try:
+            return await _generate_with_gemini(user_prompt)
+        except Exception as e:
+            logger.warning(f"Gemini brief failed: {e}, falling back to Groq")
     return await _generate_with_groq(user_prompt)
 
 
