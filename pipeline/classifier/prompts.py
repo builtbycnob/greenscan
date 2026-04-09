@@ -97,7 +97,7 @@ def format_batch_prompt(
             f"Type: {target_type.upper()}\n"
             f"URL: {s.get('url', '')}\n"
             f"Title: {s.get('title', 'Untitled')}\n"
-            f"Content:\n{s.get('content', '')[:1500]}\n"
+            f"Content:\n{s.get('content', '')[:800]}\n"
         )
     signals_text = "\n".join(parts)
     return BATCH_USER_PROMPT.format(count=len(signals), signals_text=signals_text)

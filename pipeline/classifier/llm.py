@@ -1,20 +1,13 @@
-"""3-tier LLM client: Groq → Cerebras → Gemini with retry and circuit breaker."""
+"""3-tier LLM client: Groq → Cerebras → Gemini with drain-and-switch quota management."""
 
 import json
 import logging
-import time
 from dataclasses import dataclass, field
 from enum import StrEnum
 
 import httpx
 from groq import AsyncGroq
 from groq import RateLimitError as GroqRateLimitError
-from tenacity import (
-    retry,
-    retry_if_exception_type,
-    stop_after_attempt,
-    wait_exponential_jitter,
-)
 
 from pipeline.config import settings
 
@@ -29,22 +22,14 @@ class Provider(StrEnum):
 
 @dataclass
 class QuotaState:
-    """Track remaining quota per provider (reset each pipeline run)."""
+    """Track provider quota per pipeline run.
 
-    remaining_requests: dict[Provider, int] = field(
-        default_factory=lambda: {
-            Provider.GROQ: 1000,
-            Provider.CEREBRAS: 14400,
-            Provider.GEMINI: 250,
-        }
-    )
-    total_requests: dict[Provider, int] = field(
-        default_factory=lambda: {
-            Provider.GROQ: 1000,
-            Provider.CEREBRAS: 14400,
-            Provider.GEMINI: 250,
-        }
-    )
+    Two-layer strategy:
+    1. Proactive: switch at 90% usage (requests OR tokens) via response headers
+    2. Reactive: on 429, mark exhausted immediately and move to next provider
+    """
+
+    exhausted: set[Provider] = field(default_factory=set)
     requests_used: dict[Provider, int] = field(
         default_factory=lambda: {
             Provider.GROQ: 0,
@@ -53,65 +38,53 @@ class QuotaState:
         }
     )
 
-    def update_from_headers(self, provider: Provider, headers: dict) -> None:
-        remaining = headers.get("x-ratelimit-remaining-requests")
-        if remaining is None:
-            remaining = headers.get("x-ratelimit-remaining-requests-day")
-        if remaining is not None:
-            self.remaining_requests[provider] = int(remaining)
+    def mark_exhausted(self, provider: Provider) -> None:
+        self.exhausted.add(provider)
+        logger.info(f"{provider.value} exhausted for this run")
+
+    def is_exhausted(self, provider: Provider) -> bool:
+        return provider in self.exhausted
 
     def record_use(self, provider: Provider) -> None:
         self.requests_used[provider] += 1
 
-    def should_switch(self, provider: Provider) -> bool:
-        total = self.total_requests[provider]
-        remaining = self.remaining_requests[provider]
-        used_pct = 1 - (remaining / total) if total > 0 else 1
-        return used_pct >= settings.groq_quota_switch_pct
+    def check_headers(self, provider: Provider, headers: dict) -> None:
+        """Check rate limit headers and mark exhausted at 90% usage.
 
-
-class SimpleCircuitBreaker:
-    """Minimal circuit breaker: opens after fail_max failures, resets after timeout."""
-
-    def __init__(self, fail_max: int = 5, reset_timeout: float = 30.0) -> None:
-        self.fail_max = fail_max
-        self.reset_timeout = reset_timeout
-        self.fail_count = 0
-        self.opened_at: float | None = None
-
-    @property
-    def is_open(self) -> bool:
-        if self.opened_at is None:
-            return False
-        if time.monotonic() - self.opened_at >= self.reset_timeout:
-            self.opened_at = None
-            self.fail_count = 0
-            return False
-        return True
-
-    def record_success(self) -> None:
-        self.fail_count = 0
-        self.opened_at = None
-
-    def record_failure(self) -> None:
-        self.fail_count += 1
-        if self.fail_count >= self.fail_max:
-            self.opened_at = time.monotonic()
-
-
-class CircuitBreakerError(Exception):
-    pass
-
-
-BREAKERS = {
-    Provider.GROQ: SimpleCircuitBreaker(fail_max=5, reset_timeout=30),
-    Provider.CEREBRAS: SimpleCircuitBreaker(fail_max=5, reset_timeout=30),
-    Provider.GEMINI: SimpleCircuitBreaker(fail_max=5, reset_timeout=30),
-}
+        Checks both request and token limits — whichever hits 90% first
+        triggers the switch to the next provider.
+        """
+        threshold = settings.quota_switch_pct
+        for key in [
+            "x-ratelimit-remaining-requests",
+            "x-ratelimit-remaining-requests-day",
+            "x-ratelimit-remaining-tokens",
+            "x-ratelimit-remaining-tokens-day",
+        ]:
+            remaining = headers.get(key)
+            limit_key = key.replace("remaining", "limit")
+            limit = headers.get(limit_key)
+            if remaining is not None and limit is not None:
+                remaining_val = int(remaining)
+                limit_val = int(limit)
+                if limit_val > 0:
+                    used_pct = 1 - (remaining_val / limit_val)
+                    if used_pct >= threshold:
+                        kind = "tokens" if "token" in key else "requests"
+                        logger.info(
+                            f"{provider.value} at {used_pct:.0%} {kind} "
+                            f"({remaining_val}/{limit_val} left), switching"
+                        )
+                        self.mark_exhausted(provider)
+                        return
 
 
 class LLMError(Exception):
     """All providers exhausted or unrecoverable error."""
+
+
+class ProviderExhaustedError(Exception):
+    """A single provider hit its rate limit (429)."""
 
 
 class LLMClient:
@@ -138,24 +111,27 @@ class LLMClient:
         user_prompt: str,
         json_schema: dict | None = None,
     ) -> dict:
-        """Send a classification request through the fallback chain."""
+        """Send a classification request through the fallback chain.
+
+        Drain each provider fully before moving to the next. On a 429
+        (rate limit), immediately mark the provider as exhausted for
+        this run and try the next one.
+        """
         providers = self._pick_providers()
         last_error = None
 
         for provider in providers:
-            breaker = BREAKERS[provider]
-            if breaker.is_open:
-                logger.warning(f"{provider.value} circuit open, skipping")
-                continue
             try:
                 result = await self._call_provider(
                     provider, system_prompt, user_prompt, json_schema
                 )
-                breaker.record_success()
                 self.quota.record_use(provider)
                 return result
+            except ProviderExhaustedError as e:
+                self.quota.mark_exhausted(provider)
+                last_error = e
+                continue
             except Exception as e:
-                breaker.record_failure()
                 last_error = e
                 logger.warning(f"{provider.value} failed: {e}")
                 continue
@@ -163,25 +139,13 @@ class LLMClient:
         raise LLMError(f"All providers exhausted. Last error: {last_error}")
 
     def _pick_providers(self) -> list[Provider]:
-        """Order providers by preference, skipping exhausted ones."""
-        order = []
-        if not self.quota.should_switch(Provider.GROQ):
-            order.append(Provider.GROQ)
-        if not self.quota.should_switch(Provider.CEREBRAS):
-            order.append(Provider.CEREBRAS)
-        order.append(Provider.GEMINI)
-        # Always include all as fallback even if quota is high
-        for p in [Provider.GROQ, Provider.CEREBRAS, Provider.GEMINI]:
-            if p not in order:
-                order.append(p)
-        return order
+        """Return providers in priority order, skipping exhausted ones."""
+        return [
+            p
+            for p in [Provider.GROQ, Provider.CEREBRAS, Provider.GEMINI]
+            if not self.quota.is_exhausted(p)
+        ]
 
-    @retry(
-        retry=retry_if_exception_type((httpx.HTTPStatusError, GroqRateLimitError)),
-        wait=wait_exponential_jitter(initial=1, max=30, jitter=2),
-        stop=stop_after_attempt(settings.max_retries_per_provider),
-        reraise=True,
-    )
     async def _call_provider(
         self,
         provider: Provider,
@@ -189,12 +153,20 @@ class LLMClient:
         user_prompt: str,
         json_schema: dict | None,
     ) -> dict:
-        if provider == Provider.GROQ:
-            return await self._call_groq(system_prompt, user_prompt, json_schema)
-        elif provider == Provider.CEREBRAS:
-            return await self._call_cerebras(system_prompt, user_prompt, json_schema)
-        else:
-            return await self._call_gemini(system_prompt, user_prompt)
+        """Call a single provider. Raises ProviderExhaustedError on 429."""
+        try:
+            if provider == Provider.GROQ:
+                return await self._call_groq(system_prompt, user_prompt, json_schema)
+            elif provider == Provider.CEREBRAS:
+                return await self._call_cerebras(system_prompt, user_prompt, json_schema)
+            else:
+                return await self._call_gemini(system_prompt, user_prompt)
+        except GroqRateLimitError as e:
+            raise ProviderExhaustedError(f"Groq rate limited: {e}") from e
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 429:
+                raise ProviderExhaustedError(f"{provider.value} rate limited (429)") from e
+            raise
 
     async def _call_groq(
         self, system_prompt: str, user_prompt: str, json_schema: dict | None
@@ -212,7 +184,7 @@ class LLMClient:
         }
 
         raw = await self._groq.chat.completions.with_raw_response.create(**kwargs)
-        self.quota.update_from_headers(Provider.GROQ, dict(raw.headers))
+        self.quota.check_headers(Provider.GROQ, dict(raw.headers))
         response = await raw.parse()
         content = response.choices[0].message.content
         return json.loads(content)
@@ -249,7 +221,7 @@ class LLMClient:
             json=body,
         )
         resp.raise_for_status()
-        self.quota.update_from_headers(Provider.CEREBRAS, dict(resp.headers))
+        self.quota.check_headers(Provider.CEREBRAS, dict(resp.headers))
         data = resp.json()
         content = data["choices"][0]["message"]["content"]
         return json.loads(content)

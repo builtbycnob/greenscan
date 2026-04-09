@@ -7,6 +7,7 @@ import sys
 from pipeline.brief.generator import generate_brief
 from pipeline.classifier.categorizer import classify_signals
 from pipeline.classifier.llm import LLMClient
+from pipeline.config import settings
 from pipeline.delivery.telegram import send_brief, send_failure_alert
 from pipeline.enrichment.contacts import discover_contacts
 from pipeline.enrichment.dedup import Deduplicator
@@ -182,12 +183,13 @@ async def run_daily() -> None:
                 )
                 return
 
-            # Classify in batches of 5
+            # Classify in batches
             all_classified = []
             all_types = []
+            batch_size = settings.max_signals_per_batch
             async with LLMClient() as client:
-                for i in range(0, len(unique), 5):
-                    batch = unique[i : i + 5]
+                for i in range(0, len(unique), batch_size):
+                    batch = unique[i : i + batch_size]
                     batch_types = [type_map.get(s.source, "customer") for s in batch]
                     classified = await classify_signals(
                         client,

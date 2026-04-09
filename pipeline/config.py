@@ -34,9 +34,8 @@ class Settings(BaseSettings):
     gemini_lite_model: str = "gemini-2.5-flash-lite"
 
     # Quota thresholds
-    groq_quota_switch_pct: float = 0.80
-    max_signals_per_batch: int = 5
-    max_retries_per_provider: int = 2
+    quota_switch_pct: float = 0.90
+    max_signals_per_batch: int = 10
 
     # Pipeline
     scraper_max_concurrent: int = 5

@@ -3,7 +3,7 @@
 import pytest
 
 from pipeline.classifier.categorizer import ClassifiedSignal, classify_signals
-from pipeline.classifier.llm import LLMClient, Provider
+from pipeline.classifier.llm import LLMClient, Provider, QuotaState
 
 pytestmark = pytest.mark.integration
 
@@ -23,46 +23,58 @@ SIGNAL = [
 async def test_fallback_groq_to_cerebras():
     """Simulate Groq exhaustion, verify Cerebras handles the request."""
     async with LLMClient() as client:
-        # Exhaust Groq quota artificially
-        client.quota.remaining_requests[Provider.GROQ] = 0
+        client.quota.mark_exhausted(Provider.GROQ)
 
         results = await classify_signals(client, SIGNAL)
 
     assert len(results) == 1
     assert isinstance(results[0], ClassifiedSignal)
     assert results[0].relevance_score >= 3
-    # Verify it used Cerebras (Groq was skipped)
     assert client.quota.requests_used[Provider.GROQ] == 0
     assert client.quota.requests_used[Provider.CEREBRAS] == 1
 
 
 @pytest.mark.asyncio
-async def test_fallback_both_exhausted_still_works():
-    """When Groq and Cerebras are 'exhausted', they're still tried as last resort."""
+async def test_fallback_groq_and_cerebras_exhausted():
+    """When both Groq and Cerebras are exhausted, Gemini is tried (if configured)."""
     async with LLMClient() as client:
-        client.quota.remaining_requests[Provider.GROQ] = 0
-        client.quota.remaining_requests[Provider.CEREBRAS] = 0
+        client.quota.mark_exhausted(Provider.GROQ)
+        client.quota.mark_exhausted(Provider.CEREBRAS)
 
-        # Should still succeed — exhausted providers are tried as fallback
-        results = await classify_signals(client, SIGNAL)
-        assert len(results) == 1
+        providers = client._pick_providers()
+        assert providers == [Provider.GEMINI]
 
 
-@pytest.mark.asyncio
-async def test_circuit_breaker_opens():
-    """After 5 failures, circuit breaker should skip the provider."""
-    from pipeline.classifier.llm import BREAKERS
+def test_quota_header_check_triggers_switch():
+    """Verify that 90%+ usage in headers marks provider as exhausted."""
+    quota = QuotaState()
+    headers = {
+        "x-ratelimit-remaining-tokens": "5000",
+        "x-ratelimit-limit-tokens": "100000",
+    }
+    quota.check_headers(Provider.GROQ, headers)
+    assert quota.is_exhausted(Provider.GROQ)
 
-    breaker = BREAKERS[Provider.GROQ]
-    # Reset state
-    breaker.fail_count = 0
-    breaker.opened_at = None
 
-    # Simulate 5 failures
-    for _ in range(5):
-        breaker.record_failure()
+def test_quota_header_check_no_switch_below_threshold():
+    """Below 90% usage, provider should not be marked exhausted."""
+    quota = QuotaState()
+    headers = {
+        "x-ratelimit-remaining-tokens": "50000",
+        "x-ratelimit-limit-tokens": "100000",
+    }
+    quota.check_headers(Provider.GROQ, headers)
+    assert not quota.is_exhausted(Provider.GROQ)
 
-    assert breaker.is_open
-    # After recording success, should close
-    breaker.record_success()
-    assert not breaker.is_open
+
+def test_quota_header_check_requests_and_tokens():
+    """Token limit hit even if requests are fine should trigger switch."""
+    quota = QuotaState()
+    headers = {
+        "x-ratelimit-remaining-requests": "500",
+        "x-ratelimit-limit-requests": "1000",
+        "x-ratelimit-remaining-tokens-day": "8000",
+        "x-ratelimit-limit-tokens-day": "100000",
+    }
+    quota.check_headers(Provider.GROQ, headers)
+    assert quota.is_exhausted(Provider.GROQ)
