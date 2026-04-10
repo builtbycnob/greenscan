@@ -46,9 +46,7 @@ def test_format_signals_mixed():
         _cls("vendor_search", 5, "McCain program"),
         _cls("product_launch", 4, "Deere sensor"),
     ]
-    cust_text, comp_text = _format_signals_for_brief(
-        raw, cls, ["customer", "competitor"]
-    )
+    cust_text, comp_text = _format_signals_for_brief(raw, cls, ["customer", "competitor"])
     assert "McCain" in cust_text
     assert "Deere" in comp_text
 
@@ -58,9 +56,7 @@ async def test_brief_skips_low_score():
     """Should return None if no signals meet threshold."""
     raw = [_raw("Test", "content")]
     cls = [_cls("other", 0, "Static page")]
-    result = await generate_brief(
-        raw, cls, target_types=["customer"], min_score=3
-    )
+    result = await generate_brief(raw, cls, target_types=["customer"], min_score=3)
     assert result is None
 
 
