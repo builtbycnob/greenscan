@@ -1,7 +1,7 @@
 # GreenScan
 
 Dual-layer market intelligence pipeline for Green Growth Innovations (precision ag startup).
-Monitors 124 targets: 67 potential customers + 57 competitors. Classifies signals,
+Monitors 120 targets: 67 potential customers + 53 competitors. Classifies signals,
 discovers contacts, generates daily Battlefield Brief with Opportunity Radar +
 Competitive Intelligence sections. Budget: €0/month (all free tiers).
 
@@ -18,7 +18,7 @@ Competitive Intelligence sections. Budget: €0/month (all free tiers).
 
 ## Commands
 - `uv run ruff check --fix && uv run ruff format` — lint Python
-- `uv run python -m pytest -x` — test pipeline (47 tests)
+- `uv run python -m pytest -x` — test pipeline (49 tests)
 - `uv run python -m pytest -x -m integration` — test with real API calls
 - `uv run python -m pipeline demo` — scrape + RSS + classify + brief (stdout)
 - `uv run python -m pipeline daily` — full pipeline with DB + contacts + Telegram
@@ -33,11 +33,11 @@ Competitive Intelligence sections. Budget: €0/month (all free tiers).
 - `pipeline/brief/` — generator.py (dual-section: Opportunity Radar + Competitive Intelligence)
 - `pipeline/delivery/` — telegram.py (httpx raw, telegramify-markdown, multi-recipient)
 - `pipeline/main.py` — orchestrator (demo + daily modes, RSS + web + contacts)
-- `targets.yaml` — 124 targets (67 customers + 57 competitors) with extended metadata
+- `targets.yaml` — 120 targets (67 customers + 53 competitors) with extended metadata
 - `scripts/` — one-time migration scripts (CSV parser, URL discovery)
 
 ## Key Constraints
-- IMPORTANT: Groq free tier = 1000 RPD. Batch 3-5 signals per request. Route to Cerebras at 80% quota.
+- IMPORTANT: Groq free tier = 1000 RPD, 100K TPD. Drain-and-switch: use each provider to 90% then next. Batch 10 signals per request.
 - IMPORTANT: Cache Playwright browsers in GitHub Actions — uncached runs burn 2x CI minutes
 - IMPORTANT: Serper = 2,500 lifetime credits. Contact lookups capped at 20/day. No SERP monitoring yet.
 - Dedup via SHA256 content_hash (UNIQUE constraint on signals table, cross-run via DB)
