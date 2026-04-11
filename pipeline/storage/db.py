@@ -59,15 +59,8 @@ class Database:
         """Insert a classified signal. Returns False if duplicate (hash conflict)."""
         async with self._pool.acquire() as conn:
             try:
-                await conn.execute(
-                    """
-                    INSERT INTO signals
-                        (url, title, content, content_hash, source,
-                         category, relevance_score, summary, entities_json,
-                         scraped_at, classified_at)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-                    ON CONFLICT (content_hash) DO NOTHING
-                    """,
+                status = await conn.execute(
+                    self._INSERT_SQL,
                     raw.url,
                     raw.title[:200],
                     raw.content[:5000],
@@ -80,21 +73,55 @@ class Database:
                     raw.scraped_at,
                     datetime.now(UTC),
                 )
-                return True
+                return status == "INSERT 0 1"
             except Exception as e:
                 logger.error(f"Failed to insert signal: {e}")
                 return False
+
+    _INSERT_SQL = """
+        INSERT INTO signals
+            (url, title, content, content_hash, source,
+             category, relevance_score, summary, entities_json,
+             scraped_at, classified_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        ON CONFLICT (content_hash) DO NOTHING
+    """
 
     async def insert_signals_batch(
         self,
         raw_signals: list[RawSignal],
         classified: list[ClassifiedSignal],
     ) -> int:
-        """Insert a batch of signals. Returns count of newly inserted."""
+        """Insert a batch of signals using a single connection.
+
+        Returns count of newly inserted (ON CONFLICT rows return INSERT 0 0).
+        """
+        if not raw_signals:
+            return 0
+
+        now = datetime.now(UTC)
         inserted = 0
-        for raw, cls in zip(raw_signals, classified):
-            if await self.insert_signal(raw, cls):
-                inserted += 1
+        async with self._pool.acquire() as conn:
+            for raw, cls in zip(raw_signals, classified):
+                try:
+                    status = await conn.execute(
+                        self._INSERT_SQL,
+                        raw.url,
+                        raw.title[:200],
+                        raw.content[:5000],
+                        raw.content_hash,
+                        raw.source,
+                        cls.category.value,
+                        cls.relevance_score,
+                        cls.summary,
+                        json.dumps(cls.entities.model_dump()),
+                        raw.scraped_at,
+                        now,
+                    )
+                    if status == "INSERT 0 1":
+                        inserted += 1
+                except Exception as e:
+                    logger.error(f"Failed to insert signal {raw.content_hash[:12]}: {e}")
         logger.info(f"Inserted {inserted}/{len(raw_signals)} signals")
         return inserted
 
