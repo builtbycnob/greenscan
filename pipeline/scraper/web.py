@@ -70,6 +70,9 @@ async def scrape_targets(targets: list[Target]) -> list[RawSignal]:
     run_config = _build_run_config()
     dispatcher = _build_dispatcher()
 
+    failed = 0
+    skipped = 0
+
     async with AsyncWebCrawler(config=browser_config) as crawler:
         async for result in await crawler.arun_many(
             urls=urls,
@@ -78,11 +81,13 @@ async def scrape_targets(targets: list[Target]) -> list[RawSignal]:
         ):
             if not result.success:
                 logger.warning(f"Failed to scrape {result.url}: {result.error_message}")
+                failed += 1
                 continue
 
             content = result.markdown.fit_markdown or result.markdown.raw_markdown
             if not content or len(content.strip()) < 50:
                 logger.info(f"Skipped {result.url}: content too short")
+                skipped += 1
                 continue
 
             target = url_to_target.get(result.url)
@@ -97,5 +102,8 @@ async def scrape_targets(targets: list[Target]) -> list[RawSignal]:
                 )
             )
 
-    logger.info(f"Scraped {len(signals)} signals from {len(urls)} URLs")
+    logger.info(
+        f"Web scrape: {len(signals)}/{len(urls)} success, "
+        f"{failed} failed, {skipped} skipped (too short)"
+    )
     return signals

@@ -38,13 +38,18 @@ def _parse_feed(feed_url: str, source_name: str) -> list[RawSignal]:
         return []
 
     results = []
+    extract_failures = 0
     for entry in feed.entries[:20]:
         link = entry.get("link", "")
         title = entry.get("title", "Untitled")
 
         content = entry.get("summary", "")
         if link and len(content) < 200:
-            content = _extract_article(link) or content
+            extracted = _extract_article(link)
+            if extracted:
+                content = extracted
+            else:
+                extract_failures += 1
 
         if not content or len(content.strip()) < 50:
             continue
@@ -58,6 +63,12 @@ def _parse_feed(feed_url: str, source_name: str) -> list[RawSignal]:
             )
         )
 
+    entries_total = min(len(feed.entries), 20)
+    if extract_failures:
+        logger.info(
+            f"RSS {source_name}: {len(results)}/{entries_total} entries, "
+            f"{extract_failures} article extractions failed"
+        )
     return results
 
 
@@ -68,5 +79,6 @@ def _extract_article(url: str) -> str | None:
         article.download()
         article.parse()
         return article.text if article.text else None
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Article extraction failed for {url}: {e}")
         return None
