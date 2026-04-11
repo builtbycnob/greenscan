@@ -19,7 +19,8 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Check for today's brief
+      - name: Check pipeline health
+        id: health
         run: |
           uv run python -c "
           import asyncio, sys
@@ -27,12 +28,23 @@ jobs:
 
           async def check():
               async with Database() as db:
+                  ran = await db.pipeline_ran_today()
+                  brief = await db.get_todays_brief()
                   count = await db.get_signal_count(days=1)
-                  brief = await db.get_latest_brief()
-                  if brief is None:
-                      print('NO BRIEF FOUND')
+
+                  if not ran:
+                      print('ALERT: Pipeline did not run today')
                       sys.exit(1)
-                  print(f'Latest brief: {brief[\"generated_at\"]}')
+
+                  if brief is None and count > 0:
+                      print(f'ALERT: Pipeline ran, {count} signals found, but no brief generated')
+                      sys.exit(1)
+
+                  if brief is None and count == 0:
+                      print('OK: Pipeline ran, no new signals (all deduped), no brief expected')
+                      sys.exit(0)
+
+                  print(f'OK: Brief generated at {brief[\"generated_at\"]}')
                   print(f'Signals today: {count}')
 
           asyncio.run(check())
@@ -47,4 +59,4 @@ jobs:
         run: |
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
             -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d text="⚠️ GreenScan Dead Man's Switch: No brief generated today. Check pipeline."
+            -d text="⚠️ GreenScan Dead Man's Switch: Pipeline health check failed. Check GitHub Actions."

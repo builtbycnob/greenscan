@@ -123,6 +123,22 @@ class Database:
             row = await conn.fetchrow("SELECT * FROM briefs ORDER BY generated_at DESC LIMIT 1")
         return dict(row) if row else None
 
+    async def get_todays_brief(self) -> dict | None:
+        """Get today's brief (generated_at date = today)."""
+        async with self._pool.acquire() as conn:
+            row = await conn.fetchrow(
+                "SELECT * FROM briefs WHERE generated_at::date = CURRENT_DATE "
+                "ORDER BY generated_at DESC LIMIT 1"
+            )
+        return dict(row) if row else None
+
+    async def pipeline_ran_today(self) -> bool:
+        """Check if a pipeline run started today."""
+        async with self._pool.acquire() as conn:
+            return await conn.fetchval(
+                "SELECT EXISTS(SELECT 1 FROM scrape_logs WHERE started_at::date = CURRENT_DATE)"
+            )
+
     async def start_scrape_log(self, run_id: str, targets_total: int) -> int:
         """Create a scrape_logs entry at pipeline start."""
         async with self._pool.acquire() as conn:
