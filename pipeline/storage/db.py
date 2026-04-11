@@ -2,7 +2,7 @@
 
 import json
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 
 import asyncpg
 
@@ -24,6 +24,8 @@ class Database:
             settings.neon_database_url,
             min_size=1,
             max_size=5,
+            timeout=30,
+            command_timeout=30,
         )
         logger.info("Database connected")
 
@@ -76,7 +78,7 @@ class Database:
                     classified.summary,
                     json.dumps(classified.entities.model_dump()),
                     raw.scraped_at,
-                    datetime.utcnow(),
+                    datetime.now(UTC),
                 )
                 return True
             except Exception as e:
@@ -114,7 +116,8 @@ class Database:
         """Count signals from the last N days."""
         async with self._pool.acquire() as conn:
             return await conn.fetchval(
-                f"SELECT COUNT(*) FROM signals WHERE scraped_at > NOW() - INTERVAL '{days} days'"
+                "SELECT COUNT(*) FROM signals WHERE scraped_at > NOW() - make_interval(days => $1)",
+                days,
             )
 
     async def get_latest_brief(self) -> dict | None:
