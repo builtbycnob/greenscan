@@ -53,10 +53,10 @@ def test_format_signals_mixed():
 
 @pytest.mark.asyncio
 async def test_brief_skips_low_score():
-    """Should return None if no signals meet threshold."""
+    """Should return None if no signals meet threshold (score 0)."""
     raw = [_raw("Test", "content")]
     cls = [_cls("other", 0, "Static page")]
-    result = await generate_brief(raw, cls, target_types=["customer"], min_score=3)
+    result = await generate_brief(raw, cls, target_types=["customer"])
     assert result is None
 
 
@@ -102,3 +102,40 @@ async def test_brief_caps_competitor_signals():
     call_args = mock.call_args[0][0]
     # Default cap is 5
     assert call_args.count("--- Signal ---") <= 5
+
+
+@pytest.mark.asyncio
+async def test_brief_contacts_survive_filtering():
+    """Contacts keyed by content_hash survive after low-score signals are filtered out."""
+    # Signal A: score 0 (filtered out), Signal B: score 5 (kept)
+    raw_a = _raw("LowCo", "low score content aaa")
+    raw_b = _raw("HighCo", "high score content bbb")
+    cls_a = _cls("other", 0, "Static")
+    cls_b = _cls("vendor_search", 5, "Big opportunity")
+
+    # Contacts keyed by content_hash of signal B
+    class FakeContact:
+        name = "Jane Doe"
+        headline = "VP Sales"
+        linkedin_url = "https://linkedin.com/in/jane"
+        source = "signal_mention"
+
+    contacts = {raw_b.content_hash: [FakeContact()]}
+
+    with patch(
+        "pipeline.brief.generator._generate_with_groq",
+        new_callable=AsyncMock,
+    ) as mock:
+        mock.return_value = "# Brief"
+        await generate_brief(
+            [raw_a, raw_b],
+            [cls_a, cls_b],
+            target_types=["customer", "customer"],
+            contacts=contacts,
+        )
+
+    call_args = mock.call_args[0][0]
+    # Signal A filtered out, signal B kept, contacts for B survive
+    assert "Jane Doe" in call_args
+    assert "HighCo" in call_args
+    assert "Static" not in call_args

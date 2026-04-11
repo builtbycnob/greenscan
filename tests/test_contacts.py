@@ -84,6 +84,7 @@ async def test_discover_with_named_person():
     classified = [_cls(5, ["John Smith, VP Agronomy"])]
     types = ["customer"]
     sources = ["McCain"]
+    keys = ["hash_abc123"]
 
     mock_contact = {
         "name": "John Smith",
@@ -102,11 +103,11 @@ async def test_discover_with_named_person():
         mock_settings.serper_api_key = "test"
         mock_settings.serper_daily_contact_cap = 20
         mock_settings.contact_min_score = 3
-        result = await discover_contacts(classified, types, sources)
+        result = await discover_contacts(classified, types, sources, signal_keys=keys)
 
-    assert 0 in result
-    assert result[0][0].name == "John Smith"
-    assert result[0][0].source == "signal_mention"
+    assert "hash_abc123" in result
+    assert result["hash_abc123"][0].name == "John Smith"
+    assert result["hash_abc123"][0].source == "signal_mention"
 
 
 @pytest.mark.asyncio
@@ -115,6 +116,7 @@ async def test_discover_company_lookup_fallback():
     classified = [_cls(5)]  # No people
     types = ["customer"]
     sources = ["McCain"]
+    keys = ["hash_xyz789"]
     titles = {"McCain": ["VP Agronomy", "CEO"]}
 
     mock_leaders = [
@@ -136,8 +138,10 @@ async def test_discover_company_lookup_fallback():
         mock_settings.serper_api_key = "test"
         mock_settings.serper_daily_contact_cap = 20
         mock_settings.contact_min_score = 3
-        result = await discover_contacts(classified, types, sources, decision_maker_titles=titles)
+        result = await discover_contacts(
+            classified, types, sources, signal_keys=keys, decision_maker_titles=titles
+        )
 
-    assert 0 in result
-    assert result[0][0].name == "Jane Doe"
-    assert result[0][0].source == "company_lookup"
+    assert "hash_xyz789" in result
+    assert result["hash_xyz789"][0].name == "Jane Doe"
+    assert result["hash_xyz789"][0].source == "company_lookup"

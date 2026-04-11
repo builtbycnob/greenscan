@@ -102,7 +102,6 @@ async def run_demo(max_targets: int = 3) -> None:
         batch,
         classified,
         target_types=batch_types,
-        min_score=2,
     )
 
     if brief:
@@ -205,10 +204,12 @@ async def run_daily() -> None:
             # Discover contacts for customer signals
             titles_map = _build_titles_map(targets)
             source_names = [s.source for s in unique]
+            signal_keys = [s.content_hash for s in unique]
             signal_contacts = await discover_contacts(
                 all_classified,
                 all_types,
                 source_names,
+                signal_keys=signal_keys,
                 decision_maker_titles=titles_map,
             )
 

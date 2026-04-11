@@ -82,13 +82,12 @@ async def generate_brief(
     raw_signals: list[RawSignal],
     classified: list[ClassifiedSignal],
     target_types: list[str] | None = None,
-    min_score: int = 1,
-    contacts: dict[int, list] | None = None,
+    contacts: dict[str, list] | None = None,
 ) -> str | None:
     """Generate a Battlefield Brief from today's classified signals.
 
     Args:
-        contacts: optional dict mapping signal index → list of ContactResult
+        contacts: optional dict mapping content_hash → list of ContactResult
             (from enrichment.contacts.discover_contacts)
 
     Uses Gemini 2.5 Flash for narrative quality. Falls back to Groq if
@@ -130,18 +129,18 @@ async def generate_brief(
     n_cust = len(customer_pairs)
     n_comp = len(competitor_pairs)
 
-    # Build contacts section for customer signals
+    # Build contacts section for customer signals (keyed by content_hash)
     contacts_text = ""
     if contacts:
         contact_lines = []
-        for idx, contact_list in contacts.items():
-            if idx < len(filtered_raw):
-                source = filtered_raw[idx].source
-                for c in contact_list:
-                    prefix = "🔍 " if c.source == "company_lookup" else ""
-                    contact_lines.append(
-                        f"  {prefix}{c.name} — {c.headline} ({c.linkedin_url}) [from: {source}]"
-                    )
+        for raw_signal in filtered_raw:
+            contact_list = contacts.get(raw_signal.content_hash, [])
+            for c in contact_list:
+                prefix = "🔍 " if c.source == "company_lookup" else ""
+                contact_lines.append(
+                    f"  {prefix}{c.name} — {c.headline} ({c.linkedin_url}) "
+                    f"[from: {raw_signal.source}]"
+                )
         if contact_lines:
             contacts_text = "\n\nKEY CONTACTS (include in People to Watch):\n" + "\n".join(
                 contact_lines

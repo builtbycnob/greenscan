@@ -38,18 +38,21 @@ async def discover_contacts(
     classified: list[ClassifiedSignal],
     target_types: list[str],
     source_names: list[str],
+    signal_keys: list[str] | None = None,
     decision_maker_titles: dict[str, list[str]] | None = None,
-) -> dict[int, list[ContactResult]]:
+) -> dict[str, list[ContactResult]]:
     """Discover contacts for customer signals above threshold.
 
     Args:
         classified: classified signals
         target_types: parallel list of "customer" or "competitor"
         source_names: parallel list of target/source names
+        signal_keys: parallel list of stable keys (content_hash) for each signal
         decision_maker_titles: map of source_name → list of titles from YAML
 
     Returns:
-        dict mapping signal index → list of ContactResult
+        dict mapping signal key (content_hash) → list of ContactResult.
+        If signal_keys not provided, falls back to string index keys.
     """
     if not settings.serper_api_key:
         logger.info("Serper not configured, skipping contact discovery")
@@ -57,12 +60,14 @@ async def discover_contacts(
 
     if decision_maker_titles is None:
         decision_maker_titles = {}
+    if signal_keys is None:
+        signal_keys = [str(i) for i in range(len(classified))]
 
-    contacts_by_signal: dict[int, list[ContactResult]] = {}
+    contacts_by_key: dict[str, list[ContactResult]] = {}
     lookups_done = 0
     cap = settings.serper_daily_contact_cap
 
-    for i, (cls, ttype, source) in enumerate(zip(classified, target_types, source_names)):
+    for cls, ttype, source, key in zip(classified, target_types, source_names, signal_keys):
         if lookups_done >= cap:
             logger.info(f"Contact lookup cap reached ({cap})")
             break
@@ -108,11 +113,11 @@ async def discover_contacts(
                 )
 
         if contacts:
-            contacts_by_signal[i] = contacts
-            logger.info(f"Found {len(contacts)} contacts for signal {i} ({source})")
+            contacts_by_key[key] = contacts
+            logger.info(f"Found {len(contacts)} contacts for {source} ({key[:12]})")
 
     logger.info(
         f"Contact discovery: {lookups_done} Serper lookups, "
-        f"{sum(len(c) for c in contacts_by_signal.values())} contacts found"
+        f"{sum(len(c) for c in contacts_by_key.values())} contacts found"
     )
-    return contacts_by_signal
+    return contacts_by_key
