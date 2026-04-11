@@ -61,6 +61,28 @@ async def test_brief_skips_low_score():
 
 
 @pytest.mark.asyncio
+async def test_brief_excludes_score_one_customers():
+    """Score-1 customer signals are noise and should not appear in the brief."""
+    raw = [_raw("NoiseCo", "noise content"), _raw("GoodCo", "good content")]
+    cls = [
+        _cls("other", 1, "Noise signal"),
+        _cls("vendor_search", 3, "Real opportunity"),
+    ]
+    types = ["customer", "customer"]
+
+    with patch(
+        "pipeline.brief.generator._generate_with_groq",
+        new_callable=AsyncMock,
+    ) as mock:
+        mock.return_value = "# Brief"
+        await generate_brief(raw, cls, target_types=types)
+
+    call_args = mock.call_args[0][0]
+    assert "Real opportunity" in call_args
+    assert "Noise signal" not in call_args
+
+
+@pytest.mark.asyncio
 async def test_brief_filters_by_score():
     """Should only include signals at or above min_score."""
     raw = [_raw("A", "a"), _raw("B", "b"), _raw("C", "c")]

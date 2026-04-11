@@ -43,7 +43,7 @@ class Settings(BaseSettings):
 
     # Brief settings
     competitor_signals_cap: int = 5
-    brief_min_score_customer: int = 1
+    brief_min_score_customer: int = 2
     brief_min_score_competitor: int = 3
 
     # Contact discovery
