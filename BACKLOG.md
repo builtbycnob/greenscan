@@ -1,7 +1,7 @@
 # GreenScan — Product Backlog & Roadmap
 
-**Last updated:** April 8, 2026
-**Status:** Dual intelligence live (124 targets), cron 1x/day at 04:00 UTC (06:00 CEST), multi-recipient
+**Last updated:** April 11, 2026
+**Status:** Dual intelligence live (120 targets), cron 1x/day at 04:00 UTC (06:00 CEST), multi-recipient
 
 ---
 
@@ -9,8 +9,8 @@
 
 | Feature | Status | Notes |
 |---|---|---|
-| Web scraping (66 targets) | ✅ Live | Crawl4AI, stealth mode |
-| RSS scraping (28 targets) | ✅ Live | feedparser + newspaper4k |
+| Web scraping (100 targets) | ✅ Live | Crawl4AI, stealth mode |
+| RSS scraping (33 targets) | ✅ Live | feedparser + newspaper4k |
 | Signal classification (11 categories) | ✅ Live | Groq primary, Cerebras fallback, dual rubrics |
 | Content deduplication | ✅ Live | SHA256, cross-run via DB |
 | Entity linking (pg_trgm) | ✅ Live | Fuzzy match to companies/contacts |
@@ -20,8 +20,8 @@
 | Database persistence | ✅ Live | Neon Postgres 17, 6 tables |
 | GitHub Actions cron | ✅ Live | 04:00 UTC daily (06:00 CEST) |
 | Dead man's switch | ✅ Live | Alerts if no brief by 05:00 UTC |
-| CI/CD (lint + tests) | ✅ Live | 47 unit tests |
-| 124 targets (67 cust + 57 comp) | ✅ Live | EU + US, extended metadata from founder CSV |
+| CI/CD (lint + tests) | ✅ Live | 51 tests |
+| 120 targets (67 cust + 53 comp) | ✅ Live | EU + US, extended metadata from founder CSV |
 
 ---
 
@@ -96,14 +96,9 @@ Add industry-level monitoring beyond individual targets:
 
 These would catch signals about target companies from third-party sources.
 
-### 2.4 Expand to 30+ Targets
-**Effort:** 3h | **Impact:** Medium
+### 2.4 ~~Expand to 30+ Targets~~ ✅ DONE (2026-04-08)
 
-The original plan called for 30 targets. Current: 21 (from founder's CSV). To expand:
-- Ask founder for additional target companies
-- Research emerging players in precision ag
-- Add targets from different geographies (EU, South America)
-- Each new target needs: website audit, URL validation, SERP query formulation
+Expanded from 21 to 120 targets (67 customers + 53 competitors) across EU + US from founder's March 2026 CSV export. Deep URL discovery resolved 106/120 to active monitoring. Only 13 remain serp-only.
 
 ---
 
@@ -199,10 +194,9 @@ Full web application — only if the product grows beyond the founder:
 
 ## Priority 5 — Operational Resilience
 
-### 5.1 GitHub Actions Keep-Alive
-**Effort:** 30min | **Impact:** Low (until month 2+)
+### 5.1 ~~GitHub Actions Keep-Alive~~ ✅ DONE (2026-04-11)
 
-Public repo crons are disabled after 60 days of inactivity. Add a weekly workflow that pushes a timestamp to prevent deactivation.
+Monthly cron pushes timestamp to `.github/.keepalive`, resetting the 60-day inactivity timer. Self-contained, zero third-party actions.
 
 ### 5.2 Multi-Channel Delivery
 **Effort:** 2h | **Impact:** Low
@@ -248,10 +242,10 @@ Also shift Dead Man's Switch to 1 hour after pipeline cron to avoid false alarms
 |---|---|---|
 | Groq sometimes duplicates brief content | 1h | Medium — add response post-processing |
 | Static page content classified as signals | ✅ Fixed | Score-0 filter + CRITICAL FILTER in prompt |
-| `datetime.utcnow()` deprecation in storage module | 15min | Low — use `datetime.now(UTC)` |
+| ~~`datetime.utcnow()` deprecation in storage module~~ | ✅ Fixed | `datetime.now(UTC)` + parameterized SQL |
 | Farmland Partners URL always fails | 30min | Low — switch to SERP or remove |
 | No retry on Telegram send failure | 1h | Low — add tenacity retry |
-| ~~RSS module exists but unused~~ | ✅ Fixed | RSS active, 28 targets with feeds |
+| ~~RSS module exists but unused~~ | ✅ Fixed | RSS active, 33 targets with feeds |
 | `_pool` accessed directly from linker | 30min | Low — add pool property to Database |
 | Integration tests don't clean up DB state | 1h | Low — add test fixtures with rollback |
 

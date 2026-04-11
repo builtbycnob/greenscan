@@ -18,7 +18,7 @@ Competitive Intelligence sections. Budget: €0/month (all free tiers).
 
 ## Commands
 - `uv run ruff check --fix && uv run ruff format` — lint Python
-- `uv run python -m pytest -x` — test pipeline (49 tests)
+- `uv run python -m pytest -x` — test pipeline (51 tests)
 - `uv run python -m pytest -x -m integration` — test with real API calls
 - `uv run python -m pipeline demo` — scrape + RSS + classify + brief (stdout)
 - `uv run python -m pipeline daily` — full pipeline with DB + contacts + Telegram
