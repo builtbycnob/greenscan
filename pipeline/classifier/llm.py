@@ -1,7 +1,9 @@
 """3-tier LLM client: Groq → Cerebras → Gemini with drain-and-switch quota management."""
 
+import asyncio
 import json
 import logging
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from enum import StrEnum
 
@@ -12,6 +14,36 @@ from groq import RateLimitError as GroqRateLimitError
 from pipeline.config import settings
 
 logger = logging.getLogger(__name__)
+
+RETRY_MAX_ATTEMPTS = 3
+RETRY_BASE_DELAY = 1.0
+
+
+async def _retry_on_5xx(
+    factory: Callable[[], Awaitable[dict]],
+    label: str,
+    max_attempts: int = RETRY_MAX_ATTEMPTS,
+    base_delay: float = RETRY_BASE_DELAY,
+) -> dict:
+    """Retry an httpx-based async call on 5xx errors with exponential backoff.
+
+    Does NOT catch 429 (caller maps it to ProviderExhaustedError) or 4xx.
+    """
+    last_exc: Exception | None = None
+    for attempt in range(max_attempts):
+        try:
+            return await factory()
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code < 500:
+                raise
+            last_exc = e
+            logger.warning(
+                f"{label} 5xx (attempt {attempt + 1}/{max_attempts}): {e.response.status_code}"
+            )
+        if attempt < max_attempts - 1:
+            await asyncio.sleep(base_delay * (2**attempt))
+    assert last_exc is not None
+    raise last_exc
 
 
 class Provider(StrEnum):
@@ -60,6 +92,8 @@ class QuotaState:
             "x-ratelimit-remaining-requests-day",
             "x-ratelimit-remaining-tokens",
             "x-ratelimit-remaining-tokens-day",
+            # Cerebras emits per-minute token windows under this name.
+            "x-ratelimit-remaining-tokens-minute",
         ]:
             remaining = headers.get(key)
             limit_key = key.replace("remaining", "limit")
@@ -212,39 +246,50 @@ class LLMClient:
         else:
             body["response_format"] = {"type": "json_object"}
 
-        resp = await self._http.post(
-            "https://api.cerebras.ai/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {settings.cerebras_api_key}",
-                "Content-Type": "application/json",
-            },
-            json=body,
-        )
-        resp.raise_for_status()
-        self.quota.check_headers(Provider.CEREBRAS, dict(resp.headers))
-        data = resp.json()
-        content = data["choices"][0]["message"]["content"]
-        return json.loads(content)
+        async def _do_call() -> dict:
+            resp = await self._http.post(
+                "https://api.cerebras.ai/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {settings.cerebras_api_key}",
+                    "Content-Type": "application/json",
+                },
+                json=body,
+            )
+            resp.raise_for_status()
+            self.quota.check_headers(Provider.CEREBRAS, dict(resp.headers))
+            data = resp.json()
+            content = data["choices"][0]["message"]["content"]
+            return json.loads(content)
+
+        result = await _retry_on_5xx(_do_call, label="cerebras")
+        # Throttle to stay under Cerebras free-tier RPM cap (≈30 RPM).
+        await asyncio.sleep(settings.cerebras_inter_call_delay)
+        return result
 
     async def _call_gemini(self, system_prompt: str, user_prompt: str) -> dict:
         if not settings.gemini_api_key:
             raise LLMError("Gemini API key not configured")
 
-        resp = await self._http.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/"
-            f"{settings.gemini_lite_model}:generateContent",
-            params={"key": settings.gemini_api_key},
-            headers={"Content-Type": "application/json"},
-            json={
-                "contents": [{"parts": [{"text": user_prompt}]}],
-                "systemInstruction": {"parts": [{"text": system_prompt}]},
-                "generationConfig": {
-                    "responseMimeType": "application/json",
-                    "temperature": 0.1,
-                },
+        payload = {
+            "contents": [{"parts": [{"text": user_prompt}]}],
+            "systemInstruction": {"parts": [{"text": system_prompt}]},
+            "generationConfig": {
+                "responseMimeType": "application/json",
+                "temperature": 0.1,
             },
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        content = data["candidates"][0]["content"]["parts"][0]["text"]
-        return json.loads(content)
+        }
+
+        async def _do_call() -> dict:
+            resp = await self._http.post(
+                f"https://generativelanguage.googleapis.com/v1beta/models/"
+                f"{settings.gemini_lite_model}:generateContent",
+                params={"key": settings.gemini_api_key},
+                headers={"Content-Type": "application/json"},
+                json=payload,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            content = data["candidates"][0]["content"]["parts"][0]["text"]
+            return json.loads(content)
+
+        return await _retry_on_5xx(_do_call, label="gemini")

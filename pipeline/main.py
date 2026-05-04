@@ -7,6 +7,7 @@ import sys
 from pipeline.brief.generator import generate_brief
 from pipeline.classifier.categorizer import classify_signals
 from pipeline.classifier.llm import LLMClient
+from pipeline.classifier.prefilter import filter_event_signals
 from pipeline.config import settings
 from pipeline.delivery.telegram import send_brief, send_failure_alert
 from pipeline.enrichment.contacts import discover_contacts
@@ -178,6 +179,21 @@ async def run_daily() -> None:
                     status="success",
                     targets_success=len(raw_signals),
                     signals_deduped=len(raw_signals),
+                    duration_ms=int((time.monotonic() - start_time) * 1000),
+                )
+                return
+
+            # Pre-filter: drop static / non-event signals before paying for LLM
+            pre_count = len(unique)
+            unique = filter_event_signals(unique)
+            logger.info(f"Pre-filter: {len(unique)}/{pre_count} signals look event-driven")
+            if not unique:
+                logger.info("No event-driven signals after pre-filter")
+                await db.finish_scrape_log(
+                    log_id,
+                    status="success",
+                    targets_success=len(raw_signals),
+                    signals_deduped=len(raw_signals) - pre_count,
                     duration_ms=int((time.monotonic() - start_time) * 1000),
                 )
                 return

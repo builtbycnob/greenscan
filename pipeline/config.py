@@ -29,9 +29,15 @@ class Settings(BaseSettings):
 
     # LLM config
     groq_model: str = "llama-3.3-70b-versatile"
-    cerebras_model: str = "qwen-3-235b-a22b-instruct-2507"
+    # Switched away from qwen-3-235b-a22b-instruct-2507 — Cerebras free tier has
+    # temporarily reduced limits on that hot model, causing 429 on the 2nd call.
+    cerebras_model: str = "llama-3.3-70b"
     gemini_model: str = "gemini-2.5-flash"
     gemini_lite_model: str = "gemini-2.5-flash-lite"
+
+    # Inter-call delay (seconds) when Cerebras is the active provider. Free
+    # tier nominal limit is 30 RPM; 2.5s/call ≈ 24 RPM → safely under cap.
+    cerebras_inter_call_delay: float = 2.5
 
     # Quota thresholds
     quota_switch_pct: float = 0.90

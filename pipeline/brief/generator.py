@@ -1,5 +1,6 @@
 """Battlefield Brief generator using Gemini 2.5 Flash."""
 
+import asyncio
 import logging
 from datetime import UTC, datetime
 
@@ -10,6 +11,9 @@ from pipeline.config import settings
 from pipeline.scraper.models import RawSignal
 
 logger = logging.getLogger(__name__)
+
+BRIEF_RETRY_MAX_ATTEMPTS = 3
+BRIEF_RETRY_BASE_DELAY = 1.0
 
 BRIEF_SYSTEM_PROMPT = """\
 You are a market intelligence analyst for Green Growth Innovations, a precision \
@@ -164,22 +168,37 @@ async def generate_brief(
 
 
 async def _generate_with_gemini(user_prompt: str) -> str:
-    """Use Gemini 2.5 Flash for brief generation."""
+    """Use Gemini 2.5 Flash for brief generation, retrying on 5xx."""
+    last_exc: Exception | None = None
     async with httpx.AsyncClient(timeout=60.0) as client:
-        resp = await client.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/"
-            f"{settings.gemini_model}:generateContent",
-            params={"key": settings.gemini_api_key},
-            headers={"Content-Type": "application/json"},
-            json={
-                "contents": [{"parts": [{"text": user_prompt}]}],
-                "systemInstruction": {"parts": [{"text": BRIEF_SYSTEM_PROMPT}]},
-                "generationConfig": {"temperature": 0.3},
-            },
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        return data["candidates"][0]["content"]["parts"][0]["text"]
+        for attempt in range(BRIEF_RETRY_MAX_ATTEMPTS):
+            try:
+                resp = await client.post(
+                    f"https://generativelanguage.googleapis.com/v1beta/models/"
+                    f"{settings.gemini_model}:generateContent",
+                    params={"key": settings.gemini_api_key},
+                    headers={"Content-Type": "application/json"},
+                    json={
+                        "contents": [{"parts": [{"text": user_prompt}]}],
+                        "systemInstruction": {"parts": [{"text": BRIEF_SYSTEM_PROMPT}]},
+                        "generationConfig": {"temperature": 0.3},
+                    },
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                return data["candidates"][0]["content"]["parts"][0]["text"]
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code < 500:
+                    raise
+                last_exc = e
+                logger.warning(
+                    f"Gemini brief 5xx (attempt {attempt + 1}/{BRIEF_RETRY_MAX_ATTEMPTS}): "
+                    f"{e.response.status_code}"
+                )
+                if attempt < BRIEF_RETRY_MAX_ATTEMPTS - 1:
+                    await asyncio.sleep(BRIEF_RETRY_BASE_DELAY * (2**attempt))
+    assert last_exc is not None
+    raise last_exc
 
 
 async def _generate_with_groq(user_prompt: str) -> str:
