@@ -1,6 +1,6 @@
 # GreenScan — Complete Changelog
 
-22 commits | 2026-03-29 → 2026-04-10 | All on `main` branch
+34 commits | 2026-03-29 → 2026-05-05 | All on `main` branch
 
 ---
 
@@ -330,18 +330,90 @@ Old: `insert_signals_batch` called `insert_signal` N times, each acquiring and r
 
 ---
 
+## 30. `5826882` — 2026-04-22 — Project Overview + Doc Sync
+
+**docs: add project overview, update changelog, sync docs with codebase**
+
+Added `docs/overview.md` (project-level summary for new contributors) and synced changelog with `2dc2421`.
+
+---
+
+## 31. `f83dd43` — 2026-05-01 — Keep-Alive Trigger
+
+**chore: keepalive 2026-05-01**
+
+Monthly auto-commit fired by the keep-alive workflow (`fb3a1d3`). Confirms the GH Actions cron is alive without depending on the daily pipeline succeeding.
+
+---
+
+## 32. `2877576` (originally `49509ef`) — 2026-05-05 — Classifier Resilience: Retry + Pre-filter
+
+**fix(pipeline): harden classifier against 5xx and Cerebras burst limits**
+
+Daily pipeline was failing ~55% of recent runs in late April. Two root causes:
+- Gemini transient `503` with no retry → entire pipeline aborted
+- Cerebras `429` on the 2nd call (model `qwen-3-235b-a22b-instruct-2507` had reduced free-tier RPM during a "high demand" period)
+
+Changes:
+- New `_retry_on_5xx` helper (`pipeline/classifier/llm.py`) — 3 attempts, exponential backoff (1s/2s/4s) — applied to Cerebras + Gemini classify calls and to the Gemini brief call (`pipeline/brief/generator.py`)
+- New pre-filter (`pipeline/classifier/prefilter.py`) — drops signals lacking event verbs ("launches", "raises", "partners"…) or under 80 chars *before* paying for LLM classification. Cuts wasted classify calls on static pages by ~50%.
+- Switch Cerebras model `qwen-3-235b-a22b-instruct-2507` → `llama-3.3-70b` (later corrected — see #33)
+- Throttle Cerebras to ≤24 RPM via 2.5s post-call sleep (later raised to 6s — see #33)
+- Recognise Cerebras-specific `x-ratelimit-remaining-tokens-minute` header in `check_headers`
+- 5 new unit tests (3 retry, 1 Cerebras tokens-minute header, 1 sleep post-call)
+- Test count: 51 → 50/50 unit + 11 integration deselected
+
+---
+
+## 33. `5f9e3cf` — 2026-05-05 — Cerebras Model Switch + Brief Tightening + Telegram Fixes
+
+**fix(pipeline): switch deprecated Cerebras model + shorter brief + Telegram fixes**
+
+First post-deploy run of `2877576` surfaced four follow-up issues. All four fixed in a single commit:
+
+1. **Cerebras `404` on every call** — `llama-3.3-70b` was deprecated by Cerebras on Feb 16, 2026. Switched to `gpt-oss-120b` (their recommended replacement). Raised inter-call delay 2.5s → 6s to stay under the reduced free-tier RPM cap on "high demand" models.
+2. **Brief too long for Telegram** — 5 chunks (~20K chars), last chunks (incl. People to Watch) dropped on send. Raised score floors (`brief_min_score_customer` 2→3, `brief_min_score_competitor` 3→4); added `brief_max_total_signals = 15` hard cap; tightened system prompt to 400 words + max 5-line People to Watch.
+3. **Telegram `message is too long`** — `MAX_MESSAGE_LENGTH` lowered 4000 → 3500 to leave slack for `telegramify_markdown` escape inflation.
+4. **Telegram plaintext fallback `unsupported parse_mode`** — `payload["parse_mode"] = None` was rejected by Telegram. Replaced with `payload.pop("parse_mode", None)` so the field is absent.
+
+Test count after this commit: 51 unit + 11 integration.
+
+---
+
+## 34. `7636d9b` — 2026-05-05 — Handover Doc + Runbook Refresh
+
+**docs: refresh handover doc + runbook for May 5 hardening**
+
+`docs/HANDOVER.md` was a draft from 2026-04-20 (untracked). Refreshed and committed for the founder handover meeting:
+- Pipeline now described as 9 stages (added pre-filter)
+- Cerebras model `gpt-oss-120b`, 6s throttle
+- Brief tightened: 400 words, customer ≥3 / competitor ≥4, max 15
+- Retry-on-5xx documented as the late-April uptime fix
+- Test count 51 → 62 (51 unit + 11 integration)
+- Added §7.3 "May 2026 Resilience Hardening" subsection
+- Updated Risk Register (LLM model deprecation, RPM caps)
+- Updated Repo Structure (prefilter.py, brief retry)
+- Fixed §7 sub-numbering (4.x → 7.x)
+
+`RUNBOOK.md` updates:
+- New troubleshooting rows: Cerebras 404, Telegram message-too-long, parse_mode, pre-filter over-rejection
+- Provider table updated with current model strings + throttle
+- Cron schedule corrected (was 06:17/12:17/18:17, now single 04:00 UTC slot)
+
+---
+
 ## Summary
 
 | Metric | Value |
 |--------|-------|
-| Total commits | 29 |
-| Date range | 2026-03-29 → 2026-04-11 |
+| Total commits | 34 |
+| Date range | 2026-03-29 → 2026-05-05 |
 | Features | 12 |
-| Fixes | 10 |
+| Fixes | 13 |
 | Perf | 1 |
-| Docs | 4 |
-| Chores/style | 2 |
-| Tests | 51 (37 unit + 14 integration) |
+| Docs | 6 |
+| Chores/style | 3 |
+| Tests | 62 (51 unit + 11 integration) |
 | Targets | 120 (67 customers + 53 competitors) |
 | Active monitoring | 107 targets (scrape + RSS) |
-| Pipeline stages | scrape (web+RSS) → dedup → classify → link → contacts → store → brief → deliver |
+| Pipeline stages | scrape → dedup → **pre-filter** → classify → link → contacts → store → brief → deliver |

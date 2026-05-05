@@ -15,17 +15,18 @@ The entire system runs on free tiers. Budget: **zero euros per month**.
 
 ## How It Works
 
-The pipeline runs daily on GitHub Actions and follows 8 stages:
+The pipeline runs daily on GitHub Actions and follows 9 stages:
 
 ```
-1. SCRAPE     Web (Crawl4AI) + RSS (feedparser) → raw content from 107 target websites
-2. DEDUP      SHA256 content hash → skip signals already seen in previous runs (via Neon DB)
-3. CLASSIFY   3-tier LLM (Groq → Cerebras → Gemini) → category, score 0-5, summary, people
-4. LINK       pg_trgm fuzzy match → connect signals to known companies/contacts in DB
-5. CONTACTS   Serper.dev LinkedIn lookup → find decision-makers for customer signals
-6. STORE      Insert new signals + contacts into Neon Postgres
-7. BRIEF      Gemini 2.5 Flash (or Groq fallback) → generate dual-section Battlefield Brief
-8. DELIVER    Telegram Bot API → send to founder + dev
+1. SCRAPE      Web (Crawl4AI) + RSS (feedparser) → raw content from 107 target websites
+2. DEDUP       SHA256 content hash → skip signals already seen in previous runs (via Neon DB)
+3. PRE-FILTER  Event-verb dictionary + min length → drop static/non-event content before LLM
+4. CLASSIFY    3-tier LLM (Groq → Cerebras → Gemini) with retry-on-5xx → category, score 0-5, summary, people
+5. LINK        pg_trgm fuzzy match → connect signals to known companies/contacts in DB
+6. CONTACTS    Serper.dev LinkedIn lookup → find decision-makers for customer signals
+7. STORE       Insert new signals + contacts into Neon Postgres
+8. BRIEF       Gemini 2.5 Flash (or Groq fallback) with retry → generate dual-section Battlefield Brief
+9. DELIVER     Telegram Bot API → chunked + escaped → send to founder + dev
 ```
 
 ### Signal Classification
@@ -43,13 +44,13 @@ Only event-driven signals get scored. Static page descriptions (e.g., "About Us"
 
 Free-tier LLM providers have strict rate limits. GreenScan uses a **drain-and-switch** strategy:
 
-1. **Groq** (primary) — Llama 3.3 70B, 1,000 requests/day, 100K tokens/day
-2. **Cerebras** (fallback 1) — Qwen 3 235B, 14,400 requests/day, 1M tokens/day
-3. **Gemini Flash-Lite** (fallback 2) — 1,000 requests/day
+1. **Groq** (primary) — `llama-3.3-70b-versatile`, 1,000 RPD, 100K TPD, **12K TPM** (TPM is the binding limit — Groq drains in 2-3 batches)
+2. **Cerebras** (fallback 1) — `gpt-oss-120b`, 14,400 RPD / 1M TPD nominal, with reduced RPM on "high demand" models — we throttle to ≤10 RPM via 6-second inter-call sleep
+3. **Gemini** (fallback 2 + brief) — `gemini-2.5-flash-lite` (classify), `gemini-2.5-flash` (brief), 250 RPD
 
-Each provider is used until 90% of its quota (checking both RPD and TPD via HTTP headers), then switches to the next. On a 429 rate limit error, switches immediately.
+Each provider is used until 90% of its quota (checking both RPD and TPD via HTTP headers), then switches to the next. On a 429 rate limit error, switches immediately. **Transient 5xx errors are retried up to 3 times** with exponential backoff (1s/2s/4s) before falling through.
 
-Signals are batched 10 per request and content is truncated to 1,000 chars to minimize token consumption.
+Signals are batched 10 per request and content is truncated to 1,000 chars to minimize token consumption. The pre-filter (added May 2026) drops ~50% of signals before they reach the classifier.
 
 ### Contact Discovery
 
@@ -68,18 +69,20 @@ Budget: 20 Serper lookups per day (2,500 lifetime credits). No contact lookup fo
 greenscan/
 ├── pipeline/
 │   ├── scraper/          web.py, rss.py, serp.py, registry.py, models.py
-│   ├── classifier/       llm.py (3-tier), categorizer.py, prompts.py
+│   ├── classifier/       llm.py (3-tier + retry-on-5xx + Cerebras throttle),
+│   │                     prefilter.py (event-verb filter, May 2026),
+│   │                     categorizer.py, prompts.py
 │   ├── enrichment/       dedup.py, contacts.py, linker.py
 │   ├── storage/          db.py (asyncpg), migrations/001_initial.sql
-│   ├── brief/            generator.py (dual-section)
-│   ├── delivery/         telegram.py (multi-recipient)
+│   ├── brief/            generator.py (dual-section, retry-on-5xx)
+│   ├── delivery/         telegram.py (multi-recipient, chunker ≤3500)
 │   ├── config.py         Pydantic settings (env-based)
 │   └── main.py           Orchestrator (demo + daily modes)
-├── tests/                51 tests (37 unit + 14 integration)
+├── tests/                62 tests (51 unit + 11 integration)
 ├── scripts/              CSV parser, URL discovery, deep discovery
 ├── targets.yaml          120 targets with rich metadata
 ├── .github/workflows/    4 workflows (daily, CI, dead man's switch, keep-alive)
-├── docs/                 Research docs, changelog
+├── docs/                 Research docs, changelog, overview, handover
 ├── CLAUDE.md             Project instructions
 ├── BACKLOG.md            Product backlog & roadmap
 └── RUNBOOK.md            Operator handbook
@@ -111,15 +114,15 @@ greenscan/
 | Package manager | uv | Fast, deterministic |
 | Web scraping | Crawl4AI 0.8.6 | Playwright-based, stealth mode, batch crawling |
 | RSS parsing | feedparser + newspaper4k | Standard + full article extraction |
-| LLM (classify) | Groq → Cerebras → Gemini | Free tiers, drain-and-switch |
-| LLM (briefs) | Gemini 2.5 Flash / Groq | Long context, narrative quality |
+| LLM (classify) | Groq `llama-3.3-70b-versatile` → Cerebras `gpt-oss-120b` → Gemini `flash-lite` | Free tiers, drain-and-switch + retry-on-5xx |
+| LLM (briefs) | Gemini 2.5 Flash → Groq fallback | Long context, narrative quality |
 | Database | Neon Postgres 17 | Free, serverless, pg_trgm |
 | Delivery | Telegram Bot API (httpx) | Founder's preference, zero cost |
 | SERP | Serper.dev | LinkedIn contact lookup |
 | CI/CD | GitHub Actions | Free for public repos |
 | Linting | ruff | Fast, replaces flake8+black+isort |
 | Validation | Pydantic + pydantic-settings | Type safety, env parsing |
-| Retry | tenacity | Exponential backoff + jitter |
+| Retry | tenacity (general) + custom `_retry_on_5xx` in `llm.py` | Targeted at httpx 5xx; 429 already handled by drain-and-switch |
 
 ---
 
@@ -191,4 +194,4 @@ Optional:
 - **Founder contact**: Evgeny Savin (@easavin on Telegram)
 - **Repository**: github.com/builtbycnob/greenscan (public)
 - **Developer**: Corrado (builtbycnob) + Claude AI (pair programming)
-- **Timeline**: March 29 → April 11, 2026 (29 commits)
+- **Timeline**: March 29, 2026 → ongoing (34+ commits as of May 5, 2026)
