@@ -111,7 +111,8 @@ async def test_brief_filters_by_score():
 async def test_brief_caps_competitor_signals():
     """Competitor signals should be capped at competitor_signals_cap."""
     raw = [_raw(f"Comp{i}", f"content{i}") for i in range(10)]
-    cls = [_cls("product_launch", 3, f"Signal {i}") for i in range(10)]
+    # Score 4 to clear the new competitor floor (4).
+    cls = [_cls("product_launch", 4, f"Signal {i}") for i in range(10)]
     types = ["competitor"] * 10
 
     with patch(
@@ -124,6 +125,28 @@ async def test_brief_caps_competitor_signals():
     call_args = mock.call_args[0][0]
     # Default cap is 5
     assert call_args.count("--- Signal ---") <= 5
+
+
+@pytest.mark.asyncio
+async def test_brief_enforces_total_signal_cap():
+    """Total signals (customer + competitor) must respect brief_max_total_signals."""
+    from pipeline.config import settings
+
+    # 30 customer signals, all above threshold — should be capped at the
+    # total budget once competitors are subtracted.
+    raw = [_raw(f"Cust{i}", f"content{i}") for i in range(30)]
+    cls = [_cls("vendor_search", 5, f"Customer signal {i}") for i in range(30)]
+    types = ["customer"] * 30
+
+    with patch(
+        "pipeline.brief.generator._generate_with_groq",
+        new_callable=AsyncMock,
+    ) as mock:
+        mock.return_value = "# Brief"
+        await generate_brief(raw, cls, target_types=types)
+
+    call_args = mock.call_args[0][0]
+    assert call_args.count("--- Signal ---") <= settings.brief_max_total_signals
 
 
 @pytest.mark.asyncio

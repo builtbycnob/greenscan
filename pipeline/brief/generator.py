@@ -44,7 +44,8 @@ Rules:
 - Do NOT include generic "Key Takeaways" or "Suggested Actions" sections
 - Do NOT give generic strategy advice — focus on the actual news content
 - If one section has no signals, include the section header with "No signals today"
-- Keep it under 800 words
+- HARD LIMIT: 400 words total. Be terse. One line per signal where possible.
+- People to Watch: max 5 entries, one short line each (Name — Title @ Company).
 - Output the brief EXACTLY ONCE. Do not repeat any section.\
 """
 
@@ -113,12 +114,17 @@ async def generate_brief(
         logger.info("No signals above threshold, skipping brief")
         return None
 
-    # Cap competitor signals
+    # Cap competitor signals first
     customer_pairs = [(r, c, t) for r, c, t in pairs if t == "customer"]
     competitor_pairs = [(r, c, t) for r, c, t in pairs if t == "competitor"]
     competitor_pairs = sorted(competitor_pairs, key=lambda x: x[1].relevance_score, reverse=True)[
         : settings.competitor_signals_cap
     ]
+    # Then enforce a hard total cap, keeping the highest-scoring customer
+    # signals and all competitor signals (already capped above).
+    customer_pairs = sorted(customer_pairs, key=lambda x: x[1].relevance_score, reverse=True)
+    customer_budget = max(0, settings.brief_max_total_signals - len(competitor_pairs))
+    customer_pairs = customer_pairs[:customer_budget]
     pairs = customer_pairs + competitor_pairs
 
     filtered_raw = [p[0] for p in pairs]

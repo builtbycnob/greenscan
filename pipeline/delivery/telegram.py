@@ -10,7 +10,9 @@ from pipeline.config import settings
 logger = logging.getLogger(__name__)
 
 TELEGRAM_API = "https://api.telegram.org/bot{token}"
-MAX_MESSAGE_LENGTH = 4000  # safe limit under 4096
+# Markdownify escaping (\_ \* \( etc.) inflates output by ~10-20%, so we leave
+# ample slack under the 4096 hard limit to avoid 'message is too long'.
+MAX_MESSAGE_LENGTH = 3500
 
 
 async def send_brief(brief_markdown: str) -> bool:
@@ -89,8 +91,9 @@ async def _send_message(client: httpx.AsyncClient, text: str, chat_id: str) -> b
         data = resp.json()
         if not data.get("ok"):
             logger.error(f"Telegram error: {data}")
-            # Retry without parse_mode if markdown fails
-            payload["parse_mode"] = None
+            # Retry as plain text. Telegram rejects parse_mode=null, so the
+            # field must be absent from the payload entirely.
+            payload.pop("parse_mode", None)
             payload["text"] = text
             resp = await client.post(url, json=payload)
             data = resp.json()

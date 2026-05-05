@@ -29,15 +29,17 @@ class Settings(BaseSettings):
 
     # LLM config
     groq_model: str = "llama-3.3-70b-versatile"
-    # Switched away from qwen-3-235b-a22b-instruct-2507 — Cerebras free tier has
-    # temporarily reduced limits on that hot model, causing 429 on the 2nd call.
-    cerebras_model: str = "llama-3.3-70b"
+    # Cerebras' official recommended replacement after llama-3.3-70b and
+    # qwen-3-32b were deprecated (Feb 2026). Marked "high demand" with reduced
+    # free-tier limits, so we throttle aggressively below.
+    cerebras_model: str = "gpt-oss-120b"
     gemini_model: str = "gemini-2.5-flash"
     gemini_lite_model: str = "gemini-2.5-flash-lite"
 
-    # Inter-call delay (seconds) when Cerebras is the active provider. Free
-    # tier nominal limit is 30 RPM; 2.5s/call ≈ 24 RPM → safely under cap.
-    cerebras_inter_call_delay: float = 2.5
+    # Inter-call delay (seconds) when Cerebras is the active provider. The
+    # nominal free tier is 30 RPM but reduced models (gpt-oss-120b) likely
+    # cap lower — 6s/call ≈ 10 RPM, conservatively under any reduced cap.
+    cerebras_inter_call_delay: float = 6.0
 
     # Quota thresholds
     quota_switch_pct: float = 0.90
@@ -49,8 +51,14 @@ class Settings(BaseSettings):
 
     # Brief settings
     competitor_signals_cap: int = 5
-    brief_min_score_customer: int = 2
-    brief_min_score_competitor: int = 3
+    # Raised from 2/3 → 3/4 because lower thresholds let the brief balloon to
+    # 5 Telegram chunks (~20K chars), causing the last chunks (incl. People to
+    # Watch) to be dropped on send.
+    brief_min_score_customer: int = 3
+    brief_min_score_competitor: int = 4
+    # Hard cap on signals included in the brief, regardless of threshold.
+    # Top-N by score; ties broken by competitor-first (already cap'd separately).
+    brief_max_total_signals: int = 15
 
     # Contact discovery
     serper_daily_contact_cap: int = 20
