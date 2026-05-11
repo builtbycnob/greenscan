@@ -26,6 +26,12 @@ class Database:
             max_size=5,
             timeout=30,
             command_timeout=30,
+            # Neon scales to zero and silently drops idle TCP connections after
+            # a few minutes. The pipeline opens the pool, then does ~7 min of
+            # scraping before touching the DB again, which trips
+            # ConnectionDoesNotExistError. Recycling connections older than
+            # 120s forces asyncpg to re-establish them instead.
+            max_inactive_connection_lifetime=120.0,
         )
         logger.info("Database connected")
 
@@ -42,11 +48,21 @@ class Database:
         await self.close()
 
     async def load_known_hashes(self) -> set[str]:
-        """Load content hashes from the last 7 days for dedup."""
-        async with self._pool.acquire() as conn:
-            rows = await conn.fetch(
-                "SELECT content_hash FROM signals WHERE scraped_at > NOW() - INTERVAL '7 days'"
-            )
+        """Load content hashes from the last 7 days for dedup.
+
+        Retries once on ConnectionDoesNotExistError: this is the first query
+        after a multi-minute scrape phase, and Neon's scale-to-zero may have
+        dropped the underlying TCP connection while the pool wasn't looking.
+        """
+        query = "SELECT content_hash FROM signals WHERE scraped_at > NOW() - INTERVAL '7 days'"
+        try:
+            async with self._pool.acquire() as conn:
+                rows = await conn.fetch(query)
+        except asyncpg.exceptions.ConnectionDoesNotExistError:
+            logger.warning("DB connection dropped during idle; reconnecting and retrying once")
+            await self._pool.expire_connections()
+            async with self._pool.acquire() as conn:
+                rows = await conn.fetch(query)
         hashes = {r["content_hash"] for r in rows}
         logger.info(f"Loaded {len(hashes)} known hashes for dedup")
         return hashes
