@@ -29,16 +29,19 @@ class Settings(BaseSettings):
 
     # LLM config
     groq_model: str = "llama-3.3-70b-versatile"
-    # Cerebras' official recommended replacement after llama-3.3-70b and
-    # qwen-3-32b were deprecated (Feb 2026). Marked "high demand" with reduced
-    # free-tier limits, so we throttle aggressively below.
-    cerebras_model: str = "gpt-oss-120b"
+    # Live probe on 2026-05-11 confirmed: this account has POST access to
+    # qwen-3-235b-a22b-instruct-2507 and llama3.1-8b only. gpt-oss-120b and
+    # zai-glm-4.7 are listed in /v1/models but return 404 "you do not have
+    # access" on POST — they are tier-restricted previews. The May 5 switch to
+    # gpt-oss-120b was a wrong call by upstream docs research.
+    cerebras_model: str = "qwen-3-235b-a22b-instruct-2507"
     gemini_model: str = "gemini-2.5-flash"
     gemini_lite_model: str = "gemini-2.5-flash-lite"
 
     # Inter-call delay (seconds) when Cerebras is the active provider. The
-    # nominal free tier is 30 RPM but reduced models (gpt-oss-120b) likely
-    # cap lower — 6s/call ≈ 10 RPM, conservatively under any reduced cap.
+    # April 2026 burst-429s on the 2nd call indicate RPM throttling well
+    # below the nominal 30 RPM for this "high demand" model — 6s/call ≈ 10
+    # RPM, conservatively below any reduced cap.
     cerebras_inter_call_delay: float = 6.0
 
     # Quota thresholds
