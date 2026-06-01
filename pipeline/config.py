@@ -29,24 +29,33 @@ class Settings(BaseSettings):
 
     # LLM config
     groq_model: str = "llama-3.3-70b-versatile"
-    # Live probe on 2026-05-11 confirmed: this account has POST access to
-    # qwen-3-235b-a22b-instruct-2507 and llama3.1-8b only. gpt-oss-120b and
-    # zai-glm-4.7 are listed in /v1/models but return 404 "you do not have
-    # access" on POST — they are tier-restricted previews. The May 5 switch to
-    # gpt-oss-120b was a wrong call by upstream docs research.
-    cerebras_model: str = "qwen-3-235b-a22b-instruct-2507"
+    # Live probe 2026-06-01: this account's free tier lists ONLY gpt-oss-120b
+    # (production) + zai-glm-4.7 (preview); both POST 200. qwen-3-235b returns
+    # 404 "no access" — delisted from the free roster (Dedicated/paid only).
+    cerebras_model: str = "gpt-oss-120b"
     gemini_model: str = "gemini-2.5-flash"
     gemini_lite_model: str = "gemini-2.5-flash-lite"
 
-    # Inter-call delay (seconds) when Cerebras is the active provider. The
-    # April 2026 burst-429s on the 2nd call indicate RPM throttling well
-    # below the nominal 30 RPM for this "high demand" model — 6s/call ≈ 10
-    # RPM, conservatively below any reduced cap.
-    cerebras_inter_call_delay: float = 6.0
+    # OpenRouter (funded $10 once → 1000 RPD / 20 RPM). OpenAI-compatible.
+    openrouter_api_key: str = ""
+    openrouter_model: str = "meta-llama/llama-3.3-70b-instruct:free"
+    openrouter_inter_call_delay: float = 3.0  # ≤20 RPM
+
+    # Mistral (free, no card; 1B tok/month; 2 RPM). OpenAI-compatible.
+    mistral_api_key: str = ""
+    mistral_model: str = "mistral-small-latest"
+    mistral_inter_call_delay: float = 31.0  # ≤2 RPM
+
+    # Cerebras free tier = 5 RPM per model → 1 call / 12s (old 6.0 ≈ 10 RPM
+    # exceeded the cap and tripped burst-429s).
+    cerebras_inter_call_delay: float = 12.0
 
     # Quota thresholds
     quota_switch_pct: float = 0.90
-    max_signals_per_batch: int = 10
+    max_signals_per_batch: int = 15
+
+    # Transient-throttle retry budget (per provider, per call) before switching.
+    throttle_retry_max_attempts: int = 4
 
     # Pipeline
     scraper_max_concurrent: int = 5
