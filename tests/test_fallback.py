@@ -611,3 +611,24 @@ async def test_gemini_4xx_non_429_is_exhausted(monkeypatch):
             await client._call_gemini("sys", "user")
     finally:
         await client.close()
+
+
+@pytest.mark.asyncio
+async def test_groq_non_json_content_is_exhausted():
+    """Groq must map a malformed/non-JSON body to ProviderExhaustedError like the others."""
+    from unittest.mock import AsyncMock, MagicMock
+
+    client = LLMClient()
+    parsed = MagicMock()
+    parsed.choices = [MagicMock(message=MagicMock(content="totally not json"))]
+    raw = MagicMock()
+    raw.headers = {}
+    raw.parse = AsyncMock(return_value=parsed)
+    client._groq = MagicMock()
+    client._groq.close = AsyncMock()
+    client._groq.chat.completions.with_raw_response.create = AsyncMock(return_value=raw)
+    try:
+        with pytest.raises(ProviderExhaustedError):
+            await client._call_groq("sys", "user", None)
+    finally:
+        await client.close()

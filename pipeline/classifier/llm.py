@@ -317,8 +317,16 @@ class LLMClient:
             raise ProviderThrottledError(f"groq rate limited: {e}") from e
         self.quota.check_headers(Provider.GROQ, dict(raw.headers))
         response = await raw.parse()
-        content = response.choices[0].message.content
-        return json.loads(content)
+        try:
+            content = response.choices[0].message.content
+        except (IndexError, AttributeError, TypeError) as e:
+            raise ProviderExhaustedError(f"groq malformed response: {e}") from e
+        if content is None or not content.strip():
+            raise ProviderThrottledError("groq empty completion")
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError as e:
+            raise ProviderExhaustedError(f"groq non-JSON content: {e}") from e
 
     async def _call_openai_compatible(
         self,
