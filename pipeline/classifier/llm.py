@@ -46,6 +46,25 @@ async def _retry_on_5xx(
     raise last_exc
 
 
+def _parse_retry_after(value: str | None) -> float | None:
+    """Parse a Retry-After header expressed in seconds. Ignore HTTP-date form."""
+    if not value:
+        return None
+    try:
+        return float(value)
+    except ValueError:
+        return None
+
+
+_MODEL_GONE_MARKERS = (
+    "model_not_found",
+    "does not exist",
+    "not exist",
+    "no access",
+    "not_found",
+)
+
+
 class Provider(StrEnum):
     GROQ = "groq"
     CEREBRAS = "cerebras"
@@ -263,11 +282,31 @@ class LLMClient:
         content = response.choices[0].message.content
         return json.loads(content)
 
-    async def _call_cerebras(
-        self, system_prompt: str, user_prompt: str, json_schema: dict | None
+    async def _call_openai_compatible(
+        self,
+        *,
+        provider: Provider,
+        base_url: str,
+        model: str,
+        api_key: str,
+        system_prompt: str,
+        user_prompt: str,
+        json_schema: dict | None,
+        extra_body: dict | None = None,
+        throttle_delay: float = 0.0,
+        empty_is_throttle: bool = False,
     ) -> dict:
+        """Shared OpenAI-compatible chat-completions call (Cerebras/OpenRouter/Mistral).
+
+        Maps 429 → ProviderThrottledError, model 404/400 → ProviderExhaustedError,
+        5xx → retried then ProviderThrottledError. Optionally treats an empty
+        completion as a throttle (OpenRouter silent-429 mode).
+        """
+        if not api_key:
+            raise ProviderExhaustedError(f"{provider.value} api key not configured")
+
         body: dict = {
-            "model": settings.cerebras_model,
+            "model": model,
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
@@ -277,34 +316,64 @@ class LLMClient:
         if json_schema:
             body["response_format"] = {
                 "type": "json_schema",
-                "json_schema": {
-                    "name": "classification",
-                    "schema": json_schema,
-                    "strict": True,
-                },
+                "json_schema": {"name": "classification", "schema": json_schema, "strict": True},
             }
         else:
             body["response_format"] = {"type": "json_object"}
+        if extra_body:
+            body.update(extra_body)
 
         async def _do_call() -> dict:
             resp = await self._http.post(
-                "https://api.cerebras.ai/v1/chat/completions",
+                base_url,
                 headers={
-                    "Authorization": f"Bearer {settings.cerebras_api_key}",
+                    "Authorization": f"Bearer {api_key}",
                     "Content-Type": "application/json",
                 },
                 json=body,
             )
+            if resp.status_code == 429:
+                raise ProviderThrottledError(
+                    f"{provider.value} 429",
+                    retry_after=_parse_retry_after(resp.headers.get("retry-after")),
+                )
+            if resp.status_code in (400, 404):
+                low = resp.text.lower()
+                if any(m in low for m in _MODEL_GONE_MARKERS):
+                    raise ProviderExhaustedError(
+                        f"{provider.value} model unavailable: {resp.text[:160]}"
+                    )
             resp.raise_for_status()
-            self.quota.check_headers(Provider.CEREBRAS, dict(resp.headers))
+            self.quota.check_headers(provider, dict(resp.headers))
             data = resp.json()
             content = data["choices"][0]["message"]["content"]
+            if empty_is_throttle and (content is None or not content.strip()):
+                raise ProviderThrottledError(f"{provider.value} empty completion (possible 429)")
             return json.loads(content)
 
-        result = await _retry_on_5xx(_do_call, label="cerebras")
-        # Throttle to stay under Cerebras free-tier RPM cap (≈30 RPM).
-        await asyncio.sleep(settings.cerebras_inter_call_delay)
+        try:
+            result = await _retry_on_5xx(_do_call, label=provider.value)
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code >= 500:
+                raise ProviderThrottledError(f"{provider.value} {e.response.status_code}") from e
+            raise
+        if throttle_delay:
+            await asyncio.sleep(throttle_delay)
         return result
+
+    async def _call_cerebras(
+        self, system_prompt: str, user_prompt: str, json_schema: dict | None
+    ) -> dict:
+        return await self._call_openai_compatible(
+            provider=Provider.CEREBRAS,
+            base_url="https://api.cerebras.ai/v1/chat/completions",
+            model=settings.cerebras_model,
+            api_key=settings.cerebras_api_key,
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            json_schema=json_schema,
+            throttle_delay=settings.cerebras_inter_call_delay,
+        )
 
     async def _call_openrouter(self, system_prompt, user_prompt, json_schema):
         raise ProviderExhaustedError("openrouter not configured")

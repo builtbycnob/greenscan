@@ -306,3 +306,56 @@ async def test_all_providers_down_raises_llmerror(monkeypatch):
             await client.classify("sys", "user")
     finally:
         await client.close()
+
+
+# --- Task 3: shared OpenAI-compatible helper (Cerebras/OpenRouter/Mistral) ---
+def _http_response(status, *, json_body=None, text="", headers=None):
+    req = httpx.Request("POST", "https://x.test/v1/chat/completions")
+    if json_body is not None:
+        return httpx.Response(status, request=req, json=json_body, headers=headers or {})
+    return httpx.Response(status, request=req, text=text, headers=headers or {})
+
+
+@pytest.mark.asyncio
+async def test_cerebras_404_model_exhausts_immediately():
+    """A 404 model_not_found raises ProviderExhaustedError in ONE round-trip."""
+    from unittest.mock import AsyncMock
+
+    client = LLMClient()
+    client._http.post = AsyncMock(
+        return_value=_http_response(
+            404,
+            json_body={
+                "message": "Model x does not exist or you do not have access to it.",
+                "code": "model_not_found",
+            },
+        )
+    )
+    try:
+        with pytest.raises(ProviderExhaustedError):
+            await client._call_cerebras("sys", "user", None)
+        assert client._http.post.await_count == 1
+    finally:
+        await client.close()
+
+
+@pytest.mark.asyncio
+async def test_cerebras_429_is_throttle(monkeypatch):
+    async def _no_sleep(_):
+        return None
+
+    monkeypatch.setattr("pipeline.classifier.llm.asyncio.sleep", _no_sleep)
+    from unittest.mock import AsyncMock
+
+    client = LLMClient()
+    client._http.post = AsyncMock(
+        return_value=_http_response(
+            429, json_body={"message": "queue_exceeded"}, headers={"retry-after": "2"}
+        )
+    )
+    try:
+        with pytest.raises(ProviderThrottledError) as ei:
+            await client._call_cerebras("sys", "user", None)
+        assert ei.value.retry_after == 2.0
+    finally:
+        await client.close()
