@@ -193,3 +193,116 @@ async def test_call_cerebras_sleeps_after_success(monkeypatch):
     from pipeline.config import settings as _settings
 
     assert _settings.cerebras_inter_call_delay in sleeps
+
+
+# --- Task 2+: hardened fallback (transient throttle vs terminal exhaust) ---
+from pipeline.classifier.llm import (  # noqa: E402
+    LLMError,
+    ProviderExhaustedError,
+    ProviderThrottledError,
+)
+
+
+@pytest.mark.asyncio
+async def test_throttle_retry_recovers_then_succeeds(monkeypatch):
+    """A transient throttle is retried on the SAME provider and succeeds; not exhausted."""
+
+    async def _no_sleep(_):
+        return None
+
+    monkeypatch.setattr("pipeline.classifier.llm.asyncio.sleep", _no_sleep)
+
+    calls = {"n": 0}
+
+    async def fake_call(provider, *a, **k):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise ProviderThrottledError("transient", retry_after=0.01)
+        return {"signals": []}
+
+    client = LLMClient()
+    monkeypatch.setattr(client, "_call_provider", fake_call)
+    try:
+        result = await client.classify("sys", "user")
+    finally:
+        await client.close()
+    assert result == {"signals": []}
+    assert calls["n"] == 2
+    assert not client.quota.is_exhausted(Provider.GROQ)
+
+
+@pytest.mark.asyncio
+async def test_throttle_budget_spent_switches_provider(monkeypatch):
+    """Persistent throttle on provider 1 exhausts its budget → exhausted → provider 2 answers."""
+
+    async def _no_sleep(_):
+        return None
+
+    monkeypatch.setattr("pipeline.classifier.llm.asyncio.sleep", _no_sleep)
+
+    seen = []
+
+    async def fake_call(provider, *a, **k):
+        seen.append(provider)
+        if provider == Provider.GROQ:
+            raise ProviderThrottledError("always throttled", retry_after=0.0)
+        return {"ok": provider.value}
+
+    client = LLMClient()
+    monkeypatch.setattr(client, "_call_provider", fake_call)
+    try:
+        result = await client.classify("sys", "user")
+    finally:
+        await client.close()
+
+    from pipeline.config import settings
+
+    assert seen.count(Provider.GROQ) == settings.throttle_retry_max_attempts
+    assert client.quota.is_exhausted(Provider.GROQ)
+    assert result != {"ok": "groq"}
+
+
+@pytest.mark.asyncio
+async def test_exhausted_error_switches_immediately(monkeypatch):
+    """A ProviderExhaustedError switches on the FIRST round-trip (no retries)."""
+
+    async def _no_sleep(_):
+        return None
+
+    monkeypatch.setattr("pipeline.classifier.llm.asyncio.sleep", _no_sleep)
+
+    seen = []
+
+    async def fake_call(provider, *a, **k):
+        seen.append(provider)
+        if provider == Provider.GROQ:
+            raise ProviderExhaustedError("model gone")
+        return {"ok": provider.value}
+
+    client = LLMClient()
+    monkeypatch.setattr(client, "_call_provider", fake_call)
+    try:
+        await client.classify("sys", "user")
+    finally:
+        await client.close()
+    assert seen.count(Provider.GROQ) == 1
+    assert client.quota.is_exhausted(Provider.GROQ)
+
+
+@pytest.mark.asyncio
+async def test_all_providers_down_raises_llmerror(monkeypatch):
+    async def _no_sleep(_):
+        return None
+
+    monkeypatch.setattr("pipeline.classifier.llm.asyncio.sleep", _no_sleep)
+
+    async def fake_call(provider, *a, **k):
+        raise ProviderExhaustedError("down")
+
+    client = LLMClient()
+    monkeypatch.setattr(client, "_call_provider", fake_call)
+    try:
+        with pytest.raises(LLMError):
+            await client.classify("sys", "user")
+    finally:
+        await client.close()

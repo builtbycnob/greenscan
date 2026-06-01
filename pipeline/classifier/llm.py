@@ -49,6 +49,8 @@ async def _retry_on_5xx(
 class Provider(StrEnum):
     GROQ = "groq"
     CEREBRAS = "cerebras"
+    OPENROUTER = "openrouter"
+    MISTRAL = "mistral"
     GEMINI = "gemini"
 
 
@@ -66,6 +68,8 @@ class QuotaState:
         default_factory=lambda: {
             Provider.GROQ: 0,
             Provider.CEREBRAS: 0,
+            Provider.OPENROUTER: 0,
+            Provider.MISTRAL: 0,
             Provider.GEMINI: 0,
         }
     )
@@ -118,7 +122,15 @@ class LLMError(Exception):
 
 
 class ProviderExhaustedError(Exception):
-    """A single provider hit its rate limit (429)."""
+    """A provider is unusable for the rest of this run (per-day quota / model gone)."""
+
+
+class ProviderThrottledError(Exception):
+    """Transient throttle (per-minute 429 / empty completion / queue). Retry SAME provider."""
+
+    def __init__(self, message: str, retry_after: float | None = None) -> None:
+        super().__init__(message)
+        self.retry_after = retry_after
 
 
 class LLMClient:
@@ -156,7 +168,7 @@ class LLMClient:
 
         for provider in providers:
             try:
-                result = await self._call_provider(
+                result = await self._call_with_throttle_retry(
                     provider, system_prompt, user_prompt, json_schema
                 )
                 self.quota.record_use(provider)
@@ -171,6 +183,33 @@ class LLMClient:
                 continue
 
         raise LLMError(f"All providers exhausted. Last error: {last_error}")
+
+    async def _call_with_throttle_retry(
+        self, provider: Provider, system_prompt: str, user_prompt: str, json_schema: dict | None
+    ) -> dict:
+        """Call a provider, retrying transient throttles on the SAME provider.
+
+        Escalates to ProviderExhaustedError once the budget is spent so the
+        caller switches to the next provider.
+        """
+        attempts = settings.throttle_retry_max_attempts
+        last: Exception | None = None
+        for attempt in range(attempts):
+            try:
+                return await self._call_provider(
+                    provider, system_prompt, user_prompt, json_schema
+                )
+            except ProviderThrottledError as e:
+                last = e
+                delay = (
+                    e.retry_after if e.retry_after is not None else RETRY_BASE_DELAY * (2**attempt)
+                )
+                logger.info(
+                    f"{provider.value} throttled ({attempt + 1}/{attempts}), retry in {delay:.1f}s"
+                )
+                if attempt < attempts - 1:
+                    await asyncio.sleep(delay)
+        raise ProviderExhaustedError(f"{provider.value} throttled past retry budget: {last}")
 
     def _pick_providers(self) -> list[Provider]:
         """Return providers in priority order, skipping exhausted ones."""
@@ -187,20 +226,18 @@ class LLMClient:
         user_prompt: str,
         json_schema: dict | None,
     ) -> dict:
-        """Call a single provider. Raises ProviderExhaustedError on 429."""
-        try:
-            if provider == Provider.GROQ:
-                return await self._call_groq(system_prompt, user_prompt, json_schema)
-            elif provider == Provider.CEREBRAS:
-                return await self._call_cerebras(system_prompt, user_prompt, json_schema)
-            else:
-                return await self._call_gemini(system_prompt, user_prompt)
-        except GroqRateLimitError as e:
-            raise ProviderExhaustedError(f"Groq rate limited: {e}") from e
-        except httpx.HTTPStatusError as e:
-            if e.response.status_code == 429:
-                raise ProviderExhaustedError(f"{provider.value} rate limited (429)") from e
-            raise
+        """Dispatch to one provider. Each provider maps its own errors to
+        ProviderThrottledError (transient) or ProviderExhaustedError (terminal)."""
+        if provider == Provider.GROQ:
+            return await self._call_groq(system_prompt, user_prompt, json_schema)
+        elif provider == Provider.CEREBRAS:
+            return await self._call_cerebras(system_prompt, user_prompt, json_schema)
+        elif provider == Provider.OPENROUTER:
+            return await self._call_openrouter(system_prompt, user_prompt, json_schema)
+        elif provider == Provider.MISTRAL:
+            return await self._call_mistral(system_prompt, user_prompt, json_schema)
+        else:
+            return await self._call_gemini(system_prompt, user_prompt)
 
     async def _call_groq(
         self, system_prompt: str, user_prompt: str, json_schema: dict | None
@@ -217,7 +254,10 @@ class LLMClient:
             "response_format": {"type": "json_object"},
         }
 
-        raw = await self._groq.chat.completions.with_raw_response.create(**kwargs)
+        try:
+            raw = await self._groq.chat.completions.with_raw_response.create(**kwargs)
+        except GroqRateLimitError as e:
+            raise ProviderThrottledError(f"groq rate limited: {e}") from e
         self.quota.check_headers(Provider.GROQ, dict(raw.headers))
         response = await raw.parse()
         content = response.choices[0].message.content
@@ -265,6 +305,12 @@ class LLMClient:
         # Throttle to stay under Cerebras free-tier RPM cap (≈30 RPM).
         await asyncio.sleep(settings.cerebras_inter_call_delay)
         return result
+
+    async def _call_openrouter(self, system_prompt, user_prompt, json_schema):
+        raise ProviderExhaustedError("openrouter not configured")
+
+    async def _call_mistral(self, system_prompt, user_prompt, json_schema):
+        raise ProviderExhaustedError("mistral not configured")
 
     async def _call_gemini(self, system_prompt: str, user_prompt: str) -> dict:
         if not settings.gemini_api_key:
