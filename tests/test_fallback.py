@@ -359,3 +359,62 @@ async def test_cerebras_429_is_throttle(monkeypatch):
         assert ei.value.retry_after == 2.0
     finally:
         await client.close()
+
+
+# --- Task 4: Gemini 429 body parsing (PerMinute vs PerDay) ---
+@pytest.mark.asyncio
+async def test_gemini_per_minute_429_is_throttle(monkeypatch):
+    monkeypatch.setattr("pipeline.config.settings.gemini_api_key", "k", raising=False)
+    from unittest.mock import AsyncMock
+
+    client = LLMClient()
+    body = {
+        "error": {
+            "code": 429,
+            "status": "RESOURCE_EXHAUSTED",
+            "details": [
+                {
+                    "@type": "type.googleapis.com/google.rpc.QuotaFailure",
+                    "violations": [
+                        {"quotaId": "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"}
+                    ],
+                },
+                {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "21s"},
+            ],
+        }
+    }
+    client._http.post = AsyncMock(return_value=_http_response(429, json_body=body))
+    try:
+        with pytest.raises(ProviderThrottledError) as ei:
+            await client._call_gemini("sys", "user")
+        assert ei.value.retry_after == 21.0
+    finally:
+        await client.close()
+
+
+@pytest.mark.asyncio
+async def test_gemini_per_day_429_is_exhausted(monkeypatch):
+    monkeypatch.setattr("pipeline.config.settings.gemini_api_key", "k", raising=False)
+    from unittest.mock import AsyncMock
+
+    client = LLMClient()
+    body = {
+        "error": {
+            "code": 429,
+            "status": "RESOURCE_EXHAUSTED",
+            "details": [
+                {
+                    "@type": "type.googleapis.com/google.rpc.QuotaFailure",
+                    "violations": [
+                        {"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier"}
+                    ],
+                }
+            ],
+        }
+    }
+    client._http.post = AsyncMock(return_value=_http_response(429, json_body=body))
+    try:
+        with pytest.raises(ProviderExhaustedError):
+            await client._call_gemini("sys", "user")
+    finally:
+        await client.close()

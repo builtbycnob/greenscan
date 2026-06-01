@@ -65,6 +65,41 @@ _MODEL_GONE_MARKERS = (
 )
 
 
+def _parse_duration(s: str | None) -> float | None:
+    """Parse a protobuf duration like '21s' → 21.0."""
+    if not s:
+        return None
+    s = s.strip()
+    try:
+        return float(s[:-1]) if s.endswith("s") else float(s)
+    except ValueError:
+        return None
+
+
+def _gemini_429_to_error(resp: httpx.Response) -> Exception:
+    """Map a Gemini 429 to terminal (PerDay quota) or transient (PerMinute/unknown).
+
+    Gemini emits no rate-limit headers, so the 429 body's error.details[] is the
+    only signal: a violation whose quotaId contains 'PerDay' is terminal for the
+    day; anything else (PerMinute/PerSecond/unknown) is a transient throttle.
+    """
+    try:
+        details = resp.json().get("error", {}).get("details", [])
+    except Exception:
+        return ProviderThrottledError("gemini 429 (unparseable body)")
+    per_day = False
+    retry_after = None
+    for d in details:
+        for v in d.get("violations", []):
+            if "PerDay" in v.get("quotaId", ""):
+                per_day = True
+        if d.get("retryDelay"):
+            retry_after = _parse_duration(d["retryDelay"])
+    if per_day:
+        return ProviderExhaustedError("gemini per-day quota exhausted")
+    return ProviderThrottledError("gemini per-minute throttle", retry_after=retry_after)
+
+
 class Provider(StrEnum):
     GROQ = "groq"
     CEREBRAS = "cerebras"
@@ -402,9 +437,16 @@ class LLMClient:
                 headers={"Content-Type": "application/json"},
                 json=payload,
             )
+            if resp.status_code == 429:
+                raise _gemini_429_to_error(resp)
             resp.raise_for_status()
             data = resp.json()
             content = data["candidates"][0]["content"]["parts"][0]["text"]
             return json.loads(content)
 
-        return await _retry_on_5xx(_do_call, label="gemini")
+        try:
+            return await _retry_on_5xx(_do_call, label="gemini")
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code >= 500:
+                raise ProviderThrottledError(f"gemini {e.response.status_code}") from e
+            raise
