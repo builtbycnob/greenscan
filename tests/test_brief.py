@@ -184,3 +184,24 @@ async def test_brief_contacts_survive_filtering():
     assert "Jane Doe" in call_args
     assert "HighCo" in call_args
     assert "Static" not in call_args
+
+
+@pytest.mark.asyncio
+async def test_brief_falls_through_to_openrouter(monkeypatch):
+    """Gemini + Groq both down → brief still produced via OpenRouter."""
+    import pipeline.brief.generator as g
+
+    monkeypatch.setattr("pipeline.config.settings.gemini_api_key", "k", raising=False)
+    monkeypatch.setattr("pipeline.config.settings.openrouter_api_key", "k", raising=False)
+
+    async def boom(_):
+        raise RuntimeError("down")
+
+    async def ok(_):
+        return "BRIEF OK"
+
+    monkeypatch.setattr(g, "_generate_with_gemini", boom)
+    monkeypatch.setattr(g, "_generate_with_groq", boom)
+    monkeypatch.setattr(g, "_generate_with_openrouter", ok)
+
+    assert await g._generate_brief_text("prompt") == "BRIEF OK"

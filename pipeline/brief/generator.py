@@ -165,12 +165,36 @@ async def generate_brief(
         f"{contacts_text}"
     )
 
-    if settings.gemini_api_key:
+    return await _generate_brief_text(user_prompt)
+
+
+async def _generate_brief_text(user_prompt: str) -> str | None:
+    """Try the brief providers in order; first success wins.
+
+    Groq is always attempted as the baseline; Gemini (preferred for narrative
+    quality) and OpenRouter are tried only when their key is configured.
+    """
+    chain: list[tuple[str, bool]] = [
+        ("gemini", bool(settings.gemini_api_key)),
+        ("groq", True),
+        ("openrouter", bool(settings.openrouter_api_key)),
+    ]
+    fns = {
+        "gemini": _generate_with_gemini,
+        "groq": _generate_with_groq,
+        "openrouter": _generate_with_openrouter,
+    }
+    last_exc: Exception | None = None
+    for name, enabled in chain:
+        if not enabled:
+            continue
         try:
-            return await _generate_with_gemini(user_prompt)
-        except Exception as e:
-            logger.warning(f"Gemini brief failed: {e}, falling back to Groq")
-    return await _generate_with_groq(user_prompt)
+            return await fns[name](user_prompt)
+        except Exception as e:  # noqa: BLE001 — try the next provider
+            last_exc = e
+            logger.warning(f"Brief via {name} failed: {e}")
+    logger.error(f"All brief providers failed: {last_exc}")
+    return None
 
 
 async def _generate_with_gemini(user_prompt: str) -> str:
@@ -194,6 +218,14 @@ async def _generate_with_gemini(user_prompt: str) -> str:
                 data = resp.json()
                 return data["candidates"][0]["content"]["parts"][0]["text"]
             except httpx.HTTPStatusError as e:
+                if e.response.status_code == 429:
+                    # Transient per-minute throttle: back off within budget, then
+                    # fall through to the next brief provider.
+                    last_exc = e
+                    if attempt < BRIEF_RETRY_MAX_ATTEMPTS - 1:
+                        await asyncio.sleep(BRIEF_RETRY_BASE_DELAY * (2**attempt))
+                        continue
+                    raise
                 if e.response.status_code < 500:
                     raise
                 last_exc = e
@@ -221,3 +253,25 @@ async def _generate_with_groq(user_prompt: str) -> str:
             temperature=0.3,
         )
         return response.choices[0].message.content
+
+
+async def _generate_with_openrouter(user_prompt: str) -> str:
+    """Fallback brief via OpenRouter (OpenAI-compatible)."""
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        resp = await client.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {settings.openrouter_api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": settings.openrouter_model,
+                "messages": [
+                    {"role": "system", "content": BRIEF_SYSTEM_PROMPT},
+                    {"role": "user", "content": user_prompt},
+                ],
+                "temperature": 0.3,
+            },
+        )
+        resp.raise_for_status()
+        return resp.json()["choices"][0]["message"]["content"]
