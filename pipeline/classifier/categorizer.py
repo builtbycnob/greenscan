@@ -112,16 +112,14 @@ async def classify_signals(
     client: LLMClient,
     raw_signals: list[dict],
     target_types: list[str] | None = None,
-) -> list[ClassifiedSignal]:
-    """Classify a batch of raw signals (max 5 per request).
+) -> list[ClassifiedSignal | None]:
+    """Classify a batch of raw signals.
 
-    Args:
-        client: LLM client instance
-        raw_signals: signal dicts with source, url, title, content
-        target_types: parallel list of "customer" or "competitor" per signal
-
-    Returns validated ClassifiedSignal objects. Signals that fail validation
-    are logged and skipped.
+    Returns a list ALIGNED 1:1 with ``raw_signals``: index ``i`` holds the
+    classification for ``raw_signals[i]``, or ``None`` if that item could not
+    be validated. Position-preserving so callers can zip signals to
+    classifications without misalignment, even when the LLM drops, reorders,
+    or over-produces items.
     """
     user_prompt = format_batch_prompt(raw_signals, target_types)
 
@@ -131,31 +129,20 @@ async def classify_signals(
         json_schema=CLASSIFICATION_SCHEMA,
     )
 
-    try:
-        raw_items = result.get("signals", [])
-        parsed = [ClassifiedSignal.from_raw(item) for item in raw_items]
-    except Exception as e:
-        logger.error(f"Batch validation failed: {e}. Raw: {result}")
-        return _classify_individually(client, raw_signals, result)
-
-    if len(parsed) != len(raw_signals):
-        logger.warning(f"Expected {len(raw_signals)} classifications, got {len(parsed)}")
-
-    return parsed
-
-
-def _classify_individually(
-    client: LLMClient,
-    raw_signals: list[dict],
-    partial_result: dict,
-) -> list[ClassifiedSignal]:
-    """Salvage valid items from a partially failed batch."""
-    valid = []
-    raw_items = partial_result.get("signals", [])
-    for item in raw_items:
-        try:
-            valid.append(ClassifiedSignal.model_validate(item))
-        except Exception:
+    raw_items = result.get("signals", [])
+    aligned: list[ClassifiedSignal | None] = []
+    for i in range(len(raw_signals)):
+        item = raw_items[i] if i < len(raw_items) else None
+        if item is None:
+            aligned.append(None)
             continue
-    logger.info(f"Salvaged {len(valid)}/{len(raw_signals)} from partial batch")
-    return valid
+        try:
+            aligned.append(ClassifiedSignal.from_raw(item))
+        except Exception:
+            aligned.append(None)
+
+    n_ok = sum(1 for c in aligned if c is not None)
+    if n_ok != len(raw_signals):
+        logger.warning(f"Classified {n_ok}/{len(raw_signals)} signals (rest dropped)")
+
+    return aligned

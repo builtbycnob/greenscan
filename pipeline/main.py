@@ -87,6 +87,12 @@ async def run_demo(max_targets: int = 3) -> None:
             target_types=batch_types,
         )
 
+    # Drop signals that failed classification (None), keeping alignment.
+    kept = [(r, c, t) for r, c, t in zip(batch, classified, batch_types) if c is not None]
+    batch = [k[0] for k in kept]
+    classified = [k[1] for k in kept]
+    batch_types = [k[2] for k in kept]
+
     # Print classified signals
     for i, (raw, cls) in enumerate(zip(batch, classified), 1):
         score_bar = "🟢" * cls.relevance_score + "⚪" * (5 - cls.relevance_score)
@@ -139,10 +145,11 @@ async def _classify_in_batches(client, signals, types, batch_size):
         except LLMError as e:
             logger.error(f"Classify failed for batch @ {i} ({len(batch)} signals), skipping: {e}")
             continue
-        n = len(classified)
-        processed.extend(batch[:n])
-        all_classified.extend(classified)
-        all_types.extend(batch_types[:n])
+        for sig, cls, t in zip(batch, classified, batch_types):
+            if cls is not None:
+                processed.append(sig)
+                all_classified.append(cls)
+                all_types.append(t)
     return processed, all_classified, all_types
 
 

@@ -59,9 +59,8 @@ def _parse_retry_after(value: str | None) -> float | None:
 _MODEL_GONE_MARKERS = (
     "model_not_found",
     "does not exist",
-    "not exist",
     "no access",
-    "not_found",
+    "model not available",
 )
 
 
@@ -232,8 +231,11 @@ class LLMClient:
                 last_error = e
                 continue
             except Exception as e:
+                # Unexpected/unrecoverable error → exhaust this tier for the run
+                # so a deterministic failure isn't retried on every batch.
+                self.quota.mark_exhausted(provider)
                 last_error = e
-                logger.warning(f"{provider.value} failed: {e}")
+                logger.warning(f"{provider.value} failed (exhausting for this run): {e}")
                 continue
 
         raise LLMError(f"All providers exhausted. Last error: {last_error}")
@@ -330,13 +332,12 @@ class LLMClient:
         json_schema: dict | None,
         extra_body: dict | None = None,
         throttle_delay: float = 0.0,
-        empty_is_throttle: bool = False,
     ) -> dict:
         """Shared OpenAI-compatible chat-completions call (Cerebras/OpenRouter/Mistral).
 
-        Maps 429 → ProviderThrottledError, model 404/400 → ProviderExhaustedError,
-        5xx → retried then ProviderThrottledError. Optionally treats an empty
-        completion as a throttle (OpenRouter silent-429 mode).
+        Error mapping: 429 / 5xx / empty-or-null completion → ProviderThrottledError
+        (retry same tier); any other 4xx or a malformed/non-JSON 200 body →
+        ProviderExhaustedError (switch away — permanent for this run).
         """
         if not api_key:
             raise ProviderExhaustedError(f"{provider.value} api key not configured")
@@ -373,26 +374,35 @@ class LLMClient:
                     f"{provider.value} 429",
                     retry_after=_parse_retry_after(resp.headers.get("retry-after")),
                 )
-            if resp.status_code in (400, 404):
+            if 400 <= resp.status_code < 500:
+                # Any 4xx is permanent for this run (bad key, bad request, missing
+                # model): exhaust + switch rather than hammer the same tier.
                 low = resp.text.lower()
-                if any(m in low for m in _MODEL_GONE_MARKERS):
-                    raise ProviderExhaustedError(
-                        f"{provider.value} model unavailable: {resp.text[:160]}"
-                    )
-            resp.raise_for_status()
+                reason = (
+                    "model unavailable"
+                    if any(m in low for m in _MODEL_GONE_MARKERS)
+                    else f"client error {resp.status_code}"
+                )
+                raise ProviderExhaustedError(f"{provider.value} {reason}: {resp.text[:160]}")
+            resp.raise_for_status()  # only 5xx reaches here → retried by _retry_on_5xx
             self.quota.check_headers(provider, dict(resp.headers))
-            data = resp.json()
-            content = data["choices"][0]["message"]["content"]
-            if empty_is_throttle and (content is None or not content.strip()):
+            try:
+                data = resp.json()
+                content = data["choices"][0]["message"]["content"]
+            except (KeyError, IndexError, TypeError, json.JSONDecodeError) as e:
+                raise ProviderExhaustedError(f"{provider.value} malformed response: {e}") from e
+            if content is None or not content.strip():
                 raise ProviderThrottledError(f"{provider.value} empty completion (possible 429)")
-            return json.loads(content)
+            try:
+                return json.loads(content)
+            except json.JSONDecodeError as e:
+                raise ProviderExhaustedError(f"{provider.value} non-JSON content: {e}") from e
 
         try:
             result = await _retry_on_5xx(_do_call, label=provider.value)
         except httpx.HTTPStatusError as e:
-            if e.response.status_code >= 500:
-                raise ProviderThrottledError(f"{provider.value} {e.response.status_code}") from e
-            raise
+            # Only 5xx reaches here (4xx handled in _do_call) → transient.
+            raise ProviderThrottledError(f"{provider.value} {e.response.status_code}") from e
         if throttle_delay:
             await asyncio.sleep(throttle_delay)
         return result
@@ -422,7 +432,6 @@ class LLMClient:
             json_schema=json_schema,
             extra_body={"provider": {"require_parameters": True}} if json_schema else None,
             throttle_delay=settings.openrouter_inter_call_delay,
-            empty_is_throttle=True,
         )
 
     async def _call_mistral(self, system_prompt, user_prompt, json_schema):
@@ -460,14 +469,23 @@ class LLMClient:
             )
             if resp.status_code == 429:
                 raise _gemini_429_to_error(resp)
+            if 400 <= resp.status_code < 500:
+                raise ProviderExhaustedError(
+                    f"gemini client error {resp.status_code}: {resp.text[:160]}"
+                )
             resp.raise_for_status()
-            data = resp.json()
-            content = data["candidates"][0]["content"]["parts"][0]["text"]
-            return json.loads(content)
+            try:
+                data = resp.json()
+                content = data["candidates"][0]["content"]["parts"][0]["text"]
+            except (KeyError, IndexError, TypeError, json.JSONDecodeError) as e:
+                raise ProviderExhaustedError(f"gemini malformed response: {e}") from e
+            try:
+                return json.loads(content)
+            except json.JSONDecodeError as e:
+                raise ProviderExhaustedError(f"gemini non-JSON content: {e}") from e
 
         try:
             return await _retry_on_5xx(_do_call, label="gemini")
         except httpx.HTTPStatusError as e:
-            if e.response.status_code >= 500:
-                raise ProviderThrottledError(f"gemini {e.response.status_code}") from e
-            raise
+            # Only 5xx reaches here → transient.
+            raise ProviderThrottledError(f"gemini {e.response.status_code}") from e

@@ -499,3 +499,115 @@ async def test_pick_providers_full_order():
         ]
     finally:
         await client.close()
+
+
+# --- Review fixes: failover must not be defeated by 4xx / malformed / null bodies ---
+@pytest.mark.asyncio
+async def test_cerebras_null_content_is_throttle(monkeypatch):
+    async def _no_sleep(_):
+        return None
+
+    monkeypatch.setattr("pipeline.classifier.llm.asyncio.sleep", _no_sleep)
+    from unittest.mock import AsyncMock
+
+    client = LLMClient()
+    client._http.post = AsyncMock(
+        return_value=_http_response(200, json_body={"choices": [{"message": {"content": None}}]})
+    )
+    try:
+        with pytest.raises(ProviderThrottledError):
+            await client._call_cerebras("sys", "user", None)
+    finally:
+        await client.close()
+
+
+@pytest.mark.asyncio
+async def test_openai_compat_4xx_non_model_is_exhausted():
+    """A 401/403/400 (not a missing-model error) exhausts-for-run, not bubbles uncaught."""
+    from unittest.mock import AsyncMock
+
+    client = LLMClient()
+    client._http.post = AsyncMock(
+        return_value=_http_response(401, json_body={"error": "invalid api key"})
+    )
+    try:
+        with pytest.raises(ProviderExhaustedError):
+            await client._call_cerebras("sys", "user", None)
+        assert client._http.post.await_count == 1
+    finally:
+        await client.close()
+
+
+@pytest.mark.asyncio
+async def test_openai_compat_malformed_body_is_exhausted():
+    from unittest.mock import AsyncMock
+
+    client = LLMClient()
+    client._http.post = AsyncMock(
+        return_value=_http_response(200, json_body={"unexpected": "shape"})
+    )
+    try:
+        with pytest.raises(ProviderExhaustedError):
+            await client._call_cerebras("sys", "user", None)
+    finally:
+        await client.close()
+
+
+@pytest.mark.asyncio
+async def test_openai_compat_non_json_content_is_exhausted():
+    from unittest.mock import AsyncMock
+
+    client = LLMClient()
+    client._http.post = AsyncMock(
+        return_value=_http_response(
+            200, json_body={"choices": [{"message": {"content": "not json at all"}}]}
+        )
+    )
+    try:
+        with pytest.raises(ProviderExhaustedError):
+            await client._call_cerebras("sys", "user", None)
+    finally:
+        await client.close()
+
+
+@pytest.mark.asyncio
+async def test_classify_marks_exhausted_on_unhandled_exception(monkeypatch):
+    """An unexpected error (not Throttled/Exhausted) must mark the provider exhausted,
+    so it is not retried on every subsequent batch of the run."""
+
+    async def _no_sleep(_):
+        return None
+
+    monkeypatch.setattr("pipeline.classifier.llm.asyncio.sleep", _no_sleep)
+    seen = []
+
+    async def fake_call(provider, *a, **k):
+        seen.append(provider)
+        if provider == Provider.GROQ:
+            raise ValueError("totally unexpected")
+        return {"ok": provider.value}
+
+    client = LLMClient()
+    monkeypatch.setattr(client, "_call_provider", fake_call)
+    try:
+        await client.classify("sys", "user")
+    finally:
+        await client.close()
+    assert client.quota.is_exhausted(Provider.GROQ)
+    assert seen.count(Provider.GROQ) == 1
+
+
+@pytest.mark.asyncio
+async def test_gemini_4xx_non_429_is_exhausted(monkeypatch):
+    monkeypatch.setattr("pipeline.config.settings.gemini_api_key", "k", raising=False)
+    from unittest.mock import AsyncMock
+
+    client = LLMClient()
+    client._http.post = AsyncMock(
+        return_value=_http_response(400, json_body={"error": {"message": "bad request"}})
+    )
+    try:
+        with pytest.raises(ProviderExhaustedError):
+            await client._call_gemini("sys", "user")
+    finally:
+        await client.close()
