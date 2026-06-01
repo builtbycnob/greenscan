@@ -1,6 +1,6 @@
 # GreenScan — Complete Changelog
 
-34 commits | 2026-03-29 → 2026-05-05 | All on `main` branch
+35 entries | 2026-03-29 → 2026-06-01 | #35 on `feat/llm-tier-resilience`
 
 ---
 
@@ -402,18 +402,41 @@ Test count after this commit: 51 unit + 11 integration.
 
 ---
 
+## 35. `feat/llm-tier-resilience` — 2026-06-01 — LLM Tier Resilience: 5-Tier Chain + Per-Batch Isolation
+
+**feat: harden LLM fallback so no single tier vanishing aborts the pipeline**
+
+Root cause of the ~24% run-failure rate (May 23-31): the 3-tier chain had collapsed to ~1 working tier (Cerebras `qwen-3-235b` 404'd — delisted from the free roster; Gemini load-bearing), and a single transient per-minute Gemini 429 was treated as permanent exhaustion → run abort.
+
+Provider chain (`pipeline/classifier/llm.py`):
+- Split the signal: `ProviderThrottledError` (transient: per-minute 429 / 503 / empty completion / queue) retries the SAME tier up to 4× honoring `Retry-After`/`retryDelay`, vs `ProviderExhaustedError` (terminal: per-day quota, model 404) switches immediately.
+- Gemini 429-body parsing: `error.details[].quotaId` PerMinute→retry, PerDay→switch (Gemini emits no rate-limit headers, so the body is the only signal).
+- Cerebras `404 model_not_found` → exhaust-for-run (kills the old 8×-wasted-round-trips/run bug); model swapped `qwen-3-235b` → `gpt-oss-120b`, 5-RPM throttle (12s).
+- Two new free tiers via a shared `_call_openai_compatible` helper: OpenRouter (`llama-3.3-70b:free`, 1000 RPD, empty-completion-as-429) + Mistral (`mistral-small-latest`, 2 RPM, 1B tok/mo).
+- New order: Groq → OpenRouter → Gemini → Mistral → Cerebras.
+
+Orchestration (`pipeline/main.py`):
+- `_classify_in_batches` isolates per-batch failures — one dead batch is skipped, not fatal — and keeps signal↔classification alignment (fixes a latent zip-misalignment from the salvage path).
+
+Brief (`pipeline/brief/generator.py`):
+- 3-tier fallback Gemini-flash → Groq → OpenRouter + 429 backoff (closes the silent "no brief delivered when Gemini 429s and Groq is drained" gap).
+
+Other: `max_signals_per_batch` 10→15; 3 live-probe scripts (OpenRouter/Mistral/Gemini); CI secrets `OPENROUTER_API_KEY` + `MISTRAL_API_KEY`. +14 unit tests. Spec + plan in `docs/superpowers/{specs,plans}/2026-06-01-llm-tier-resilience*.md`.
+
+---
+
 ## Summary
 
 | Metric | Value |
 |--------|-------|
 | Total commits | 34 |
-| Date range | 2026-03-29 → 2026-05-05 |
+| Date range | 2026-03-29 → 2026-06-01 |
 | Features | 12 |
 | Fixes | 13 |
 | Perf | 1 |
 | Docs | 6 |
 | Chores/style | 3 |
-| Tests | 62 (51 unit + 11 integration) |
+| Tests | 79 (68 unit + 11 integration) |
 | Targets | 120 (67 customers + 53 competitors) |
 | Active monitoring | 107 targets (scrape + RSS) |
 | Pipeline stages | scrape → dedup → **pre-filter** → classify → link → contacts → store → brief → deliver |

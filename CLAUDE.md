@@ -7,10 +7,8 @@ Competitive Intelligence sections. Budget: €0/month (all free tiers).
 
 ## Stack
 - **Pipeline:** Python 3.12+, uv, asyncpg, Crawl4AI (Playwright), newspaper4k, feedparser
-- **LLM Primary:** Groq (Llama 3.3 70B, 1000 RPD, 12K TPM)
-- **LLM Fallback:** Cerebras (Qwen 3 235B, 14400 RPD, 1M TPD)
-- **LLM Brief:** Gemini 2.5 Flash (250 RPD) or Groq fallback
-- **LLM Classify Fallback:** Gemini 2.5 Flash Lite (3rd tier after Groq → Cerebras)
+- **LLM classify chain (5-tier):** Groq (Llama 3.3 70B) → OpenRouter (`llama-3.3-70b:free`) → Gemini 2.5 Flash-Lite → Mistral (small) → Cerebras (`gpt-oss-120b`). Hardened: transient throttle (per-min 429 / 5xx / empty body) retried same-tier ×4 then switch; terminal (per-day quota / model 404) switches immediately; per-batch isolation in main.py keeps one dead batch from aborting the run.
+- **LLM Brief:** Gemini 2.5 Flash → Groq → OpenRouter (429-aware fallback chain)
 - **Database:** Neon Postgres 17 (0.5GB, pg_trgm, scale-to-zero, aws-us-east-1)
 - **Delivery:** Telegram Bot API, multi-recipient (comma-separated TELEGRAM_CHAT_ID)
 - **Scheduling:** GitHub Actions cron (04:00 UTC daily = 06:00 CEST)
@@ -27,7 +25,7 @@ Competitive Intelligence sections. Budget: €0/month (all free tiers).
 
 ## Architecture
 - `pipeline/scraper/` — web.py (Crawl4AI), rss.py (feedparser), serp.py (Serper.dev), registry.py (YAML)
-- `pipeline/classifier/` — llm.py (3-tier fallback), categorizer.py, prompts.py (dual-type)
+- `pipeline/classifier/` — llm.py (5-tier fallback), categorizer.py, prompts.py (dual-type)
 - `pipeline/enrichment/` — dedup.py (SHA256), contacts.py (LinkedIn via SERP), linker.py (pg_trgm)
 - `pipeline/storage/` — db.py (asyncpg), migrations/001_initial.sql
 - `pipeline/brief/` — generator.py (dual-section: Opportunity Radar + Competitive Intelligence)

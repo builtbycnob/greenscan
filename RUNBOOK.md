@@ -51,10 +51,13 @@ GROUP BY date(scraped_at) ORDER BY 1 DESC LIMIT 7;
 | Problem | Solution |
 |---|---|
 | "No signals scraped" | Target URLs may have changed. Check manually. |
-| "All providers exhausted" | All 3 LLM APIs are down or rate-limited. Retry-on-5xx (3 attempts) is automatic; if it still fails, all three providers had simultaneous transient errors. Wait and retry. |
-| Cerebras `404 Not Found` | Cerebras deprecated the model. Check `inference-docs.cerebras.ai/models/overview`, update `cerebras_model` in `pipeline/config.py`, commit + push. |
-| Cerebras `429 Too Many Requests` after 1-2 calls | Free-tier RPM cap on a "high demand" model is lower than 10. Increase `cerebras_inter_call_delay` in `pipeline/config.py` (e.g., 6.0 → 10.0). |
-| Groq 429 errors | Normal — Cerebras / Gemini handle overflow automatically. |
+| "All providers exhausted" (one batch) | All 5 tiers were down/exhausted for that batch. Transient throttles are retried per-tier (×4) then switched; per-batch isolation means the run still ships a brief from the batches that succeeded. If EVERY batch fails, all 5 free tiers were simultaneously down — wait and re-run. |
+| Cerebras `404 Not Found` | Handled automatically (exhaust-for-run, no wasted retries). To re-point: run `uv run python scripts/probe_cerebras.py`, update `cerebras_model` in `pipeline/config.py`, commit + push. |
+| Cerebras `429 Too Many Requests` | Free tier is 5 RPM; `queue_exceeded` is transient and auto-retried. If persistent, raise `cerebras_inter_call_delay` (12.0 → higher). |
+| OpenRouter empty completion | Treated as a transient 429 (auto-retried then switched). If frequent, pin a different `openrouter_model` or confirm the funded 1000-RPD tier via `scripts/probe_openrouter.py`. |
+| Mistral slow / brief delayed | Expected — Mistral is 2 RPM (31s/call), used only as a deep backstop. Reliability > speed. |
+| Gemini 429 | Auto-handled: per-minute throttles are retried (honoring `retryDelay`); per-day quota switches to the next tier. |
+| Groq 429 errors | Normal — OpenRouter / Gemini / Mistral / Cerebras handle overflow automatically. |
 | Telegram `message is too long` | Brief is too verbose for the chunker. Either lower `MAX_MESSAGE_LENGTH` further in `pipeline/delivery/telegram.py`, or tighten brief score floors / total cap in `pipeline/config.py`. |
 | Telegram `unsupported parse_mode` | The plaintext fallback should now work; if it doesn't, ensure `payload.pop("parse_mode", None)` is in `_send_message` (May 2026 fix). |
 | Telegram not delivered | Check bot token hasn't expired. Re-create with @BotFather if needed. |
@@ -86,6 +89,8 @@ uv run python -m pipeline daily
 | `GROQ_API_KEY` | console.groq.com → API Keys |
 | `CEREBRAS_API_KEY` | inference.cerebras.ai → API Keys |
 | `GEMINI_API_KEY` | aistudio.google.com → Get API Key |
+| `OPENROUTER_API_KEY` | openrouter.ai → Keys (fund $10 once for the 1000-RPD tier) |
+| `MISTRAL_API_KEY` | console.mistral.ai → API Keys (free, phone verify) |
 | `NEON_DATABASE_URL` | Neon dashboard → Connection Details |
 | `TELEGRAM_BOT_TOKEN` | @BotFather → /revoke then /newbot |
 | `TELEGRAM_CHAT_ID` | Comma-separated IDs (e.g., `128370791,281584044`) |
@@ -131,27 +136,32 @@ GitHub Actions (04:00 UTC daily — 06:00 CEST)
     → scraper/web.py (Crawl4AI) + scraper/rss.py (feedparser)
     → enrichment/dedup.py (SHA256 vs DB)
     → classifier/prefilter.py (event-verb filter, May 2026)
-    → classifier/llm.py (Groq → Cerebras → Gemini, with retry-on-5xx)
+    → classifier/llm.py (Groq → OpenRouter → Gemini → Mistral → Cerebras; throttle-retry + per-batch isolation)
     → classifier/categorizer.py (11 categories)
     → enrichment/linker.py (pg_trgm fuzzy match)
     → enrichment/contacts.py (Serper LinkedIn lookup)
     → storage/db.py (Neon Postgres)
-    → brief/generator.py (Gemini 2.5 Flash, Groq fallback, retry-on-5xx)
+    → brief/generator.py (Gemini Flash → Groq → OpenRouter, 429-aware)
     → delivery/telegram.py (httpx, multi-recipient, chunked ≤3500 char)
 ```
 
-## LLM Provider Limits (current as of May 2026)
+## LLM Provider Limits (current as of June 2026)
 
-| Provider | Model | Daily Limit | Tokens/Min | Notes |
+Classify fallback order: **Groq → OpenRouter → Gemini → Mistral → Cerebras**.
+Brief order: **Gemini (flash) → Groq → OpenRouter**.
+
+| Tier | Provider | Model | Free limit (binding) | Notes |
 |---|---|---|---|---|
-| Groq (primary) | `llama-3.3-70b-versatile` | 1,000 RPD / 100K TPD | 12K TPM | Drains in 2-3 batches |
-| Cerebras (fallback 1) | `gpt-oss-120b` | Nominal 14,400 RPD / 1M TPD | reduced — we throttle to ≤10 RPM | "High demand" model with hidden RPM cap; 6s inter-call delay |
-| Gemini (classify fallback + brief) | `gemini-2.5-flash-lite` (classify), `gemini-2.5-flash` (brief) | 250 RPD | n/a | Carries most classify load |
+| 1 | Groq | `llama-3.3-70b-versatile` | 1,000 RPD / 100K TPD / 12K TPM | Primary anchor; drains in 2-3 batches; proactive header switch works |
+| 2 | OpenRouter | `meta-llama/llama-3.3-70b-instruct:free` | 1,000 RPD / 20 RPM (after one-time $10) | One endpoint, many free models; a 429 may return an EMPTY body (handled as throttle); 3s inter-call delay |
+| 3 | Gemini | `gemini-2.5-flash-lite` (classify) / `gemini-2.5-flash` (brief) | ~1,000 RPD flash-lite / ~250 RPD flash | NO rate-limit headers; 429 body parsed: PerMinute→retry-same-tier, PerDay→switch |
+| 4 | Mistral | `mistral-small-latest` | 1B tokens/MONTH / 2 RPM | Stable, no card; 31s inter-call delay (deep backstop) |
+| 5 | Cerebras | `gpt-oss-120b` | 1M TPD / 5 RPM | 12s inter-call delay; `queue_exceeded` 429 is transient. `qwen-3-235b` delisted (404). |
 
-Fallback is automatic. Retry-on-5xx (3 attempts, exp backoff) covers transient Gemini/Cerebras errors. No manual intervention needed for normal operation.
+Fallback is automatic and hardened: a transient throttle (per-minute 429 / 503 / empty body) is retried on the SAME tier up to `throttle_retry_max_attempts` (4) before switching; a terminal signal (per-day quota, model 404) switches immediately. Per-batch failures are isolated in `main.py` — one dead batch is skipped, not fatal. No manual intervention needed for normal operation.
 
 ### When Cerebras starts returning 404
-Cerebras deprecates models periodically (last events: Feb 16, 2026). To switch:
-1. Check the current free-tier model list at `inference-docs.cerebras.ai/models/overview`
+Cerebras shifts its free-tier model roster periodically (`qwen-3-235b` delisted ~June 2026; `gpt-oss-120b` + `zai-glm-4.7` are the current free models). A 404 `model_not_found` is now treated as exhaust-for-run automatically (no wasted retries). To re-point:
+1. Run `uv run python scripts/probe_cerebras.py` to see which models POST-succeed
 2. Update `cerebras_model` in `pipeline/config.py`
 3. Commit and push — pipeline picks it up on next run
