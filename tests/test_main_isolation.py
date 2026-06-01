@@ -14,7 +14,9 @@ def _sig(i):
 
 
 def _classified(tag):
-    return ClassifiedSignal(category=Category.OTHER, relevance_score=3, summary=f"summary {tag} ...")
+    return ClassifiedSignal(
+        category=Category.OTHER, relevance_score=3, summary=f"summary {tag} ..."
+    )
 
 
 @pytest.mark.asyncio

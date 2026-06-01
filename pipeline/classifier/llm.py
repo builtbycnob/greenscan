@@ -250,9 +250,7 @@ class LLMClient:
         last: Exception | None = None
         for attempt in range(attempts):
             try:
-                return await self._call_provider(
-                    provider, system_prompt, user_prompt, json_schema
-                )
+                return await self._call_provider(provider, system_prompt, user_prompt, json_schema)
             except ProviderThrottledError as e:
                 last = e
                 delay = (
