@@ -6,7 +6,7 @@ import sys
 
 from pipeline.brief.generator import generate_brief
 from pipeline.classifier.categorizer import classify_signals
-from pipeline.classifier.llm import LLMClient
+from pipeline.classifier.llm import LLMClient, LLMError
 from pipeline.classifier.prefilter import filter_event_signals
 from pipeline.config import settings
 from pipeline.delivery.telegram import send_brief, send_failure_alert
@@ -124,6 +124,28 @@ async def run_demo(max_targets: int = 3) -> None:
     print(f"Classified: {len(classified)} | High relevance: {high}")
 
 
+async def _classify_in_batches(client, signals, types, batch_size):
+    """Classify signals in batches; a batch whose providers all fail is skipped
+    (logged), not fatal. Returns (processed_signals, classified, types) kept in
+    lockstep so downstream zips stay aligned."""
+    processed, all_classified, all_types = [], [], []
+    for i in range(0, len(signals), batch_size):
+        batch = signals[i : i + batch_size]
+        batch_types = types[i : i + batch_size]
+        try:
+            classified = await classify_signals(
+                client, [s.model_dump() for s in batch], target_types=batch_types
+            )
+        except LLMError as e:
+            logger.error(f"Classify failed for batch @ {i} ({len(batch)} signals), skipping: {e}")
+            continue
+        n = len(classified)
+        processed.extend(batch[:n])
+        all_classified.extend(classified)
+        all_types.extend(batch_types[:n])
+    return processed, all_classified, all_types
+
+
 async def run_daily() -> None:
     """Full daily pipeline run with DB persistence and logging."""
     import time
@@ -198,29 +220,31 @@ async def run_daily() -> None:
                 )
                 return
 
-            # Classify in batches
-            all_classified = []
-            all_types = []
-            batch_size = settings.max_signals_per_batch
+            # Classify in batches (per-batch failures are isolated, not fatal)
+            all_types_full = [type_map.get(s.source, "customer") for s in unique]
             async with LLMClient() as client:
-                for i in range(0, len(unique), batch_size):
-                    batch = unique[i : i + batch_size]
-                    batch_types = [type_map.get(s.source, "customer") for s in batch]
-                    classified = await classify_signals(
-                        client,
-                        [s.model_dump() for s in batch],
-                        target_types=batch_types,
-                    )
-                    all_classified.extend(classified)
-                    all_types.extend(batch_types)
+                processed, all_classified, all_types = await _classify_in_batches(
+                    client, unique, all_types_full, settings.max_signals_per_batch
+                )
+
+            if not all_classified:
+                logger.error("All classify batches failed — no signals classified")
+                await db.finish_scrape_log(
+                    log_id,
+                    status="error",
+                    error_message="all classify batches failed",
+                    targets_success=len(raw_signals),
+                    duration_ms=int((time.monotonic() - start_time) * 1000),
+                )
+                return
 
             # Link entities to companies/contacts
             await link_entities(db._pool, all_classified)
 
             # Discover contacts for customer signals
             titles_map = _build_titles_map(targets)
-            source_names = [s.source for s in unique]
-            signal_keys = [s.content_hash for s in unique]
+            source_names = [s.source for s in processed]
+            signal_keys = [s.content_hash for s in processed]
             signal_contacts = await discover_contacts(
                 all_classified,
                 all_types,
@@ -230,12 +254,12 @@ async def run_daily() -> None:
             )
 
             # Store in DB
-            inserted = await db.insert_signals_batch(unique, all_classified)
+            inserted = await db.insert_signals_batch(processed, all_classified)
             logger.info(f"Stored {inserted} signals in DB")
 
             # Generate brief
             brief = await generate_brief(
-                unique,
+                processed,
                 all_classified,
                 target_types=all_types,
                 contacts=signal_contacts,
