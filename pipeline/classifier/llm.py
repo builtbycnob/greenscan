@@ -267,11 +267,14 @@ class LLMClient:
 
     def _pick_providers(self) -> list[Provider]:
         """Return providers in priority order, skipping exhausted ones."""
-        return [
-            p
-            for p in [Provider.GROQ, Provider.CEREBRAS, Provider.GEMINI]
-            if not self.quota.is_exhausted(p)
+        order = [
+            Provider.GROQ,
+            Provider.OPENROUTER,
+            Provider.GEMINI,
+            Provider.MISTRAL,
+            Provider.CEREBRAS,
         ]
+        return [p for p in order if not self.quota.is_exhausted(p)]
 
     async def _call_provider(
         self,
@@ -411,10 +414,30 @@ class LLMClient:
         )
 
     async def _call_openrouter(self, system_prompt, user_prompt, json_schema):
-        raise ProviderExhaustedError("openrouter not configured")
+        return await self._call_openai_compatible(
+            provider=Provider.OPENROUTER,
+            base_url="https://openrouter.ai/api/v1/chat/completions",
+            model=settings.openrouter_model,
+            api_key=settings.openrouter_api_key,
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            json_schema=json_schema,
+            extra_body={"provider": {"require_parameters": True}} if json_schema else None,
+            throttle_delay=settings.openrouter_inter_call_delay,
+            empty_is_throttle=True,
+        )
 
     async def _call_mistral(self, system_prompt, user_prompt, json_schema):
-        raise ProviderExhaustedError("mistral not configured")
+        return await self._call_openai_compatible(
+            provider=Provider.MISTRAL,
+            base_url="https://api.mistral.ai/v1/chat/completions",
+            model=settings.mistral_model,
+            api_key=settings.mistral_api_key,
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            json_schema=json_schema,
+            throttle_delay=settings.mistral_inter_call_delay,
+        )
 
     async def _call_gemini(self, system_prompt: str, user_prompt: str) -> dict:
         if not settings.gemini_api_key:

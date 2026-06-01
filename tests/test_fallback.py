@@ -37,13 +37,13 @@ async def test_fallback_groq_to_cerebras():
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_fallback_groq_and_cerebras_exhausted():
-    """When both Groq and Cerebras are exhausted, Gemini is tried (if configured)."""
+    """When Groq + Cerebras are exhausted, the remaining tiers are still tried."""
     async with LLMClient() as client:
         client.quota.mark_exhausted(Provider.GROQ)
         client.quota.mark_exhausted(Provider.CEREBRAS)
 
         providers = client._pick_providers()
-        assert providers == [Provider.GEMINI]
+        assert providers == [Provider.OPENROUTER, Provider.GEMINI, Provider.MISTRAL]
 
 
 def test_quota_header_check_triggers_switch():
@@ -416,5 +416,86 @@ async def test_gemini_per_day_429_is_exhausted(monkeypatch):
     try:
         with pytest.raises(ProviderExhaustedError):
             await client._call_gemini("sys", "user")
+    finally:
+        await client.close()
+
+
+# --- Task 5: OpenRouter + Mistral tiers ---
+@pytest.mark.asyncio
+async def test_openrouter_empty_completion_is_throttle(monkeypatch):
+    monkeypatch.setattr("pipeline.config.settings.openrouter_api_key", "k", raising=False)
+
+    async def _no_sleep(_):
+        return None
+
+    monkeypatch.setattr("pipeline.classifier.llm.asyncio.sleep", _no_sleep)
+    from unittest.mock import AsyncMock
+
+    client = LLMClient()
+    client._http.post = AsyncMock(
+        return_value=_http_response(200, json_body={"choices": [{"message": {"content": ""}}]})
+    )
+    try:
+        with pytest.raises(ProviderThrottledError):
+            await client._call_openrouter("sys", "user", None)
+    finally:
+        await client.close()
+
+
+@pytest.mark.asyncio
+async def test_openrouter_happy_path(monkeypatch):
+    monkeypatch.setattr("pipeline.config.settings.openrouter_api_key", "k", raising=False)
+
+    async def _no_sleep(_):
+        return None
+
+    monkeypatch.setattr("pipeline.classifier.llm.asyncio.sleep", _no_sleep)
+    from unittest.mock import AsyncMock
+
+    client = LLMClient()
+    client._http.post = AsyncMock(
+        return_value=_http_response(
+            200, json_body={"choices": [{"message": {"content": '{"signals": []}'}}]}
+        )
+    )
+    try:
+        assert await client._call_openrouter("sys", "user", None) == {"signals": []}
+    finally:
+        await client.close()
+
+
+@pytest.mark.asyncio
+async def test_mistral_happy_path(monkeypatch):
+    monkeypatch.setattr("pipeline.config.settings.mistral_api_key", "k", raising=False)
+
+    async def _no_sleep(_):
+        return None
+
+    monkeypatch.setattr("pipeline.classifier.llm.asyncio.sleep", _no_sleep)
+    from unittest.mock import AsyncMock
+
+    client = LLMClient()
+    client._http.post = AsyncMock(
+        return_value=_http_response(
+            200, json_body={"choices": [{"message": {"content": '{"signals": []}'}}]}
+        )
+    )
+    try:
+        assert await client._call_mistral("sys", "user", None) == {"signals": []}
+    finally:
+        await client.close()
+
+
+@pytest.mark.asyncio
+async def test_pick_providers_full_order():
+    client = LLMClient()
+    try:
+        assert client._pick_providers() == [
+            Provider.GROQ,
+            Provider.OPENROUTER,
+            Provider.GEMINI,
+            Provider.MISTRAL,
+            Provider.CEREBRAS,
+        ]
     finally:
         await client.close()
